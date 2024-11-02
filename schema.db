@@ -1,0 +1,73 @@
+-- Enum types
+CREATE TYPE user_role AS ENUM ('user', 'admin', 'shopkeeper');
+CREATE TYPE shop_status AS ENUM ('open', 'closed');
+
+-- Users table
+CREATE TABLE Users (
+    user_id UUID PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    phone_number VARCHAR,
+    email VARCHAR UNIQUE NOT NULL,
+    password VARCHAR NOT NULL,
+    role user_role NOT NULL,
+    otp_code VARCHAR,
+    otp_expiry TIMESTAMP,
+    is_verified BOOLEAN DEFAULT FALSE,
+    google_auth_id VARCHAR UNIQUE
+);
+
+-- Shops table
+CREATE TABLE Shops (
+    shop_id UUID PRIMARY KEY,
+    owner_id UUID REFERENCES Users(user_id),
+    name VARCHAR NOT NULL,
+    location VARCHAR,
+    coordinates POINT,
+    status shop_status NOT NULL DEFAULT 'closed',
+    description TEXT,
+    opening_time TIME,
+    closing_time TIME
+);
+
+-- Products table
+CREATE TABLE Products (
+    product_id UUID PRIMARY KEY,
+    shop_id UUID REFERENCES Shops(shop_id) ON DELETE SET NULL,
+    name VARCHAR NOT NULL,
+    price DECIMAL NOT NULL,
+    description TEXT,
+    availability BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- Ratings table
+CREATE TABLE Ratings (
+    rating_id UUID PRIMARY KEY,
+    user_id UUID REFERENCES Users(user_id),
+    shop_id UUID REFERENCES Shops(shop_id),
+    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+    review TEXT
+);
+
+-- Favorites table
+CREATE TABLE Favorites (
+    favorite_id UUID PRIMARY KEY,
+    user_id UUID REFERENCES Users(user_id),
+    shop_id UUID REFERENCES Shops(shop_id)
+);
+
+-- Shop_Approval table
+CREATE TABLE Shop_Approval (
+    approval_id UUID PRIMARY KEY,
+    shop_id UUID REFERENCES Shops(shop_id),
+    admin_id UUID REFERENCES Users(user_id),
+    approved BOOLEAN,
+    reason TEXT
+);
+
+-- Images table
+CREATE TABLE Images (
+    image_id UUID PRIMARY KEY,
+    shop_id UUID REFERENCES Shops(shop_id),
+    url TEXT NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

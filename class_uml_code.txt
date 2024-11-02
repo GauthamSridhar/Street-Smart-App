@@ -1,0 +1,131 @@
+@startuml
+enum UserRole {
+    USER
+    ADMIN
+    SHOPKEEPER
+}
+
+enum ShopStatus {
+    OPEN
+    CLOSED
+}
+
+class User {
+    UUID userId
+    String name
+    String phoneNumber
+    String email
+    String password
+    UserRole role
+    String otpCode
+    DateTime otpExpiry
+    Boolean isVerified
+    String googleAuthId
+    +register()
+    +login()
+    +verifyOTP()
+    +resendOTP()
+    +updateProfile()
+    +viewNearbyShops(location: Point): List~Shop~
+}
+
+class Shopkeeper {
+    +registerShop(shop: Shop)
+    +manageInventory(product: Product)
+    +updateShopStatus(status: ShopStatus)
+    +uploadShopImage(image: Image)
+    +viewShopAnalytics()
+}
+
+class Admin {
+    +approveShop(shopId: UUID, reason: String)
+    +rejectShop(shopId: UUID, reason: String)
+    +manageUsers()
+    +viewSystemAnalytics()
+}
+
+class Shop {
+    UUID shopId
+    UUID ownerId
+    String name
+    Point coordinates
+    String location
+    ShopStatus status
+    String description
+    Time openingTime
+    Time closingTime
+    List~Product~ products
+    List~Image~ images
+    +updateStatus(status: ShopStatus)
+    +updateBusinessHours(open: Time, close: Time)
+    +addProduct(product: Product)
+    +removeProduct(productId: UUID)
+    +displayDetails()
+}
+
+class Product {
+    UUID productId
+    UUID shopId
+    String name
+    Decimal price
+    String description
+    Boolean availability
+    +updateDetails()
+    +toggleAvailability()
+    +updatePrice(price: Decimal)
+}
+
+class Rating {
+    UUID ratingId
+    UUID userId
+    UUID shopId
+    Integer rating
+    String review
+    DateTime createdAt
+    +addReview()
+    +updateReview()
+    +calculateAverageRating(): Float
+}
+
+class Image {
+    UUID imageId
+    UUID shopId
+    String url
+    DateTime uploadedAt
+    +upload()
+    +delete()
+    +updateMetadata()
+}
+
+class Favorite {
+    UUID favoriteId
+    UUID userId
+    UUID shopId
+    DateTime addedAt
+    +addToFavorites()
+    +removeFromFavorites()
+}
+
+class ShopApproval {
+    UUID approvalId
+    UUID shopId
+    UUID adminId
+    Boolean approved
+    String reason
+    DateTime decidedAt
+    +approve()
+    +reject()
+    +updateStatus()
+}
+
+User <|-- Shopkeeper
+User <|-- Admin
+Shopkeeper "1" --> "1" Shop : owns
+User "1" --> "*" Favorite : manages
+User "1" --> "*" Rating : creates
+Shop "1" --> "*" Product : offers
+Shop "1" --> "*" Image : contains
+Shop "1" --> "1" ShopApproval : requires
+Shop "1" --> "*" Rating : receives
+Admin "1" --> "*" ShopApproval : manages
+@enduml
