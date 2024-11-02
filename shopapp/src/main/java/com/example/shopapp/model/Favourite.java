@@ -1,4 +1,27 @@
 package com.example.shopapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
+import java.util.UUID;
+
+@Data
+@Entity
+@Table(name = "favorites")
 public class Favourite {
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "shop_id", nullable = false)
+    @JsonIgnore
+    private Shop shop;
 }

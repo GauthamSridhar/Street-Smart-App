@@ -1,4 +1,9 @@
 package com.example.shopapp.model;
 
-public class ShopStatus {
+public enum ShopStatus {
+    PENDING,
+    APPROVED,
+    REJECTED,
+    ACTIVE,
+    INACTIVE
 }

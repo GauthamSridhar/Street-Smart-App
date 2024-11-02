@@ -1,4 +1,7 @@
 package com.example.shopapp.model;
 
-public class UserRole {
+public enum UserRole {
+    USER,
+    SHOPKEEPER,
+    ADMIN
 }
