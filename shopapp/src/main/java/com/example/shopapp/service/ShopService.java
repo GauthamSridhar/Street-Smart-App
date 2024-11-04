@@ -20,6 +20,5 @@ public interface ShopService {
     // Assuming we are using URLs for images
     Shop uploadShopImages(UUID shopId, List<String> imageUrls);
 
-    Object viewShopAnalytics(UUID shopId);
     Shop getShopById(UUID shopId);
 }

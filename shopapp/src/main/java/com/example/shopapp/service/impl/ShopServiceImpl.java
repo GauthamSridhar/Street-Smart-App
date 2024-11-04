@@ -22,6 +22,16 @@ public class ShopServiceImpl implements ShopService {
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
 
+    private Shop getShopOrThrow(UUID shopId) {
+        return shopRepository.findById(shopId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
+    }
+
     @Transactional
     @Override
     public Shop registerShop(User owner, Shop request) {
@@ -33,28 +43,23 @@ public class ShopServiceImpl implements ShopService {
     @Transactional
     @Override
     public Shop registerShop(UUID ownerId, Shop request) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + ownerId + " not found"));
-        request.setOwner(owner);
-        request.setStatus(ShopStatus.PENDING);
-        return shopRepository.save(request);
+        User owner = getUserOrThrow(ownerId);
+        return registerShop(owner, request);
     }
 
     @Transactional
     @Override
     public Shop addProductToInventory(UUID shopId, Product product) {
-        Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
-        product.setShop(shop);  // Set the shop reference in the Product entity
-        shop.getProducts().add(product);  // Add product to shop's inventory
+        Shop shop = getShopOrThrow(shopId);
+        product.setShop(shop);
+        shop.getProducts().add(product);
         return shopRepository.save(shop);
     }
 
     @Transactional
     @Override
     public Shop updateShopStatus(UUID shopId, ShopStatus status) {
-        Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
+        Shop shop = getShopOrThrow(shopId);
         shop.setStatus(status);
         return shopRepository.save(shop);
     }
@@ -62,22 +67,14 @@ public class ShopServiceImpl implements ShopService {
     @Transactional
     @Override
     public Shop uploadShopImages(UUID shopId, List<String> imageUrls) {
-        Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
-
-        shop.getImages().addAll(imageUrls);  // Add image URLs to shop's image collection
+        Shop shop = getShopOrThrow(shopId);
+        shop.getImages().addAll(imageUrls);
         return shopRepository.save(shop);
     }
 
-    @Override
-    public Object viewShopAnalytics(UUID shopId) {
-        // Placeholder: Actual analytics logic can be implemented here
-        return new Object();  // Replace with actual analytics data object
-    }
 
     @Override
     public Shop getShopById(UUID shopId) {
-        return shopRepository.findById(shopId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
+        return getShopOrThrow(shopId);
     }
 }
