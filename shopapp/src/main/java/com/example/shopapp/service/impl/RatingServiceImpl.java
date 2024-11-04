@@ -27,48 +27,46 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public Rating addRating(UUID userId, UUID shopId, Rating request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
 
-        // Retrieve the shop using the provided shopId
         Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
 
         Rating rating = new Rating();
         rating.setUser(user);
-        rating.setShop(shop); // Use the retrieved shop directly
+        rating.setShop(shop);
         rating.setRating(request.getRating());
         rating.setReview(request.getReview());
 
         return ratingRepository.save(rating);
     }
 
-
     @Override
     @Transactional
     public Rating updateRating(UUID userId, UUID ratingId, Rating request) {
-        Rating rating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating not found"));
+        Rating existingRating = ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
 
-        if (!rating.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Not authorized to update this rating");
+        if (!existingRating.getUser().getId().equals(userId)) {
+            throw new RuntimeException("User with ID " + userId + " is not authorized to update this rating");
         }
 
-        rating.setRating(request.getRating());
-        rating.setReview(request.getReview());
-        return ratingRepository.save(rating);
+        existingRating.setRating(request.getRating());
+        existingRating.setReview(request.getReview());
+        return ratingRepository.save(existingRating);
     }
 
     @Override
     @Transactional
     public void deleteRating(UUID userId, UUID ratingId) {
-        Rating rating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating not found"));
+        Rating existingRating = ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
 
-        if (!rating.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Not authorized to delete this rating");
+        if (!existingRating.getUser().getId().equals(userId)) {
+            throw new RuntimeException("User with ID " + userId + " is not authorized to delete this rating");
         }
 
-        ratingRepository.delete(rating);
+        ratingRepository.delete(existingRating);
     }
 
     @Override
@@ -79,6 +77,6 @@ public class RatingServiceImpl implements RatingService {
     @Override
     public Rating getRating(UUID ratingId) {
         return ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
     }
 }

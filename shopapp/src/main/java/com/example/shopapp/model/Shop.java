@@ -30,19 +30,25 @@ public class Shop {
     private Double latitude;
     private Double longitude;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    private User owner; // Shopkeeper is a User
 
     @Enumerated(EnumType.STRING)
     private ShopStatus status;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Product> products = new ArrayList<>();  // Optional, can be empty
+    private List<Product> products = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "shop_images", joinColumns = @JoinColumn(name = "shop_id"))
     @Column(name = "image")
-    private List<byte[]> images = new ArrayList<>();  // List of images in byte array format
+    private List<String> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Rating> ratings = new ArrayList<>();
+
+    @OneToOne(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ShopApproval shopApproval;
 }

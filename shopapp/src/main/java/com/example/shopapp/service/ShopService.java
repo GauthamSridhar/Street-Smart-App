@@ -16,8 +16,10 @@ public interface ShopService {
     Shop registerShop(UUID ownerId, Shop request);
     Shop addProductToInventory(UUID shopId, Product product);
     Shop updateShopStatus(UUID shopId, ShopStatus status);
-    Shop uploadShopImages(UUID shopId, List<byte[]> images);
-    Object viewShopAnalytics(UUID shopId);
 
+    // Assuming we are using URLs for images
+    Shop uploadShopImages(UUID shopId, List<String> imageUrls);
+
+    Object viewShopAnalytics(UUID shopId);
     Shop getShopById(UUID shopId);
 }

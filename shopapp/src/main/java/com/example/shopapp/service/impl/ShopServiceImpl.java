@@ -1,5 +1,6 @@
 package com.example.shopapp.service.impl;
 
+import com.example.shopapp.exception.ResourceNotFoundException;
 import com.example.shopapp.model.Product;
 import com.example.shopapp.model.Shop;
 import com.example.shopapp.model.ShopStatus;
@@ -33,7 +34,7 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public Shop registerShop(UUID ownerId, Shop request) {
         User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + ownerId + " not found"));
         request.setOwner(owner);
         request.setStatus(ShopStatus.PENDING);
         return shopRepository.save(request);
@@ -43,7 +44,7 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public Shop addProductToInventory(UUID shopId, Product product) {
         Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new RuntimeException("Shop not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
         product.setShop(shop);  // Set the shop reference in the Product entity
         shop.getProducts().add(product);  // Add product to shop's inventory
         return shopRepository.save(shop);
@@ -53,17 +54,18 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public Shop updateShopStatus(UUID shopId, ShopStatus status) {
         Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new RuntimeException("Shop not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
         shop.setStatus(status);
         return shopRepository.save(shop);
     }
 
     @Transactional
     @Override
-    public Shop uploadShopImages(UUID shopId, List<byte[]> images) {
+    public Shop uploadShopImages(UUID shopId, List<String> imageUrls) {
         Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new RuntimeException("Shop not found"));
-        shop.getImages().addAll(images);  // Add images to shop's image collection
+                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
+
+        shop.getImages().addAll(imageUrls);  // Add image URLs to shop's image collection
         return shopRepository.save(shop);
     }
 
@@ -76,6 +78,6 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public Shop getShopById(UUID shopId) {
         return shopRepository.findById(shopId)
-                .orElseThrow(() -> new RuntimeException("Shop not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
     }
 }
