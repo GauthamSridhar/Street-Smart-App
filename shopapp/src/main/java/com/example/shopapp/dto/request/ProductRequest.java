@@ -1,7 +1,6 @@
 // dto/request/ProductRequest.java
 package com.example.shopapp.dto.request;
 
-import com.example.shopapp.model.Shop;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

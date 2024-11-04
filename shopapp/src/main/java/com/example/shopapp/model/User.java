@@ -37,7 +37,7 @@ public class User {
     private String googleAuthId;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Favourite> favourites = new HashSet<>();
+    private Set<Favorite> favourites = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Rating> ratings = new HashSet<>();
