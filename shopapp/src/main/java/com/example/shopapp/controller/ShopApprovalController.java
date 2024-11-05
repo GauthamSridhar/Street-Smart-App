@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/v1/shop-approvals")
 @RequiredArgsConstructor
@@ -33,13 +32,13 @@ public class ShopApprovalController {
         return ResponseEntity.ok(approval);
     }
 
-    @GetMapping("/pending")
+    @GetMapping("/pending")  // Corrected this line
     public ResponseEntity<List<ShopApproval>> getPendingApprovals() {
         List<ShopApproval> approvals = shopApprovalService.getPendingApprovals();
         return ResponseEntity.ok(approvals);
     }
 
-    @GetMapping("/{approvalId}")
+    @GetMapping("/{approvalId}")  // This remains unchanged
     public ResponseEntity<ShopApproval> getApprovalById(@PathVariable UUID approvalId) {
         ShopApproval approval = shopApprovalService.getApprovalById(approvalId);
         return ResponseEntity.ok(approval);

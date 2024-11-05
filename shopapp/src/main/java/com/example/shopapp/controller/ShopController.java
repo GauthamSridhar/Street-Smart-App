@@ -21,26 +21,26 @@ public class ShopController {
     private final ShopService shopService;
     private final UserService userService;
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<Shop> registerShop(
             @RequestParam UUID userId,
+            @RequestParam UUID adminId, // Added adminId parameter
             @Valid @RequestBody Shop shop) {
+
         User owner = userService.findUserById(userId);
         if (owner == null) {
             return ResponseEntity.notFound().build();
         }
-        shop.setOwner(owner);
-        Shop registeredShop = shopService.registerShop(owner, shop);
+
+        // Register the shop and pass adminId to the service
+        Shop registeredShop = shopService.registerShop(owner, shop, adminId);
         return ResponseEntity.ok(registeredShop);
     }
 
     @GetMapping("/{shopId}")
     public ResponseEntity<Shop> getShop(@PathVariable UUID shopId) {
         Shop shop = shopService.getShopById(shopId);
-        if (shop == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(shop);
+        return ResponseEntity.ok(shop); // shop should never be null due to exception handling in service
     }
 
     @PutMapping("/{shopId}/status")
@@ -48,10 +48,7 @@ public class ShopController {
             @PathVariable UUID shopId,
             @RequestParam ShopStatus status) {
         Shop updatedShop = shopService.updateShopStatus(shopId, status);
-        if (updatedShop == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updatedShop);
+        return ResponseEntity.ok(updatedShop); // updatedShop should never be null due to exception handling
     }
 
     @PostMapping("/{shopId}/products")
@@ -59,10 +56,7 @@ public class ShopController {
             @PathVariable UUID shopId,
             @Valid @RequestBody Product product) {
         Shop updatedShop = shopService.addProductToInventory(shopId, product);
-        if (updatedShop == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updatedShop);
+        return ResponseEntity.ok(updatedShop); // updatedShop should never be null due to exception handling
     }
 
     @PostMapping("/{shopId}/images")
@@ -70,9 +64,6 @@ public class ShopController {
             @PathVariable UUID shopId,
             @RequestBody List<String> imageUrls) {
         Shop updatedShop = shopService.uploadShopImages(shopId, imageUrls);
-        if (updatedShop == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updatedShop);
+        return ResponseEntity.ok(updatedShop); // updatedShop should never be null due to exception handling
     }
 }

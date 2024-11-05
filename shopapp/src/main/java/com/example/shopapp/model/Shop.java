@@ -3,7 +3,6 @@ package com.example.shopapp.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +13,7 @@ import java.util.UUID;
 @Table(name = "shops")
 public class Shop {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue
     private UUID id;
 
     @Column(nullable = false)
@@ -51,4 +49,11 @@ public class Shop {
 
     @OneToOne(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private ShopApproval shopApproval;
+
+    // Constructors
+    public Shop() {
+        this.products = new ArrayList<>();
+        this.images = new ArrayList<>();
+        this.ratings = new ArrayList<>();
+    }
 }

@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(hashPassword(request.getPassword())); // Important: Hash the password
         user.setFullName(request.getFullName());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setRole(UserRole.USER);
+        user.setRole(request.getRole());
 
         // Save user
         return userRepository.save(user);

@@ -6,8 +6,9 @@ import com.example.shopapp.model.Shop;
 import com.example.shopapp.model.ShopStatus;
 import com.example.shopapp.model.User;
 import com.example.shopapp.repository.ShopRepository;
-import com.example.shopapp.repository.UserRepository;
+import com.example.shopapp.service.ShopApprovalService;
 import com.example.shopapp.service.ShopService;
+import com.example.shopapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,62 +20,59 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ShopServiceImpl implements ShopService {
 
-    private final ShopRepository shopRepository;
-    private final UserRepository userRepository;
-
-    private Shop getShopOrThrow(UUID shopId) {
-        return shopRepository.findById(shopId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
-    }
-
-    private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
-    }
+    private final ShopApprovalService shopApprovalService; // Injecting ShopApprovalService
+    private final UserService userService; // Injecting UserService
+    private final ShopRepository shopRepository; // Injecting ShopRepository for actual data persistence
 
     @Transactional
     @Override
-    public Shop registerShop(User owner, Shop request) {
+    public Shop registerShop(User owner, Shop request, UUID adminId) { // Accept adminId
         request.setOwner(owner);
-        request.setStatus(ShopStatus.PENDING);
-        return shopRepository.save(request);
-    }
+        request.setStatus(ShopStatus.PENDING); // Default status when registered
 
-    @Transactional
-    @Override
-    public Shop registerShop(UUID ownerId, Shop request) {
-        User owner = getUserOrThrow(ownerId);
-        return registerShop(owner, request);
+        // Save the shop
+        Shop registeredShop = shopRepository.save(request); // Save shop to the database
+
+        // Create a ShopApproval entry using the ShopApprovalService
+        shopApprovalService.createApprovalRequest(registeredShop, adminId); // Pass adminId to the service
+
+        return registeredShop;
     }
 
     @Transactional
     @Override
     public Shop addProductToInventory(UUID shopId, Product product) {
-        Shop shop = getShopOrThrow(shopId);
-        product.setShop(shop);
-        shop.getProducts().add(product);
-        return shopRepository.save(shop);
+        Shop shop = getShopById(shopId); // Retrieve shop using service
+        product.setShop(shop);  // Set the shop reference in the Product entity
+        shop.getProducts().add(product);  // Add product to shop's inventory
+        return shopRepository.save(shop); // Save updated shop using repository
     }
 
     @Transactional
     @Override
     public Shop updateShopStatus(UUID shopId, ShopStatus status) {
-        Shop shop = getShopOrThrow(shopId);
+        Shop shop = getShopById(shopId); // Retrieve shop using service
         shop.setStatus(status);
-        return shopRepository.save(shop);
+        return shopRepository.save(shop); // Save updated shop using repository
     }
 
     @Transactional
     @Override
     public Shop uploadShopImages(UUID shopId, List<String> imageUrls) {
-        Shop shop = getShopOrThrow(shopId);
-        shop.getImages().addAll(imageUrls);
-        return shopRepository.save(shop);
+        Shop shop = getShopById(shopId); // Retrieve shop using service
+        shop.getImages().addAll(imageUrls);  // Add image URLs to shop's image collection
+        return shopRepository.save(shop); // Save updated shop using repository
     }
-
 
     @Override
     public Shop getShopById(UUID shopId) {
-        return getShopOrThrow(shopId);
+        return shopRepository.findById(shopId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
+    }
+
+    // You may want to add this method for saving a shop, if needed elsewhere
+    @Transactional
+    public Shop saveShop(Shop shop) {
+        return shopRepository.save(shop);
     }
 }
