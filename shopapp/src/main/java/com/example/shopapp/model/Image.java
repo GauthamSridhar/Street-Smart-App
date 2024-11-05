@@ -1,5 +1,6 @@
 package com.example.shopapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
@@ -20,5 +21,6 @@ public class Image {
 
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
+    @JsonIgnore
     private Shop shop;
 }

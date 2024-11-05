@@ -1,10 +1,7 @@
 package com.example.shopapp.service.impl;
 
 import com.example.shopapp.exception.ResourceNotFoundException;
-import com.example.shopapp.model.Product;
-import com.example.shopapp.model.Shop;
-import com.example.shopapp.model.ShopStatus;
-import com.example.shopapp.model.User;
+import com.example.shopapp.model.*;
 import com.example.shopapp.repository.ShopRepository;
 import com.example.shopapp.service.ShopApprovalService;
 import com.example.shopapp.service.ShopService;
@@ -59,9 +56,20 @@ public class ShopServiceImpl implements ShopService {
     @Transactional
     @Override
     public Shop uploadShopImages(UUID shopId, List<String> imageUrls) {
-        Shop shop = getShopById(shopId); // Retrieve shop using service
-        shop.getImages().addAll(imageUrls);  // Add image URLs to shop's image collection
-        return shopRepository.save(shop); // Save updated shop using repository
+        Shop shop = getShopById(shopId); // Assume this method fetches the shop or throws an exception if not found
+
+        // Clear previous images to avoid duplicates
+        shop.getImages().clear();
+
+        // Add new images with unique IDs
+        for (String url : imageUrls) {
+            Image image = new Image();
+            image.setImageUrl(url);
+            image.setShop(shop);
+            shop.getImages().add(image);
+        }
+
+        return shopRepository.save(shop);
     }
 
     @Override

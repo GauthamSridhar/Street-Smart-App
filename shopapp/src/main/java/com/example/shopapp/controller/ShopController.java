@@ -63,6 +63,7 @@ public class ShopController {
             @PathVariable UUID shopId,
             @RequestBody List<String> imageUrls) {
         Shop updatedShop = shopService.uploadShopImages(shopId, imageUrls);
-        return ResponseEntity.ok(updatedShop); // updatedShop should never be null due to exception handling
+        return ResponseEntity.ok(updatedShop);
     }
+
 }
