@@ -20,20 +20,17 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
     private final ShopRepository shopRepository;
 
     @Override
-    public ShopApproval createApprovalRequest(Shop shop, UUID adminId) {
-        User admin = userRepository.findByIdAndRole(adminId, UserRole.ADMIN)
-                .orElseThrow(() -> new ResourceNotFoundException("Admin with ID " + adminId + " not found or not an admin"));
+    public ShopApproval createApprovalRequest(Shop shop) {
 
         ShopApproval approval = new ShopApproval();
         approval.setShop(shop);
         approval.setApprovalStatus(ShopStatus.PENDING);
-        approval.setAdmin(admin); // Ensure admin is set here
         approval.setApproved(false); // Default to false
         return shopApprovalRepository.save(approval); // Save approval entry
     }
 
     @Override
-    public ShopApproval approveShop(UUID adminId, UUID shopId) {
+    public ShopApproval approveShop( UUID shopId) {
         ShopApproval approval = shopApprovalRepository.findByShopId(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Approval for shop with ID " + shopId + " not found"));
 
@@ -41,12 +38,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
             throw new IllegalArgumentException("Cannot approve a shop that is not pending");
         }
 
-        // Ensure admin fetched has the admin role
-        User admin = userRepository.findByIdAndRole(adminId, UserRole.ADMIN)
-                .orElseThrow(() -> new ResourceNotFoundException("Admin with ID " + adminId + " not found or not an admin"));
-
         approval.setApprovalStatus(ShopStatus.APPROVED);
-        approval.setAdmin(admin); // Ensure admin is set here
 
         // Update shop status to ACTIVE upon approval
         Shop shop = approval.getShop();
@@ -57,7 +49,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
     }
 
     @Override
-    public ShopApproval rejectShop(UUID adminId, UUID shopId, String reason) {
+    public ShopApproval rejectShop(UUID shopId, String reason) {
         ShopApproval approval = shopApprovalRepository.findByShopId(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Approval for shop with ID " + shopId + " not found"));
 
@@ -66,13 +58,9 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
         }
 
         // Ensure admin fetched has the admin role
-        User admin = userRepository.findByIdAndRole(adminId, UserRole.ADMIN)
-                .orElseThrow(() -> new ResourceNotFoundException("Admin with ID " + adminId + " not found or not an admin"));
 
         approval.setApprovalStatus(ShopStatus.REJECTED);
         approval.setReason(reason);
-        approval.setAdmin(admin); // Ensure admin is set here
-
         return shopApprovalRepository.save(approval); // Save updated approval entry
     }
 

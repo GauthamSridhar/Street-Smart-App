@@ -19,11 +19,6 @@ public class ShopApproval {
     @JsonIgnore
     private Shop shop;
 
-    @ManyToOne
-    @JoinColumn(name = "admin_id", nullable = false) // Make admin_id not nullable
-    @JsonIgnore
-    private User admin; // Admin must be assigned for approval
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ShopStatus approvalStatus;

@@ -26,7 +26,7 @@ public class ShopServiceImpl implements ShopService {
 
     @Transactional
     @Override
-    public Shop registerShop(User owner, Shop request, UUID adminId) { // Accept adminId
+    public Shop registerShop(User owner, Shop request) { // Accept adminId
         request.setOwner(owner);
         request.setStatus(ShopStatus.PENDING); // Default status when registered
 
@@ -34,7 +34,7 @@ public class ShopServiceImpl implements ShopService {
         Shop registeredShop = shopRepository.save(request); // Save shop to the database
 
         // Create a ShopApproval entry using the ShopApprovalService
-        shopApprovalService.createApprovalRequest(registeredShop, adminId); // Pass adminId to the service
+        shopApprovalService.createApprovalRequest(registeredShop); // Pass adminId to the service
 
         return registeredShop;
     }

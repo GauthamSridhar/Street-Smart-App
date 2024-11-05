@@ -24,7 +24,6 @@ public class ShopController {
     @PostMapping("/register")
     public ResponseEntity<Shop> registerShop(
             @RequestParam UUID userId,
-            @RequestParam UUID adminId, // Added adminId parameter
             @Valid @RequestBody Shop shop) {
 
         User owner = userService.findUserById(userId);
@@ -33,7 +32,7 @@ public class ShopController {
         }
 
         // Register the shop and pass adminId to the service
-        Shop registeredShop = shopService.registerShop(owner, shop, adminId);
+        Shop registeredShop = shopService.registerShop(owner, shop);
         return ResponseEntity.ok(registeredShop);
     }
 

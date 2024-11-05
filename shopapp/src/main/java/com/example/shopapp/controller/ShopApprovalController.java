@@ -2,7 +2,6 @@ package com.example.shopapp.controller;
 
 import com.example.shopapp.model.ShopApproval;
 import com.example.shopapp.service.ShopApprovalService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +16,17 @@ public class ShopApprovalController {
 
     @PostMapping("/{shopId}/approve")
     public ResponseEntity<ShopApproval> approveShop(
-            @PathVariable UUID shopId,
-            @RequestParam UUID adminId) {
-        ShopApproval approval = shopApprovalService.approveShop(adminId, shopId);
+            @PathVariable UUID shopId
+            ) {
+        ShopApproval approval = shopApprovalService.approveShop( shopId);
         return ResponseEntity.ok(approval);
     }
 
     @PostMapping("/{shopId}/reject")
     public ResponseEntity<ShopApproval> rejectShop(
             @PathVariable UUID shopId,
-            @RequestParam UUID adminId,
             @RequestParam String reason) {
-        ShopApproval approval = shopApprovalService.rejectShop(adminId, shopId, reason);
+        ShopApproval approval = shopApprovalService.rejectShop( shopId, reason);
         return ResponseEntity.ok(approval);
     }
 

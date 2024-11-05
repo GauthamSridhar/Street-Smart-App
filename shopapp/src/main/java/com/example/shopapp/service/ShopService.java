@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ShopService {
-    Shop registerShop(User owner, Shop shop, UUID adminId); // Update method to include adminId
+    Shop registerShop(User owner, Shop shop); // Update method to include adminId
     Shop getShopById(UUID shopId);
     Shop updateShopStatus(UUID shopId, ShopStatus status);
     Shop addProductToInventory(UUID shopId, Product product);

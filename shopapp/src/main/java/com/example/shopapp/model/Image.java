@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "images")
+@Table(name = "shop_images")
 public class Image {
     @Id
     @GeneratedValue(generator = "UUID")

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ShopApprovalService {
-    ShopApproval createApprovalRequest(Shop registeredShop, UUID adminId); // Update the return type
-    ShopApproval approveShop(UUID adminId, UUID shopId);
-    ShopApproval rejectShop(UUID adminId, UUID shopId, String reason);
+    ShopApproval createApprovalRequest(Shop registeredShop ); // Update the return type
+    ShopApproval approveShop( UUID shopId);
+    ShopApproval rejectShop( UUID shopId, String reason);
     List<ShopApproval> getPendingApprovals();
     ShopApproval getApprovalById(UUID approvalId);
 }

@@ -1,6 +1,7 @@
 package com.example.shopapp.service.impl;
 
 import com.example.shopapp.exception.ResourceNotFoundException;
+import com.example.shopapp.exception.UnauthorizedActionException;
 import com.example.shopapp.model.Rating;
 import com.example.shopapp.model.Shop;
 import com.example.shopapp.model.User;
@@ -48,7 +49,7 @@ public class RatingServiceImpl implements RatingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
 
         if (!existingRating.getUser().getId().equals(userId)) {
-            throw new RuntimeException("User with ID " + userId + " is not authorized to update this rating");
+            throw new UnauthorizedActionException("User with ID " + userId + " is not authorized to update this rating");
         }
 
         existingRating.setRating(request.getRating());
@@ -63,7 +64,7 @@ public class RatingServiceImpl implements RatingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
 
         if (!existingRating.getUser().getId().equals(userId)) {
-            throw new RuntimeException("User with ID " + userId + " is not authorized to delete this rating");
+            throw new UnauthorizedActionException("User with ID " + userId + " is not authorized to delete this rating");
         }
 
         ratingRepository.delete(existingRating);
