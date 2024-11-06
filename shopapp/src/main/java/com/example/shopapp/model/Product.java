@@ -27,8 +27,8 @@ public class Product {
 
     private boolean available;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
-    @JsonBackReference
     private Shop shop;
 }

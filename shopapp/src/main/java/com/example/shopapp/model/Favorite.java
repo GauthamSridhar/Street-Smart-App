@@ -1,5 +1,6 @@
 package com.example.shopapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -15,14 +16,14 @@ public class Favorite {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
-    @JsonIgnore
+    @JsonIgnore // Prevent recursion back to Shop in JSON serialization
     private Shop shop;
+
 }

@@ -1,6 +1,5 @@
 package com.example.shopapp.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -37,26 +36,19 @@ public class Shop {
     @Enumerated(EnumType.STRING)
     private ShopStatus status;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private List<Product> products = new ArrayList<>();
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
-
-    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rating> ratings = new ArrayList<>();
 
+    @JsonManagedReference
     @OneToOne(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private ShopApproval shopApproval;
 
-    // Constructors
-    public Shop() {
-        this.products = new ArrayList<>();
-        this.images = new ArrayList<>();
-        this.ratings = new ArrayList<>();
-    }
 }

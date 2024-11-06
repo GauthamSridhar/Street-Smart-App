@@ -17,14 +17,14 @@ public class Rating {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
+    @JsonIgnore // Avoids circular reference
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore // Avoids circular reference
     private User user;
 
+    @JsonIgnore // Avoids circular reference
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
-    @JsonIgnore // Avoids circular reference
     private Shop shop;
 
     @Column(nullable = false)

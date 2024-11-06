@@ -1,23 +1,27 @@
 package com.example.shopapp.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 @Data
 @Entity
-@Table(name = "shop_approvals")
+@Table(name = "shop_approvals", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "shop_id")
+})
 public class ShopApproval {
     @Id
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "shop_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
+    @OneToOne
+    @JoinColumn(name = "shop_id", nullable = false, unique = true)
     private Shop shop;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

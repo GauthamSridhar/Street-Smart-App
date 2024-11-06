@@ -20,13 +20,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product addProduct(UUID shopId, Product product) {
-        // Fetch the shop
         Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new RuntimeException("Shop not found"));
+                .orElseThrow(() -> new RuntimeException("Shop not found")); // Keep simple for demonstration
 
-        product.setShop(shop); // Set the shop reference
-
-        // Save the product to the repository
+        product.setShop(shop);
         return productRepository.save(product);
     }
 
@@ -35,13 +32,11 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // Update the product fields
         existingProduct.setName(product.getName());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setAvailable(product.isAvailable());
 
-        // Save the updated product
         return productRepository.save(existingProduct);
     }
 

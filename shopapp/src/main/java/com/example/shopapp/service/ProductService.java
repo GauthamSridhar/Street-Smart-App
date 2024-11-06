@@ -1,4 +1,3 @@
-// service/ProductService.java
 package com.example.shopapp.service;
 
 import com.example.shopapp.model.Product;

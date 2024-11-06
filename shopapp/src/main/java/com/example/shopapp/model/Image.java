@@ -19,8 +19,8 @@ public class Image {
     @Column(nullable = false)
     private String imageUrl;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
-    @JsonIgnore
     private Shop shop;
 }

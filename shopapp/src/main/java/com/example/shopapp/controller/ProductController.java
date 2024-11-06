@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
 
     @PostMapping
     public ResponseEntity<Product> addProduct(
-            @RequestParam UUID shopId, // Changed to @RequestParam for explicit passing
+            @RequestParam UUID shopId,
             @Valid @RequestBody Product product) {
         Product addedProduct = productService.addProduct(shopId, product);
         return ResponseEntity.ok(addedProduct);
@@ -32,6 +32,12 @@ public class ProductController {
         return ResponseEntity.ok(updatedProduct);
     }
 
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable UUID productId) {
         Product product = productService.getProductById(productId);
@@ -39,7 +45,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getProductsByShop(@RequestParam UUID shopId) { // Changed to @RequestParam for explicit passing
+    public ResponseEntity<List<Product>> getProductsByShop(@RequestParam UUID shopId) {
         List<Product> products = productService.getProductsByShop(shopId);
         return ResponseEntity.ok(products);
     }
