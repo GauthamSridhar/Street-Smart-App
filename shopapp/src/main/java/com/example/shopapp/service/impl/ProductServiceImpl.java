@@ -1,11 +1,11 @@
 package com.example.shopapp.service.impl;
 
+import com.example.shopapp.exception.ResourceNotFoundException;
 import com.example.shopapp.model.Product;
 import com.example.shopapp.model.Shop;
 import com.example.shopapp.repository.ProductRepository;
 import com.example.shopapp.repository.ShopRepository;
 import com.example.shopapp.service.ProductService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product addProduct(UUID shopId, Product product) {
         Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new RuntimeException("Shop not found")); // Keep simple for demonstration
+                .orElseThrow(() -> new ResourceNotFoundException("Shop not found"));
 
         product.setShop(shop);
         return productRepository.save(product);
@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(UUID productId, Product product) {
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         existingProduct.setName(product.getName());
         existingProduct.setDescription(product.getDescription());
@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(UUID productId) {
         if (!productRepository.existsById(productId)) {
-            throw new RuntimeException("Product not found");
+            throw new ResourceNotFoundException("Product not found");
         }
         productRepository.deleteById(productId);
     }
@@ -61,6 +61,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product getProductById(UUID productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
     }
 }

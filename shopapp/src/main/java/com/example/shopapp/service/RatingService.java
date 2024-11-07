@@ -1,13 +1,16 @@
 package com.example.shopapp.service;
 
-import com.example.shopapp.model.Rating;
+import com.example.shopapp.dto.RatingCreateDTO;
+import com.example.shopapp.dto.RatingUpdateDTO;
+import com.example.shopapp.dto.response.RatingResponseDTO;
+
 import java.util.List;
 import java.util.UUID;
 
 public interface RatingService {
-    Rating addRating(UUID userId, UUID shopId, Rating rating);
-    Rating getRating(UUID ratingId);
-    Rating updateRating(UUID userId, UUID ratingId, Rating rating);
+    RatingResponseDTO addRating(UUID userId, UUID shopId, RatingCreateDTO ratingDTO);
+    RatingResponseDTO updateRating(UUID userId, UUID ratingId, RatingUpdateDTO ratingDTO);
     void deleteRating(UUID userId, UUID ratingId);
-    List<Rating> getShopRatings(UUID shopId);
+    List<RatingResponseDTO> getShopRatings(UUID shopId);
+    RatingResponseDTO getRating(UUID ratingId);
 }

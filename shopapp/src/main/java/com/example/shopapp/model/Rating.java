@@ -13,8 +13,7 @@ import java.util.UUID;
 @Table(name = "ratings")
 public class Rating {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue
     private UUID id;
 
     @JsonIgnore // Avoids circular reference

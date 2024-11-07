@@ -1,6 +1,8 @@
 package com.example.shopapp.controller;
 
-import com.example.shopapp.model.Rating;
+import com.example.shopapp.dto.RatingCreateDTO;
+import com.example.shopapp.dto.RatingUpdateDTO;
+import com.example.shopapp.dto.response.RatingResponseDTO;
 import com.example.shopapp.service.RatingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,24 +19,26 @@ public class RatingController {
     private final RatingService ratingService;
 
     @PostMapping
-    public ResponseEntity<Rating> addRating(
+    public ResponseEntity<RatingResponseDTO> addRating(
             @RequestParam UUID userId,
             @RequestParam UUID shopId,
-            @Valid @RequestBody Rating rating) {
-        Rating addedRating = ratingService.addRating(userId, shopId, rating);
+            @Valid @RequestBody RatingCreateDTO ratingDTO) {
+        RatingResponseDTO addedRating = ratingService.addRating(userId, shopId, ratingDTO);
         return ResponseEntity.ok(addedRating);
     }
+
     @GetMapping("/{ratingId}")
-    public ResponseEntity<Rating> getRating(@PathVariable UUID ratingId) {
-        Rating rating = ratingService.getRating(ratingId);
+    public ResponseEntity<RatingResponseDTO> getRating(@PathVariable UUID ratingId) {
+        RatingResponseDTO rating = ratingService.getRating(ratingId);
         return ResponseEntity.ok(rating);
     }
+
     @PutMapping("/{ratingId}")
-    public ResponseEntity<Rating> updateRating(
+    public ResponseEntity<RatingResponseDTO> updateRating(
             @RequestParam UUID userId,
             @PathVariable UUID ratingId,
-            @Valid @RequestBody Rating rating) {
-        Rating updatedRating = ratingService.updateRating(userId, ratingId, rating);
+            @Valid @RequestBody RatingUpdateDTO ratingDTO) {
+        RatingResponseDTO updatedRating = ratingService.updateRating(userId, ratingId, ratingDTO);
         return ResponseEntity.ok(updatedRating);
     }
 
@@ -47,8 +51,8 @@ public class RatingController {
     }
 
     @GetMapping("/shops/{shopId}")
-    public ResponseEntity<List<Rating>> getShopRatings(@PathVariable UUID shopId) {
-        List<Rating> ratings = ratingService.getShopRatings(shopId);
+    public ResponseEntity<List<RatingResponseDTO>> getShopRatings(@PathVariable UUID shopId) {
+        List<RatingResponseDTO> ratings = ratingService.getShopRatings(shopId);
         return ResponseEntity.ok(ratings);
     }
 }

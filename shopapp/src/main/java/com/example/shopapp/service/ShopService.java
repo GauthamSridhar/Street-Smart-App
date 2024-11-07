@@ -1,16 +1,21 @@
 package com.example.shopapp.service;
 
-import com.example.shopapp.model.Product;
+import com.example.shopapp.dto.request.AddProductRequest;
+import com.example.shopapp.dto.request.ShopRegistrationRequest;
+import com.example.shopapp.dto.response.ShopDetailResponse;
+import com.example.shopapp.dto.response.ShopResponse;
+import com.example.shopapp.dto.response.ShopSummaryResponse;
 import com.example.shopapp.model.Shop;
 import com.example.shopapp.model.ShopStatus;
-import com.example.shopapp.model.User;
+import jakarta.validation.Valid;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.List;
 
 public interface ShopService {
-    Shop registerShop(User owner, Shop shop);
-    Shop getShopById(UUID shopId);
-    Shop updateShopStatus(UUID shopId, ShopStatus status);
-    Shop addProductToInventory(UUID shopId, Product product);
+    ShopResponse registerShop(UUID ownerId, @Valid ShopRegistrationRequest request);
+    ShopResponse updateShopStatus(UUID shopId, ShopStatus request);
+    ShopDetailResponse getShopById(UUID shopId);
+    List<ShopSummaryResponse> getAllShops();
+    ShopResponse addProductToInventory(UUID shopId, AddProductRequest request);
 }

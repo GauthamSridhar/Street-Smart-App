@@ -1,7 +1,11 @@
 package com.example.shopapp.service.impl;
 
+import com.example.shopapp.dto.RatingCreateDTO;
+import com.example.shopapp.dto.RatingUpdateDTO;
+import com.example.shopapp.dto.response.RatingResponseDTO;
 import com.example.shopapp.exception.ResourceNotFoundException;
 import com.example.shopapp.exception.UnauthorizedActionException;
+import com.example.shopapp.mapper.RatingMapper;
 import com.example.shopapp.model.Rating;
 import com.example.shopapp.model.Shop;
 import com.example.shopapp.model.User;
@@ -15,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,28 +28,28 @@ public class RatingServiceImpl implements RatingService {
     private final RatingRepository ratingRepository;
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
+    private final RatingMapper ratingMapper;
 
     @Override
     @Transactional
-    public Rating addRating(UUID userId, UUID shopId, Rating request) {
+    public RatingResponseDTO addRating(UUID userId, UUID shopId, RatingCreateDTO ratingDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
 
         Shop shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
 
-        Rating rating = new Rating();
+        Rating rating = ratingMapper.toEntity(ratingDTO);
         rating.setUser(user);
         rating.setShop(shop);
-        rating.setRating(request.getRating());
-        rating.setReview(request.getReview());
 
-        return ratingRepository.save(rating);
+        Rating savedRating = ratingRepository.save(rating);
+        return ratingMapper.toDTO(savedRating);
     }
 
     @Override
     @Transactional
-    public Rating updateRating(UUID userId, UUID ratingId, Rating request) {
+    public RatingResponseDTO updateRating(UUID userId, UUID ratingId, RatingUpdateDTO ratingDTO) {
         Rating existingRating = ratingRepository.findById(ratingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
 
@@ -52,9 +57,9 @@ public class RatingServiceImpl implements RatingService {
             throw new UnauthorizedActionException("User with ID " + userId + " is not authorized to update this rating");
         }
 
-        existingRating.setRating(request.getRating());
-        existingRating.setReview(request.getReview());
-        return ratingRepository.save(existingRating);
+        ratingMapper.updateEntity(existingRating, ratingDTO);
+        Rating updatedRating = ratingRepository.save(existingRating);
+        return ratingMapper.toDTO(updatedRating);
     }
 
     @Override
@@ -71,13 +76,16 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public List<Rating> getShopRatings(UUID shopId) {
-        return ratingRepository.findByShopId(shopId);
+    public List<RatingResponseDTO> getShopRatings(UUID shopId) {
+        return ratingRepository.findByShopId(shopId).stream()
+                .map(ratingMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Rating getRating(UUID ratingId) {
-        return ratingRepository.findById(ratingId)
+    public RatingResponseDTO getRating(UUID ratingId) {
+        Rating rating = ratingRepository.findById(ratingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
+        return ratingMapper.toDTO(rating);
     }
 }
