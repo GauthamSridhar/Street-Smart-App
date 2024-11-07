@@ -1,6 +1,7 @@
 package com.example.shopapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
@@ -27,7 +28,7 @@ public class Product {
 
     private boolean available;
 
-    @JsonBackReference
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;

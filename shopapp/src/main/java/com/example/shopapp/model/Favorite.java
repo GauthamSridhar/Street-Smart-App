@@ -18,7 +18,7 @@ public class Favorite {
     private UUID id;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnore
     private User user;
 
     @ManyToOne

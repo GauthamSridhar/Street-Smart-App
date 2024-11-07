@@ -1,8 +1,11 @@
 package com.example.shopapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,11 +20,10 @@ public class ShopApproval {
     @GeneratedValue
     private UUID id;
 
-    @JsonBackReference
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "shop_id", nullable = false, unique = true)
     private Shop shop;
-
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
