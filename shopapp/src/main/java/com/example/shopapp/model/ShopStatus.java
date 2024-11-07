@@ -5,5 +5,6 @@ public enum ShopStatus {
     APPROVED,
     REJECTED,
     ACTIVE,
-    INACTIVE
+    INACTIVE;
+
 }

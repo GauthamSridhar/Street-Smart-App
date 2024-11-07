@@ -1,6 +1,7 @@
 package com.example.shopapp.controller;
 
-import com.example.shopapp.model.Image;
+import com.example.shopapp.dto.ImageResponseDTO;
+import com.example.shopapp.dto.ImageUploadDTO;
 import com.example.shopapp.service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,10 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping
-    public ResponseEntity<Image> uploadImage(
+    public ResponseEntity<ImageResponseDTO> uploadImage(
             @RequestParam UUID shopId,
-            @RequestParam String imageUrl) {
-        Image image = imageService.uploadImage(shopId, imageUrl);
+            @Valid @RequestBody ImageUploadDTO imageDTO) {
+        ImageResponseDTO image = imageService.uploadImage(shopId, imageDTO);
         return ResponseEntity.ok(image);
     }
 
@@ -31,8 +32,8 @@ public class ImageController {
     }
 
     @GetMapping("/shops/{shopId}")
-    public ResponseEntity<List<Image>> getImagesByShop(@PathVariable UUID shopId) {
-        List<Image> images = imageService.getImagesByShop(shopId);
+    public ResponseEntity<List<ImageResponseDTO>> getImagesByShop(@PathVariable UUID shopId) {
+        List<ImageResponseDTO> images = imageService.getImagesByShop(shopId);
         return ResponseEntity.ok(images);
     }
 }

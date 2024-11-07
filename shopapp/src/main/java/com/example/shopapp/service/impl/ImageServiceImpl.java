@@ -1,6 +1,10 @@
+
 package com.example.shopapp.service.impl;
 
+import com.example.shopapp.dto.ImageResponseDTO;
+import com.example.shopapp.dto.ImageUploadDTO;
 import com.example.shopapp.exception.ResourceNotFoundException;
+import com.example.shopapp.mapper.ImageMapper;
 import com.example.shopapp.model.Image;
 import com.example.shopapp.model.Shop;
 import com.example.shopapp.repository.ImageRepository;
@@ -11,22 +15,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
     private final ImageRepository imageRepository;
     private final ShopRepository shopRepository;
+    private final ImageMapper imageMapper;
 
     @Override
-    public Image uploadImage(UUID shopId, String imageUrl) {
+    public ImageResponseDTO uploadImage(UUID shopId, ImageUploadDTO imageDTO) {
         Shop shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
 
-        Image image = new Image();
+        Image image = imageMapper.toEntity(imageDTO);
         image.setShop(shop);
-        image.setImageUrl(imageUrl);
-        return imageRepository.save(image);
+        Image savedImage = imageRepository.save(image);
+
+        return imageMapper.toDTO(savedImage);
     }
 
     @Override
@@ -38,7 +45,9 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public List<Image> getImagesByShop(UUID shopId) {
-        return imageRepository.findByShopId(shopId);
+    public List<ImageResponseDTO> getImagesByShop(UUID shopId) {
+        return imageRepository.findByShopId(shopId).stream()
+                .map(imageMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

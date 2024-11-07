@@ -1,5 +1,7 @@
 package com.example.shopapp.controller;
 
+import com.example.shopapp.dto.response.ShopApprovalResponseDTO;
+import com.example.shopapp.mapper.ShopApprovalMapper;
 import com.example.shopapp.model.ShopApproval;
 import com.example.shopapp.service.ShopApprovalService;
 import lombok.RequiredArgsConstructor;
@@ -8,37 +10,39 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/shop-approvals")
 @RequiredArgsConstructor
 public class ShopApprovalController {
     private final ShopApprovalService shopApprovalService;
+    private final ShopApprovalMapper shopApprovalMapper;
 
     @PostMapping("/{shopId}/approve")
-    public ResponseEntity<ShopApproval> approveShop(
-            @PathVariable UUID shopId
-            ) {
-        ShopApproval approval = shopApprovalService.approveShop( shopId);
-        return ResponseEntity.ok(approval);
+    public ResponseEntity<ShopApprovalResponseDTO> approveShop(
+            @PathVariable UUID shopId) {
+        ShopApproval approval = shopApprovalService.approveShop(shopId);
+        return ResponseEntity.ok(shopApprovalMapper.toDTO(approval));
     }
 
     @PostMapping("/{shopId}/reject")
-    public ResponseEntity<ShopApproval> rejectShop(
+    public ResponseEntity<ShopApprovalResponseDTO> rejectShop(
             @PathVariable UUID shopId,
             @RequestParam String reason) {
-        ShopApproval approval = shopApprovalService.rejectShop( shopId, reason);
-        return ResponseEntity.ok(approval);
+        ShopApproval approval = shopApprovalService.rejectShop(shopId, reason);
+        return ResponseEntity.ok(shopApprovalMapper.toDTO(approval));
     }
 
-    @GetMapping("/pending")  // Corrected this line
-    public ResponseEntity<List<ShopApproval>> getPendingApprovals() {
+    @GetMapping("/pending")
+    public ResponseEntity<List<ShopApprovalResponseDTO>> getPendingApprovals() {
         List<ShopApproval> approvals = shopApprovalService.getPendingApprovals();
-        return ResponseEntity.ok(approvals);
+        return ResponseEntity.ok(shopApprovalMapper.toDTOList(approvals));
     }
 
-    @GetMapping("/{approvalId}")  // This remains unchanged
-    public ResponseEntity<ShopApproval> getApprovalById(@PathVariable UUID approvalId) {
+    @GetMapping("/{approvalId}")
+    public ResponseEntity<ShopApprovalResponseDTO> getApprovalById(
+            @PathVariable UUID approvalId) {
         ShopApproval approval = shopApprovalService.getApprovalById(approvalId);
-        return ResponseEntity.ok(approval);
+        return ResponseEntity.ok(shopApprovalMapper.toDTO(approval));
     }
 }

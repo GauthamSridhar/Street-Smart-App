@@ -1,8 +1,10 @@
 package com.example.shopapp.controller;
 
+import com.example.shopapp.dto.request.ShopRegistrationRequest;
+import com.example.shopapp.dto.response.ShopDetailResponse;
+import com.example.shopapp.dto.response.ShopResponse;
 import com.example.shopapp.model.Shop;
 import com.example.shopapp.model.ShopStatus;
-import com.example.shopapp.model.User;
 import com.example.shopapp.service.ShopService;
 import com.example.shopapp.service.UserService;
 import jakarta.validation.Valid;
@@ -20,29 +22,29 @@ public class ShopController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<Shop> registerShop(
+    public ResponseEntity<ShopResponse> registerShop(
             @RequestParam UUID userId,
-            @Valid @RequestBody Shop shop) {
-        User owner = userService.findUserById(userId);
+            @Valid @RequestBody ShopRegistrationRequest shop) {
+        UUID owner = userService.findUserById(userId).getId();
         if (owner == null) {
             return ResponseEntity.notFound().build();
         }
 
-        Shop registeredShop = shopService.registerShop(owner, shop);
+        ShopResponse registeredShop = shopService.registerShop(owner, shop);
         return ResponseEntity.ok(registeredShop);
     }
 
     @GetMapping("/{shopId}")
-    public ResponseEntity<Shop> getShop(@PathVariable UUID shopId) {
-        Shop shop = shopService.getShopById(shopId);
+    public ResponseEntity<ShopDetailResponse> getShop(@PathVariable UUID shopId) {
+        ShopDetailResponse shop = shopService.getShopById(shopId);
         return ResponseEntity.ok(shop);
     }
 
     @PutMapping("/{shopId}/status")
-    public ResponseEntity<Shop> updateShopStatus(
+    public ResponseEntity<ShopResponse> updateShopStatus(
             @PathVariable UUID shopId,
             @RequestParam ShopStatus status) {
-        Shop updatedShop = shopService.updateShopStatus(shopId, status);
+        ShopResponse updatedShop = shopService.updateShopStatus(shopId, status);
         return ResponseEntity.ok(updatedShop);
     }
 }

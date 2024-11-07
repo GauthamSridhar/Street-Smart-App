@@ -1,10 +1,11 @@
 package com.example.shopapp.service.impl;
 
 import com.example.shopapp.exception.ResourceNotFoundException;
-import com.example.shopapp.model.*;
+import com.example.shopapp.model.Shop;
+import com.example.shopapp.model.ShopApproval;
+import com.example.shopapp.model.ShopStatus;
 import com.example.shopapp.repository.ShopApprovalRepository;
 import com.example.shopapp.repository.ShopRepository;
-import com.example.shopapp.repository.UserRepository;
 import com.example.shopapp.service.ShopApprovalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ShopApprovalServiceImpl implements ShopApprovalService {
     private final ShopApprovalRepository shopApprovalRepository;
-    private final UserRepository userRepository;
     private final ShopRepository shopRepository;
 
     @Override
     public ShopApproval createApprovalRequest(Shop shop) {
-
         ShopApproval approval = new ShopApproval();
         approval.setShop(shop);
         approval.setApprovalStatus(ShopStatus.PENDING);
@@ -30,7 +29,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
     }
 
     @Override
-    public ShopApproval approveShop( UUID shopId) {
+    public ShopApproval approveShop(UUID shopId) {
         ShopApproval approval = shopApprovalRepository.findByShopId(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Approval for shop with ID " + shopId + " not found"));
 
@@ -56,8 +55,6 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
         if (approval.getApprovalStatus() != ShopStatus.PENDING) {
             throw new IllegalArgumentException("Cannot reject a shop that is not pending");
         }
-
-        // Ensure admin fetched has the admin role
 
         approval.setApprovalStatus(ShopStatus.REJECTED);
         approval.setReason(reason);

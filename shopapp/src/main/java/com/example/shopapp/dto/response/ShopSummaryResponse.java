@@ -1,23 +1,18 @@
-// dto/response/ShopResponse.java
 package com.example.shopapp.dto.response;
 
+import com.example.shopapp.dto.ImageResponseDTO;
 import com.example.shopapp.model.ShopStatus;
-import com.example.shopapp.dto.*;
 import lombok.Data;
 
-import java.util.List;
 import java.util.UUID;
 
 @Data
-public class ShopResponse {
+public class ShopSummaryResponse {
     private UUID id;
     private String name;
     private String description;
     private String address;
-    private Double latitude;
-    private Double longitude;
     private ShopStatus status;
-    private UserResponse owner;
     private Double averageRating;
-    private List<ImageResponseDTO> images;
+    private ImageResponseDTO primaryImage;
 }

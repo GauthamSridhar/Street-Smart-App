@@ -11,5 +11,5 @@ public class ShopRatingsSummary {
     private Float averageRating;
     private Integer totalRatings;
     private Map<Integer, Integer> ratingDistribution;
-    private List<RatingResponse> recentRatings;
+    private List<RatingResponseDTO> recentRatings;
 }
