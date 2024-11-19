@@ -1,23 +1,29 @@
 package com.example.shopapp.dto.request;
 
+import com.example.shopapp.model.UserRole;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class UserRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "Full name is mandatory")
     private String fullName;
 
-    @NotBlank
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is mandatory")
     private String email;
 
-    @NotNull
-    private String password;  // In the service layer, this should be hashed
+    @NotBlank(message = "Password is mandatory")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
+    private String password;
 
+    @NotBlank(message = "Phone number is mandatory")
     private String phoneNumber;
 
-    @NotNull
-    private String role;  // Should be an enum if possible, for better validation
+    @NotNull(message = "User role is mandatory")
+    private UserRole role;
 }

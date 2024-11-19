@@ -1,8 +1,11 @@
 package com.example.shopapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -16,19 +19,27 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is mandatory")
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
+    @NotBlank(message = "Password is mandatory")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
     @Column(nullable = false)
     private String password;
 
+    @NotBlank(message = "Full name is mandatory")
     @Column(nullable = false)
     private String fullName;
 
+    @NotBlank(message = "Phone number is mandatory")
     @Column(nullable = false)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "User role is mandatory")
     private UserRole role;
 
     private boolean isVerified;
@@ -43,5 +54,4 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rating> ratings = new ArrayList<>();
-
 }

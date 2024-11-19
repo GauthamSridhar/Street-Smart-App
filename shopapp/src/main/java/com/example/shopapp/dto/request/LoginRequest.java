@@ -1,4 +1,3 @@
-// dto/request/LoginRequest.java
 package com.example.shopapp.dto.request;
 
 import jakarta.validation.constraints.Email;
@@ -7,10 +6,10 @@ import lombok.Data;
 
 @Data
 public class LoginRequest {
-    @Email
-    @NotBlank
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is mandatory")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password is mandatory")
     private String password;
 }

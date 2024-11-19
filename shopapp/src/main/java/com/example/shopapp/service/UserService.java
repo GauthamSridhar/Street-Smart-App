@@ -10,6 +10,6 @@ import java.util.UUID;
 public interface UserService {
     UserResponse register(UserRequestDTO request);
     UserResponse login(LoginRequest request);
-    UserResponse updateProfile(UUID userId, User request);
+    UserResponse updateProfile(UUID userId, UserRequestDTO request);
     User findUserById(UUID userId);
 }
