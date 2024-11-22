@@ -27,4 +27,11 @@ public class ProductMapper {
         dto.setShopId(product.getShop().getId());
         return dto;
     }
+
+    public void updateEntity(Product existingProduct, AddProductRequest request) {
+        existingProduct.setName(request.getName());
+        existingProduct.setDescription(request.getDescription());
+        existingProduct.setPrice(request.getPrice());
+        existingProduct.setAvailable(request.isAvailable());
+    }
 }

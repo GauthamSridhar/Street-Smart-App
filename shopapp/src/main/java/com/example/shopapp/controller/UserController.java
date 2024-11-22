@@ -1,14 +1,16 @@
 package com.example.shopapp.controller;
 
 import com.example.shopapp.dto.request.LoginRequest;
+import com.example.shopapp.dto.request.UpdateUserRequest;
 import com.example.shopapp.dto.request.UserRequestDTO;
 import com.example.shopapp.dto.response.UserResponse;
 import com.example.shopapp.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.UUID;
 
 /**
@@ -18,6 +20,7 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @CrossOrigin
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -30,7 +33,9 @@ public class UserController {
      */
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequestDTO user) {
+        log.info("Registering user with email: {}", user.getEmail());
         UserResponse response = userService.register(user);
+        log.info("User registered successfully with ID: {}", response.getId());
         return ResponseEntity.ok(response);
     }
 
@@ -42,7 +47,9 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request) {
+        log.info("User login attempt with identifier: {}", request.getIdentifier());
         UserResponse user = userService.login(request);
+        log.info("User logged in successfully with ID: {}", user.getId());
         return ResponseEntity.ok(user);
     }
 
@@ -56,8 +63,10 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<UserResponse> updateProfile(
             @PathVariable UUID userId,
-            @Valid @RequestBody UserRequestDTO request) {
+            @Valid @RequestBody UpdateUserRequest request) {
+        log.info("Updating profile for user ID: {}", userId);
         UserResponse response = userService.updateProfile(userId, request);
+        log.info("User profile updated successfully for ID: {}", response.getId());
         return ResponseEntity.ok(response);
     }
 }

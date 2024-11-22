@@ -1,12 +1,16 @@
 package com.example.shopapp.service.impl;
 
+import com.example.shopapp.dto.request.AddProductRequest;
+import com.example.shopapp.dto.response.ProductResponseDTO;
 import com.example.shopapp.exception.ResourceNotFoundException;
+import com.example.shopapp.mapper.ProductMapper;
 import com.example.shopapp.model.Product;
 import com.example.shopapp.model.Shop;
 import com.example.shopapp.repository.ProductRepository;
 import com.example.shopapp.repository.ShopRepository;
 import com.example.shopapp.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,53 +18,73 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
+
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
     @Override
-    public Product addProduct(UUID shopId, Product product) {
-        Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop not found"));
+    public ProductResponseDTO addProduct(UUID shopId, AddProductRequest request) {
+        log.info("Adding product to Shop ID: {}", shopId);
 
+        Shop shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop not found with ID: " + shopId));
+
+        Product product = productMapper.toEntity(request);
         product.setShop(shop);
-        return productRepository.save(product);
+
+        Product savedProduct = productRepository.save(product);
+        log.info("Product added successfully to Shop ID: {}", shopId);
+
+        return productMapper.toDTO(savedProduct);
     }
 
     @Override
-    public Product updateProduct(UUID productId, Product product) {
+    public ProductResponseDTO updateProduct(UUID productId, AddProductRequest request) {
+        log.info("Updating Product ID: {}", productId);
+
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + productId));
 
-        existingProduct.setName(product.getName());
-        existingProduct.setDescription(product.getDescription());
-        existingProduct.setPrice(product.getPrice());
-        existingProduct.setAvailable(product.isAvailable());
+        productMapper.updateEntity(existingProduct, request);
 
-        return productRepository.save(existingProduct);
+        Product updatedProduct = productRepository.save(existingProduct);
+        log.info("Product ID: {} updated successfully", productId);
+
+        return productMapper.toDTO(updatedProduct);
     }
 
     @Override
     public void deleteProduct(UUID productId) {
+        log.info("Deleting Product ID: {}", productId);
+
         if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFoundException("Product not found");
+            throw new ResourceNotFoundException("Product not found with ID: " + productId);
         }
+
         productRepository.deleteById(productId);
+        log.info("Product ID: {} deleted successfully", productId);
     }
 
     @Override
-    public List<Product> getProductsByShop(UUID shopId) {
-        return productRepository.findByShopId(shopId);
+    public List<ProductResponseDTO> getProductsByShop(UUID shopId) {
+        log.info("Fetching products for Shop ID: {}", shopId);
+
+        List<Product> products = productRepository.findByShopId(shopId);
+        return products.stream()
+                .map(productMapper::toDTO)
+                .toList();
     }
 
     @Override
-    public List<Product> getAvailableProductsByShop(UUID shopId) {
-        return productRepository.findByShopIdAndAvailable(shopId, true);
-    }
+    public ProductResponseDTO getProductById(UUID productId) {
+        log.info("Fetching Product ID: {}", productId);
 
-    @Override
-    public Product getProductById(UUID productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + productId));
+
+        return productMapper.toDTO(product);
     }
 }

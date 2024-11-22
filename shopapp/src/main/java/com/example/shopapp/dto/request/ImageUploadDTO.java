@@ -1,9 +1,7 @@
-package com.example.shopapp.dto;
+package com.example.shopapp.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-
-import java.util.UUID;
 
 @Data
 public class ImageUploadDTO {

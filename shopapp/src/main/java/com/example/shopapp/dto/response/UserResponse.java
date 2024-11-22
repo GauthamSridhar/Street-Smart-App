@@ -1,6 +1,5 @@
 package com.example.shopapp.dto.response;
 
-import com.example.shopapp.model.UserRole;
 import lombok.Data;
 
 import java.util.UUID;
@@ -11,7 +10,4 @@ public class UserResponse {
     private String email;
     private String fullName;
     private String phoneNumber;
-    private UserRole role;
-    private boolean isVerified;
-
 }

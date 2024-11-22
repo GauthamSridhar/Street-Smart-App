@@ -1,7 +1,7 @@
 package com.example.shopapp.service.impl;
 
-import com.example.shopapp.dto.RatingCreateDTO;
-import com.example.shopapp.dto.RatingUpdateDTO;
+import com.example.shopapp.dto.request.RatingCreateDTO;
+import com.example.shopapp.dto.request.RatingUpdateDTO;
 import com.example.shopapp.dto.response.RatingResponseDTO;
 import com.example.shopapp.exception.ResourceNotFoundException;
 import com.example.shopapp.exception.UnauthorizedActionException;
@@ -14,17 +14,18 @@ import com.example.shopapp.repository.ShopRepository;
 import com.example.shopapp.repository.UserRepository;
 import com.example.shopapp.service.RatingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Slf4j
 public class RatingServiceImpl implements RatingService {
+
     private final RatingRepository ratingRepository;
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
@@ -33,59 +34,70 @@ public class RatingServiceImpl implements RatingService {
     @Override
     @Transactional
     public RatingResponseDTO addRating(UUID userId, UUID shopId, RatingCreateDTO ratingDTO) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
+        log.info("User ID: {} adding rating for Shop ID: {}", userId, shopId);
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
         Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID " + shopId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Shop not found with ID: " + shopId));
 
         Rating rating = ratingMapper.toEntity(ratingDTO);
         rating.setUser(user);
         rating.setShop(shop);
 
         Rating savedRating = ratingRepository.save(rating);
+        log.info("Rating added successfully for Shop ID: {} by User ID: {}", shopId, userId);
         return ratingMapper.toDTO(savedRating);
     }
 
     @Override
     @Transactional
     public RatingResponseDTO updateRating(UUID userId, UUID ratingId, RatingUpdateDTO ratingDTO) {
+        log.info("User ID: {} updating Rating ID: {}", userId, ratingId);
+
         Rating existingRating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rating not found with ID: " + ratingId));
 
         if (!existingRating.getUser().getId().equals(userId)) {
-            throw new UnauthorizedActionException("User with ID " + userId + " is not authorized to update this rating");
+            throw new UnauthorizedActionException("User ID: " + userId + " is not authorized to update this rating");
         }
 
         ratingMapper.updateEntity(existingRating, ratingDTO);
         Rating updatedRating = ratingRepository.save(existingRating);
+        log.info("Rating ID: {} updated successfully", ratingId);
         return ratingMapper.toDTO(updatedRating);
     }
 
     @Override
     @Transactional
     public void deleteRating(UUID userId, UUID ratingId) {
+        log.info("User ID: {} deleting Rating ID: {}", userId, ratingId);
+
         Rating existingRating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rating not found with ID: " + ratingId));
 
         if (!existingRating.getUser().getId().equals(userId)) {
-            throw new UnauthorizedActionException("User with ID " + userId + " is not authorized to delete this rating");
+            throw new UnauthorizedActionException("User ID: " + userId + " is not authorized to delete this rating");
         }
 
         ratingRepository.delete(existingRating);
+        log.info("Rating ID: {} deleted successfully", ratingId);
     }
 
     @Override
     public List<RatingResponseDTO> getShopRatings(UUID shopId) {
-        return ratingRepository.findByShopId(shopId).stream()
-                .map(ratingMapper::toDTO)
-                .collect(Collectors.toList());
+        log.info("Fetching ratings for Shop ID: {}", shopId);
+
+        List<Rating> ratings = ratingRepository.findByShopId(shopId);
+        return ratings.stream().map(ratingMapper::toDTO).toList();
     }
 
     @Override
     public RatingResponseDTO getRating(UUID ratingId) {
+        log.info("Fetching Rating ID: {}", ratingId);
+
         Rating rating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating with ID " + ratingId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rating not found with ID: " + ratingId));
         return ratingMapper.toDTO(rating);
     }
 }

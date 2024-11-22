@@ -1,7 +1,7 @@
 package com.example.shopapp.service;
 
-import com.example.shopapp.dto.RatingCreateDTO;
-import com.example.shopapp.dto.RatingUpdateDTO;
+import com.example.shopapp.dto.request.RatingCreateDTO;
+import com.example.shopapp.dto.request.RatingUpdateDTO;
 import com.example.shopapp.dto.response.RatingResponseDTO;
 
 import java.util.List;

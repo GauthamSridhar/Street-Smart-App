@@ -2,7 +2,6 @@
 package com.example.shopapp.dto.response;
 
 import com.example.shopapp.model.ShopStatus;
-import com.example.shopapp.dto.*;
 import lombok.Data;
 
 import java.util.List;
@@ -19,5 +18,5 @@ public class ShopResponse {
     private ShopStatus status;
     private UserResponse owner;
     private Double averageRating;
-    private List<ImageResponseDTO> images;
+    private List<ShopRatingsSummary.ImageResponseDTO> images;
 }

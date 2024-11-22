@@ -2,8 +2,8 @@
 
 package com.example.shopapp.mapper;
 
-import com.example.shopapp.dto.ImageResponseDTO;
-import com.example.shopapp.dto.ImageUploadDTO;
+import com.example.shopapp.dto.request.ImageUploadDTO;
+import com.example.shopapp.dto.response.ShopRatingsSummary;
 import com.example.shopapp.model.Image;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +16,8 @@ public class ImageMapper {
         return image;
     }
 
-    public ImageResponseDTO toDTO(Image image) {
-        ImageResponseDTO dto = new ImageResponseDTO();
+    public ShopRatingsSummary.ImageResponseDTO toDTO(Image image) {
+        ShopRatingsSummary.ImageResponseDTO dto = new ShopRatingsSummary.ImageResponseDTO();
         dto.setId(image.getId());
         dto.setImageUrl(image.getImageUrl());
         dto.setShopId(image.getShop().getId());
