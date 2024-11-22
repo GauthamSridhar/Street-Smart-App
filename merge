@@ -1,0 +1,132 @@
+[33mcommit 5f39df6a1671173757bf648b4567e0f62f42f687[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;32mauthorize[m[33m)[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Fri Nov 22 09:29:28 2024 +0530
+
+    dto done
+
+[33mcommit 9949abfc71d5030eb1005072939783d56c414f85[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32msecurity[m[33m)[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Tue Nov 19 14:14:33 2024 +0530
+
+    dto complete
+
+[33mcommit 40e1aacbe555108c9513740429ee08b9f15552db[m
+Merge: 60bce10 8876470
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Thu Nov 7 15:03:21 2024 +0530
+
+    Merge branch 'DTO'
+
+[33mcommit 8876470630820f64d39a23d6b60f20f770a8e6e9[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Thu Nov 7 15:02:13 2024 +0530
+
+    DTO completion
+
+[33mcommit 60bce106303bb83e136a50e85d46c24387050c04[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Thu Nov 7 10:37:52 2024 +0530
+
+    before DTO
+
+[33mcommit ffd617eadcfbffbc755dd9d5ded376811f51845b[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Wed Nov 6 11:03:49 2024 +0530
+
+    before DTO
+
+[33mcommit fdf122f12eacfab0856b910c3559d9cd89c5bf4e[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Tue Nov 5 14:27:33 2024 +0530
+
+    json ignore solved
+
+[33mcommit d862c9a136de73d9d9da7629597e9efb619e5562[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Tue Nov 5 13:51:15 2024 +0530
+
+    basic crud
+
+[33mcommit e111d5f67053267fa1e9e08145801ade93a2862c[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Tue Nov 5 09:21:16 2024 +0530
+
+    shop approval controller
+
+[33mcommit aebb370c8068343decc936b8f47131aa1061172d[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Mon Nov 4 14:59:39 2024 +0530
+
+    shop controller
+
+[33mcommit 6c7e6852960a35a0f2e2f08781392106e07f3e7a[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Mon Nov 4 13:10:32 2024 +0530
+
+    controllers added
+
+[33mcommit 596c018622b2f5aeb1121b917b1067dd4c4fb7ae[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Mon Nov 4 12:57:16 2024 +0530
+
+    added new models
+
+[33mcommit 4500460ca21f6d58d95624a0cc26d7483cd51148[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Sat Nov 2 21:02:10 2024 +0530
+
+    CRUD
+
+[33mcommit bae3b18683257bb0741bf63dc4a588f2aaba3f46[m
+Author: 286196 <Gautham.Sridhar@ust.com>
+Date:   Sat Nov 2 15:31:59 2024 +0530
+
+    All Files Created
+
+[33mcommit 6d6423bc71520ab796975bccb59835029c0bb74e[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Sat Nov 2 15:14:02 2024 +0530
+
+    basic
+
+[33mcommit 878138a136ff7e0522c2fcf184964af408b108fc[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Sat Nov 2 14:46:34 2024 +0530
+
+    backend
+
+[33mcommit 6b27669969fd5d1e10c916572631e6e234510cd8[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Sat Nov 2 14:45:51 2024 +0530
+
+    java
+
+[33mcommit 6b0527bff58230230e30b5e6caedf476c31b5e08[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Wed Oct 30 17:43:00 2024 +0530
+
+    db
+
+[33mcommit cb7b4e38b9ca7b663339cf7a1d6f57871cb7dcb2[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Wed Oct 30 15:37:47 2024 +0530
+
+    class
+
+[33mcommit 86d54730345c8157b217d527ad34f024f42e4274[m
+Author: 286196 <Gautham.Sridhar@ust.com>
+Date:   Wed Oct 30 11:00:42 2024 +0530
+
+    FlowCharts Added
+
+[33mcommit 9bd2576145f47d242ebe55cc0a30a51fa14f5d33[m
+Author: deepak170601 <deepakreddy1431@gmail.com>
+Date:   Tue Oct 29 18:07:23 2024 +0530
+
+    charts
+
+[33mcommit 6b7c6f43a0a81e508bd578959ecf1f67393136f8[m
+Author: GauthamSridhar <121330095+GauthamSridhar@users.noreply.github.com>
+Date:   Tue Oct 29 15:39:47 2024 +0530
+
+    Initial commit
