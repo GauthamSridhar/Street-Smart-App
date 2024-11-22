@@ -11,5 +11,5 @@ public class UserUpdateDTO {
 
     private String phoneNumber;
 
-    private String role;  // This could be restricted for admins only if required
+//    private String role;  // This could be restricted for admins only if required
 }

@@ -21,8 +21,8 @@ public class ShopApprovalMapper {
         dto.setApprovalStatus(shopApproval.getApprovalStatus());
         dto.setApproved(shopApproval.getApproved());
         dto.setReason(shopApproval.getReason());
-        dto.setCreatedAt(shopApproval.getCreatedAt());
-        dto.setUpdatedAt(shopApproval.getUpdatedAt());
+//        dto.setCreatedAt(shopApproval.getCreatedAt());
+//        dto.setUpdatedAt(shopApproval.getUpdatedAt());
         return dto;
     }
 

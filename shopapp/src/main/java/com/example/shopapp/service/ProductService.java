@@ -1,14 +1,15 @@
 package com.example.shopapp.service;
 
-import com.example.shopapp.model.Product;
+import com.example.shopapp.dto.request.AddProductRequest;
+import com.example.shopapp.dto.response.ProductResponseDTO;
+
 import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
-    Product addProduct(UUID shopId, Product product);
-    Product updateProduct(UUID productId, Product product);
+    ProductResponseDTO addProduct(UUID shopId, AddProductRequest request);
+    ProductResponseDTO updateProduct(UUID productId, AddProductRequest request);
     void deleteProduct(UUID productId);
-    List<Product> getProductsByShop(UUID shopId);
-    List<Product> getAvailableProductsByShop(UUID shopId);
-    Product getProductById(UUID productId);
+    List<ProductResponseDTO> getProductsByShop(UUID shopId);
+    ProductResponseDTO getProductById(UUID productId);
 }

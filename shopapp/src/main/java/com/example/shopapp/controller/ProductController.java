@@ -2,61 +2,82 @@ package com.example.shopapp.controller;
 
 import com.example.shopapp.dto.request.AddProductRequest;
 import com.example.shopapp.dto.response.ProductResponseDTO;
-import com.example.shopapp.mapper.ProductMapper;
-import com.example.shopapp.model.Product;
 import com.example.shopapp.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+/**
+ * REST controller for product-related operations.
+ */
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController {
-    private final ProductService productService;
-    private final ProductMapper productMapper;
 
+    private final ProductService productService;
+
+    /**
+     * Adds a product to a shop's inventory.
+     *
+     * @param shopId         the ID of the shop
+     * @param productRequest the product addition request DTO
+     * @return the added product response DTO
+     */
     @PostMapping
     public ResponseEntity<ProductResponseDTO> addProduct(
             @RequestParam UUID shopId,
-            @Valid @RequestBody AddProductRequest productRequest) {  // Change to AddProductRequest
-        Product product = productMapper.toEntity(productRequest); // Ensure correct mapping
-        Product addedProduct = productService.addProduct(shopId, product);
-        return ResponseEntity.ok(productMapper.toDTO(addedProduct));
+            @Valid @RequestBody AddProductRequest productRequest) {
+        log.info("Adding product to Shop ID: {}", shopId);
+        ProductResponseDTO addedProduct = productService.addProduct(shopId, productRequest);
+        return ResponseEntity.ok(addedProduct);
     }
 
+    /**
+     * Updates an existing product.
+     *
+     * @param productId      the ID of the product to update
+     * @param productRequest the product update request DTO
+     * @return the updated product response DTO
+     */
     @PutMapping("/{productId}")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable UUID productId,
-            @Valid @RequestBody AddProductRequest productRequest) {  // Change to AddProductRequest
-        Product product = productMapper.toEntity(productRequest); // Ensure correct mapping
-        Product updatedProduct = productService.updateProduct(productId, product);
-        return ResponseEntity.ok(productMapper.toDTO(updatedProduct));
+            @Valid @RequestBody AddProductRequest productRequest) {
+        log.info("Updating Product ID: {}", productId);
+        ProductResponseDTO updatedProduct = productService.updateProduct(productId, productRequest);
+        return ResponseEntity.ok(updatedProduct);
     }
 
+    /**
+     * Deletes a product.
+     *
+     * @param productId the ID of the product to delete
+     * @return a 204 No Content response
+     */
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID productId) {
+        log.info("Deleting Product ID: {}", productId);
         productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponseDTO> getProduct(@PathVariable UUID productId) {
-        Product product = productService.getProductById(productId);
-        return ResponseEntity.ok(productMapper.toDTO(product));
-    }
-
+    /**
+     * Fetches products for a specific shop.
+     *
+     * @param shopId the ID of the shop
+     * @return a list of products for the shop
+     */
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> getProductsByShop(@RequestParam UUID shopId) {
-        List<Product> products = productService.getProductsByShop(shopId);
-        List<ProductResponseDTO> responseDTOs = products.stream()
-                .map(productMapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(responseDTOs);
+        log.info("Fetching products for Shop ID: {}", shopId);
+        List<ProductResponseDTO> products = productService.getProductsByShop(shopId);
+        return ResponseEntity.ok(products);
     }
 }

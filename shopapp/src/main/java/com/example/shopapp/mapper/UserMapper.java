@@ -1,5 +1,6 @@
 package com.example.shopapp.mapper;
 
+import com.example.shopapp.dto.request.UpdateUserRequest;
 import com.example.shopapp.dto.request.UserRequestDTO;
 import com.example.shopapp.dto.response.UserResponse;
 import com.example.shopapp.model.User;
@@ -23,24 +24,19 @@ public class UserMapper {
         user.setPassword(request.getPassword()); // Note: Password will be hashed in service layer
         user.setFullName(request.getFullName());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setRole(request.getRole());
         return user;
     }
 
     /**
-     * Updates an existing User entity with data from UserRequestDTO.
+     * Updates an existing User entity with data from UpdateUserRequest.
      *
      * @param user    the existing User entity
-     * @param request the UserRequestDTO containing updated data
-     * @return the updated User entity
+     * @param request the UpdateUserRequest containing updated data
      */
-    public User updateEntity(User user, UserRequestDTO request) {
+    public void updateEntity(User user, UpdateUserRequest request) {
         user.setFullName(request.getFullName());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setEmail(request.getEmail());
-        user.setRole(request.getRole());
-        // Password update can be handled separately if needed
-        return user;
     }
 
     /**
@@ -55,8 +51,6 @@ public class UserMapper {
         response.setEmail(user.getEmail());
         response.setFullName(user.getFullName());
         response.setPhoneNumber(user.getPhoneNumber());
-        response.setRole(user.getRole());
-        response.setVerified(user.isVerified());
         return response;
     }
 }

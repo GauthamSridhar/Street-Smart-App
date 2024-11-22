@@ -1,15 +1,12 @@
 package com.example.shopapp.dto.request;
 
-import com.example.shopapp.model.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class UserRequestDTO {
-
     @NotBlank(message = "Full name is mandatory")
     private String fullName;
 
@@ -23,7 +20,4 @@ public class UserRequestDTO {
 
     @NotBlank(message = "Phone number is mandatory")
     private String phoneNumber;
-
-    @NotNull(message = "User role is mandatory")
-    private UserRole role;
 }

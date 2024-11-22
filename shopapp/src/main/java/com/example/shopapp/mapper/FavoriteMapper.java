@@ -16,9 +16,9 @@ public class FavoriteMapper {
         }
 
         FavoriteResponseDTO dto = new FavoriteResponseDTO();
-        dto.setId(favorite.getId());
-        dto.setUserId(favorite.getUser().getId());
-        dto.setShopId(favorite.getShop().getId());
+//        dto.setId(favorite.getId());
+//        dto.setUserId(favorite.getUser().getId());
+//        dto.setShopId(favorite.getShop().getId());
         return dto;
     }
 
