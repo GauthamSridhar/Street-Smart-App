@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ApiGateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: UserService
+          uri: lb://UserService
+          predicates:
+            - Path=/api/users/**
+        - id: ShopService
+          uri: lb://ShopService
+          predicates:
+            - Path=/api/shops/**
+        - id: ShopApprovalService
+          uri: lb://ShopApprovalService
+          predicates:
+            - Path=/api/approvals/**
+        - id: RatingService
+          uri: lb://RatingService
+          predicates:
+              - Path=/api/ratings/**
+        - id: FavoriteService
+          uri: lb://FavoriteService
+          predicates:
+              - Path=/api/favorites/**
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
