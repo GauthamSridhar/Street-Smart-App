@@ -1,6 +1,6 @@
 package com.shopapp.RatingService.feign;
 
-import com.shopapp.RatingService.dto.rating.UserDTO;
+import com.shopapp.RatingService.dto.rating.UpdateUserRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,8 +10,8 @@ import java.util.UUID;
 public interface UserFeignClient {
 
     @GetMapping("/{userId}")
-    UserDTO getUserById(@PathVariable("userId") UUID userId);
+    UpdateUserRequest getUserById(@PathVariable("userId") UUID userId);
 
     @PutMapping("/{userId}")
-    void updateUser(@PathVariable("userId") UUID userId, @RequestBody UserDTO userDTO);
+    void updateProfile(@PathVariable("userId") UUID userId, @RequestBody UpdateUserRequest userDTO);
 }

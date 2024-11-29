@@ -1,6 +1,6 @@
 package com.shopapp.RatingService.service.impl;
 
-import com.shopapp.RatingService.dto.rating.UserDTO;
+import com.shopapp.RatingService.dto.rating.UpdateUserRequest;
 import com.shopapp.RatingService.dto.rating.request.RatingCreateDTO;
 import com.shopapp.RatingService.dto.rating.request.RatingUpdateDTO;
 import com.shopapp.RatingService.dto.rating.response.RatingResponseDTO;
@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public class RatingServiceImpl implements RatingService {
         log.info("User ID: {} adding rating for Shop ID: {}", userId, shopId);
 
         // Fetch the User object via UserService
-        UserDTO user = userFeignClient.getUserById(userId);
+        UpdateUserRequest user = userFeignClient.getUserById(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with ID: " + userId);
         }
@@ -56,10 +57,13 @@ public class RatingServiceImpl implements RatingService {
         log.info("Rating added successfully for Shop ID: {} by User ID: {}", shopId, userId);
 
         // Add rating ID to user's ratings list
-        user.getRatings().add(savedRating.getId());
-
+        if(user.getRatings()==null){
+            user.setRatings(new ArrayList<>());
+        }
+            user.getRatings().add(savedRating.getId());
+        System.out.println("User ratings: "+user.getRatings());
         // Update the user via UserService
-        userFeignClient.updateUser(userId, user);
+        userFeignClient.updateProfile(userId, user);
 
         return ratingMapper.toDTO(savedRating);
     }
@@ -98,13 +102,13 @@ public class RatingServiceImpl implements RatingService {
         log.info("Rating ID: {} deleted successfully", ratingId);
 
         // Fetch the User object via UserService
-        UserDTO user = userFeignClient.getUserById(userId);
+        UpdateUserRequest user = userFeignClient.getUserById(userId);
         if (user != null) {
             // Remove rating ID from user's ratings list
             user.getRatings().remove(ratingId);
 
             // Update the user via UserService
-            userFeignClient.updateUser(userId, user);
+            userFeignClient.updateProfile(userId, user);
         }
     }
 

@@ -1,4 +1,4 @@
-package com.shopapp.UserService.dto.user.request;
+package com.shopapp.RatingService.dto.rating;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -41,6 +41,7 @@ public class UserController {
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateUserRequest request) {
         log.info("Updating profile for user ID: {}", userId);
+        System.out.println("request consists of "+request);
         UserResponse response = userService.updateProfile(userId, request);
         return ResponseEntity.ok(response);
     }

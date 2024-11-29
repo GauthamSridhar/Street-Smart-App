@@ -84,8 +84,9 @@ public class UserServiceImpl implements UserService {
             log.warn("Phone number already exists: {}", request.getPhoneNumber());
             throw new UserAlreadyExistsException("Phone number already exists");
         }
-
+        System.out.println("request consists of: "+request);
         userMapper.updateEntity(user, request);
+
         User updatedUser = userRepository.save(user);
 
         log.info("User profile updated successfully for ID: {}", updatedUser.getId());
