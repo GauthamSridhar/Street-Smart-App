@@ -24,6 +24,7 @@ public class UserMapper {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setEmail(request.getEmail());
         user.setRatings(request.getRatings());
+        user.setFavorites(user.getFavorites());
     }
 
     public UserResponse toResponse(User user) {
@@ -33,6 +34,7 @@ public class UserMapper {
         response.setFullName(user.getFullName());
         response.setPhoneNumber(user.getPhoneNumber());
         response.setRatings(user.getRatings());
+        response.setFavorites(user.getFavorites());
         return response;
     }
 }

@@ -1,5 +1,6 @@
 package com.shopapp.FavoriteService.service.impl;
 
+import com.shopapp.FavoriteService.dto.favourite.UpdateUserRequest;
 import com.shopapp.FavoriteService.dto.favourite.UserDTO;
 import com.shopapp.FavoriteService.dto.favourite.response.FavoriteResponseDTO;
 import com.shopapp.FavoriteService.exception.ResourceNotFoundException;
@@ -32,7 +33,7 @@ public class FavoriteServiceImpl implements FavoriteService {
         log.info("Adding Shop ID: {} to User ID: {} favorites", shopId, userId);
 
         // Fetch the User object via UserService
-        UserDTO user = userFeignClient.getUserById(userId);
+        UpdateUserRequest user = userFeignClient.getUserById(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with ID: " + userId);
         }
@@ -44,11 +45,11 @@ public class FavoriteServiceImpl implements FavoriteService {
         }
 
         // Add shopId to user's favorites list if not already present
-        if (!user.getFavourites().contains(shopId)) {
-            user.getFavourites().add(shopId);
+        if (!user.getFavorites().contains(shopId)) {
+            user.getFavorites().add(shopId);
 
             // Save the updated User object
-            userFeignClient.updateUser(userId, user);
+            userFeignClient.updateProfile(userId, user);
         }
 
         // Optionally, save to FavoriteService's own database if needed
@@ -70,17 +71,17 @@ public class FavoriteServiceImpl implements FavoriteService {
         log.info("Removing Shop ID: {} from User ID: {} favorites", shopId, userId);
 
         // Fetch the User object via UserService
-        UserDTO user = userFeignClient.getUserById(userId);
+        UpdateUserRequest user = userFeignClient.getUserById(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with ID: " + userId);
         }
 
         // Remove shopId from user's favorites list if present
-        if (user.getFavourites().contains(shopId)) {
-            user.getFavourites().remove(shopId);
+        if (user.getFavorites().contains(shopId)) {
+            user.getFavorites().remove(shopId);
 
             // Save the updated User object
-            userFeignClient.updateUser(userId, user);
+            userFeignClient.updateProfile(userId, user);
         } else {
             throw new ResourceNotFoundException("Favorite not found for User ID: " + userId + " and Shop ID: " + shopId);
         }
@@ -95,13 +96,13 @@ public class FavoriteServiceImpl implements FavoriteService {
         log.info("Fetching favorites for User ID: {}", userId);
 
         // Fetch the User object via UserService
-        UserDTO user = userFeignClient.getUserById(userId);
+        UpdateUserRequest user = userFeignClient.getUserById(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found with ID: " + userId);
         }
 
         // Map the user's favorites list to FavoriteResponseDTOs
-        return user.getFavourites().stream().map(shopId -> {
+        return user.getFavorites().stream().map(shopId -> {
             // Fetch shop name
             ShopBasicInfoDTO shopResponse = shopFeignClient.getShopBasicInfo(shopId);
             Favorite favorite = new Favorite();

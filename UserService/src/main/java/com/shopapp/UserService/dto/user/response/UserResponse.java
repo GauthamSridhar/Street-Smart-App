@@ -12,4 +12,5 @@ public class UserResponse {
     private String fullName;
     private String phoneNumber;
     private List<UUID> ratings;
+    private List<UUID> favorites;
 }

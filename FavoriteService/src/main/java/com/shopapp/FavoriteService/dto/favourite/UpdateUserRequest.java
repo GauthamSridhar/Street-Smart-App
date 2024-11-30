@@ -1,4 +1,4 @@
-package com.shopapp.UserService.dto.user.request;
+package com.shopapp.FavoriteService.dto.favourite;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -26,6 +26,5 @@ public class UpdateUserRequest {
 
     private String password;
 
-    List<UUID> ratings;
     List<UUID> favorites;
 }
