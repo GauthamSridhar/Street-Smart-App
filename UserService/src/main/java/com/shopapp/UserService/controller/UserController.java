@@ -1,14 +1,16 @@
 package com.shopapp.UserService.controller;
 
+import com.shopapp.UserService.dto.user.JwtToken;
 import com.shopapp.UserService.dto.user.request.LoginRequest;
 import com.shopapp.UserService.dto.user.request.RegisterUserRequest;
 import com.shopapp.UserService.dto.user.request.UpdateUserRequest;
 import com.shopapp.UserService.dto.user.response.UserResponse;
 import com.shopapp.UserService.service.UserService;
+import com.shopapp.UserService.service.impl.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -21,19 +23,20 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterUserRequest request) {
         log.info("Registering user with email: {}", request.getEmail());
         UserResponse response = userService.register(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<JwtToken> login(@Valid @RequestBody LoginRequest request) {
         log.info("User login attempt with identifier: {}", request.getIdentifier());
-        UserResponse response = userService.login(request);
-        return ResponseEntity.ok(response);
+        JwtToken jwtToken = authenticationService.authenticate(request);
+        return ResponseEntity.ok(jwtToken);
     }
 
     @PutMapping("/{userId}")
@@ -41,7 +44,6 @@ public class UserController {
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateUserRequest request) {
         log.info("Updating profile for user ID: {}", userId);
-        System.out.println("request consists of "+request);
         UserResponse response = userService.updateProfile(userId, request);
         return ResponseEntity.ok(response);
     }
@@ -59,7 +61,5 @@ public class UserController {
         boolean exists = userService.doesUserExist(userId);
         return ResponseEntity.ok(exists);
     }
-
-
 
 }

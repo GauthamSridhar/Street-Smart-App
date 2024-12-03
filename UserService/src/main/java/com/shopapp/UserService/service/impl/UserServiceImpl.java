@@ -1,19 +1,18 @@
 package com.shopapp.UserService.service.impl;
 
-import com.shopapp.UserService.dto.user.request.LoginRequest;
 import com.shopapp.UserService.dto.user.request.RegisterUserRequest;
 import com.shopapp.UserService.dto.user.request.UpdateUserRequest;
 import com.shopapp.UserService.dto.user.response.UserResponse;
-import com.shopapp.UserService.exception.InvalidCredentialsException;
-import com.shopapp.UserService.exception.ResourceNotFoundException;
 import com.shopapp.UserService.exception.UserAlreadyExistsException;
 import com.shopapp.UserService.exception.UserNotFoundException;
 import com.shopapp.UserService.mapper.UserMapper;
 import com.shopapp.UserService.model.User;
+import com.shopapp.UserService.model.UserRole;
 import com.shopapp.UserService.repository.UserRepository;
 import com.shopapp.UserService.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -43,28 +43,19 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(request);
-        user.setPassword(request.getPassword()); // Password should be hashed in production
+        // Securely encode the password before storing
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        // Set default role if not provided
+        if (user.getRole() == null) {
+            user.setRole(UserRole.USER);
+        }
+        // Set verification status to false by default
+        user.setVerified(false);
 
         User savedUser = userRepository.save(user);
         log.info("User registered successfully with ID: {}", savedUser.getId());
+
         return userMapper.toResponse(savedUser);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public UserResponse login(LoginRequest request) {
-        log.info("User login attempt with identifier: {}", request.getIdentifier());
-
-        User user = userRepository.findByEmailOrPhoneNumber(request.getIdentifier(), request.getIdentifier())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid identifier or password"));
-
-        if (!request.getPassword().equals(user.getPassword())) { // Use password hashing in production
-            log.warn("Invalid credentials for identifier: {}", request.getIdentifier());
-            throw new InvalidCredentialsException("Invalid identifier or password");
-        }
-
-        log.info("User logged in successfully with ID: {}", user.getId());
-        return userMapper.toResponse(user);
     }
 
     @Override
@@ -84,12 +75,18 @@ public class UserServiceImpl implements UserService {
             log.warn("Phone number already exists: {}", request.getPhoneNumber());
             throw new UserAlreadyExistsException("Phone number already exists");
         }
-        System.out.println("request consists of: "+request);
+
+        log.debug("Update request details: {}", request);
         userMapper.updateEntity(user, request);
 
-        User updatedUser = userRepository.save(user);
+        // If password is being updated, encode it
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
 
+        User updatedUser = userRepository.save(user);
         log.info("User profile updated successfully for ID: {}", updatedUser.getId());
+
         return userMapper.toResponse(updatedUser);
     }
 
@@ -110,5 +107,4 @@ public class UserServiceImpl implements UserService {
         log.info("Checking existence for user ID: {}", userId);
         return userRepository.existsById(userId);
     }
-
 }

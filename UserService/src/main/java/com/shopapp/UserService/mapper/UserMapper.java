@@ -4,10 +4,14 @@ import com.shopapp.UserService.dto.user.request.RegisterUserRequest;
 import com.shopapp.UserService.dto.user.request.UpdateUserRequest;
 import com.shopapp.UserService.dto.user.response.UserResponse;
 import com.shopapp.UserService.model.User;
+import com.shopapp.UserService.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public User toEntity(RegisterUserRequest request) {
         User user = new User();
@@ -29,6 +33,10 @@ public class UserMapper {
 
     public UserResponse toResponse(User user) {
         UserResponse response = new UserResponse();
+
+        String jwt = jwtUtil.generateToken(user.getPhoneNumber() != null ? user.getPhoneNumber() : user.getEmail());
+
+
         response.setId(user.getId());
         response.setEmail(user.getEmail());
         response.setFullName(user.getFullName());
