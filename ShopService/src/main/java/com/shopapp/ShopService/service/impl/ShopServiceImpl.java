@@ -1,6 +1,7 @@
 package com.shopapp.ShopService.service.impl;
 
 import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
+import com.shopapp.ShopService.dto.UserResponse;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
 import com.shopapp.ShopService.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import com.shopapp.ShopService.model.Shop;
 import com.shopapp.ShopService.model.ShopStatus;
 import com.shopapp.ShopService.repository.ShopRepository;
 import com.shopapp.ShopService.service.ShopService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,12 +32,19 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public ShopResponse registerShop(UUID ownerId, ShopRegistrationRequest request) {
+    public ShopResponse registerShop(UUID ownerId, ShopRegistrationRequest request, HttpServletRequest req) {
+
+        String bearerToken = req.getHeader("Authorization");
+
+        if (bearerToken == null) {
+            return null;
+        }
+
         log.info("Registering shop for owner ID: {}", ownerId);
 
         // Validate user existence via UserService
-        Boolean userExists = userServiceFeignClient.doesUserExist(ownerId).getBody();
-        if (userExists == null || !userExists) {
+        UserResponse userExists = userServiceFeignClient.getUser(ownerId, bearerToken).getBody();
+        if (userExists == null || userExists.getId() == null) {
             log.warn("User not found with ID: {}", ownerId);
             throw new ResourceNotFoundException("User not found with ID: " + ownerId);
         }

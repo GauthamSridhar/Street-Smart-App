@@ -5,6 +5,7 @@ import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
 import com.shopapp.ShopService.model.ShopStatus;
 import com.shopapp.ShopService.service.ShopService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,8 @@ public class ShopController {
     @PostMapping("/register")
     public ResponseEntity<ShopResponse> registerShop(
             @RequestParam UUID userId,
-            @Valid @RequestBody ShopRegistrationRequest request) {
-        ShopResponse registeredShop = shopService.registerShop(userId, request);
+            @Valid @RequestBody ShopRegistrationRequest request, HttpServletRequest req) {
+        ShopResponse registeredShop = shopService.registerShop(userId, request, req);
         return ResponseEntity.ok(registeredShop);
     }
 

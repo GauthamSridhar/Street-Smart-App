@@ -55,11 +55,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{userId}/exists")
-    public ResponseEntity<Boolean> doesUserExist(@PathVariable UUID userId) {
-        log.info("Checking if user exists with ID: {}", userId);
-        boolean exists = userService.doesUserExist(userId);
-        return ResponseEntity.ok(exists);
-    }
+
 
 }
