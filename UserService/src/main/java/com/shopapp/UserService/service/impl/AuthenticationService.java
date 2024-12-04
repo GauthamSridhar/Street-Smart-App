@@ -6,6 +6,9 @@ import com.shopapp.UserService.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +17,7 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private UserDetailsService userDetailsService;
 
     /**
      * Authenticates the user and generates a JWT token.
@@ -32,4 +36,12 @@ public class AuthenticationService {
         return new JwtToken(token);
 
     }
+
+    public void validateToken(String token) {
+        String username = jwtUtil.getUsernameFromToken(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+    }
+
 }
