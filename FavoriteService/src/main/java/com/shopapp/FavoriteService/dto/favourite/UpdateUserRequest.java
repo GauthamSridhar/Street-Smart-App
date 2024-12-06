@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,8 +24,7 @@ public class UpdateUserRequest {
     @Email(message = "Invalid email format")
     private String email;
     @NotBlank
-
     private String password;
-
-    List<UUID> favorites;
+    List<UUID> ratings=new ArrayList<>();
+    List<UUID> favorites=new ArrayList<>();
 }

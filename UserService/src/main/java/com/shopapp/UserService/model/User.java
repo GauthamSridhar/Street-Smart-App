@@ -47,11 +47,6 @@ public class User implements UserDetails {
     @NotNull(message = "User role is mandatory")
     private UserRole role;
 
-    private boolean isVerified;
-    private String otpCode;
-    private LocalDateTime otpExpiry;
-    private String googleAuthId;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "user_favorites",
@@ -142,10 +137,7 @@ public class User implements UserDetails {
      *
      * @return true if the user is enabled, false otherwise
      */
-    @Override
-    public boolean isEnabled() {
-        return isVerified;
-    }
+
 
     /**
      * Adds a new favorite UUID to the user's favorites list.

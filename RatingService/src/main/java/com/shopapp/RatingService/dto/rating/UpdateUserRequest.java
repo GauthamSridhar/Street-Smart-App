@@ -27,4 +27,5 @@ public class UpdateUserRequest {
     private String password;
 
     List<UUID> ratings;
+    List<UUID>favorites;
 }

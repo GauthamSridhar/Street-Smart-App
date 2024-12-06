@@ -1,6 +1,7 @@
 package com.shopapp.ShopService.dto.shop.response;
 
 import com.shopapp.ShopService.dto.image.response.ImageResponseDTO;
+import com.shopapp.ShopService.dto.product.response.ProductResponseDTO;
 import com.shopapp.ShopService.model.ShopStatus;
 import lombok.Data;
 
@@ -17,5 +18,6 @@ public class ShopResponse {
     private Double longitude;
     private ShopStatus status;
     private UUID ownerId;
+    private List<ProductResponseDTO> products;
     private List<ImageResponseDTO> images;
 }

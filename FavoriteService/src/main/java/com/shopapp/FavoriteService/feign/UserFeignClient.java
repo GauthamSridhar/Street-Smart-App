@@ -2,7 +2,9 @@ package com.shopapp.FavoriteService.feign;
 
 import com.shopapp.FavoriteService.dto.favourite.UpdateUserRequest;
 import com.shopapp.FavoriteService.dto.favourite.UserDTO;
+import com.shopapp.FavoriteService.dto.favourite.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -11,8 +13,8 @@ import java.util.UUID;
 public interface UserFeignClient {
 
     @GetMapping("/{userId}")
-    UpdateUserRequest getUserById(@PathVariable("userId") UUID userId);
+    ResponseEntity<UserResponse> getUser(@PathVariable("userId") UUID userId, @RequestHeader("Authorization") String authToken);
 
     @PutMapping("/{userId}")
-    void updateProfile(@PathVariable("userId") UUID userId, @RequestBody UpdateUserRequest userDTO);
+    void updateProfile(@PathVariable("userId") UUID userId, @RequestBody UpdateUserRequest userDTO,@RequestHeader("Authorization") String authToken);
 }

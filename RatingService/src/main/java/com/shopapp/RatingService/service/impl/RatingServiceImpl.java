@@ -1,6 +1,7 @@
 package com.shopapp.RatingService.service.impl;
 
 import com.shopapp.RatingService.dto.rating.UpdateUserRequest;
+import com.shopapp.RatingService.dto.rating.UserResponse;
 import com.shopapp.RatingService.dto.rating.request.RatingCreateDTO;
 import com.shopapp.RatingService.dto.rating.request.RatingUpdateDTO;
 import com.shopapp.RatingService.dto.rating.response.RatingResponseDTO;
@@ -12,6 +13,8 @@ import com.shopapp.RatingService.mapper.RatingMapper;
 import com.shopapp.RatingService.model.Rating;
 import com.shopapp.RatingService.repository.RatingRepository;
 import com.shopapp.RatingService.service.RatingService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,15 +37,21 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     @Transactional
-    public RatingResponseDTO addRating(UUID userId, UUID shopId, RatingCreateDTO ratingDTO) {
+    public RatingResponseDTO addRating(UUID userId, UUID shopId, RatingCreateDTO ratingDTO, HttpServletRequest req) {
+        String bearerToken = req.getHeader("Authorization");
+
+        if (bearerToken == null) {
+            return null;
+        }
         log.info("User ID: {} adding rating for Shop ID: {}", userId, shopId);
 
         // Fetch the User object via UserService
-        UpdateUserRequest user = userFeignClient.getUserById(userId);
+        UserResponse user = userFeignClient.getUser(userId,bearerToken).getBody();
+        System.out.println("User found");
         if (user == null) {
             throw new ResourceNotFoundException("User not found with ID: " + userId);
         }
-
+        UpdateUserRequest request1=ratingMapper.toUpdateDto(user);
         // Validate shop existence via ShopService
         Boolean shopExists = shopFeignClient.doesShopExist(shopId);
         if (shopExists == null || !shopExists) {
@@ -57,13 +66,13 @@ public class RatingServiceImpl implements RatingService {
         log.info("Rating added successfully for Shop ID: {} by User ID: {}", shopId, userId);
 
         // Add rating ID to user's ratings list
-        if(user.getRatings()==null){
-            user.setRatings(new ArrayList<>());
+        if(request1.getRatings()==null){
+            request1.setRatings(new ArrayList<>());
         }
-            user.getRatings().add(savedRating.getId());
+            request1.getRatings().add(savedRating.getId());
         System.out.println("User ratings: "+user.getRatings());
         // Update the user via UserService
-        userFeignClient.updateProfile(userId, user);
+        userFeignClient.updateProfile(userId, request1,bearerToken);
 
         return ratingMapper.toDTO(savedRating);
     }
@@ -88,7 +97,10 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     @Transactional
-    public void deleteRating(UUID userId, UUID ratingId) {
+    public void deleteRating(UUID userId, UUID ratingId,HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+
+
         log.info("User ID: {} deleting Rating ID: {}", userId, ratingId);
 
         Rating existingRating = ratingRepository.findById(ratingId)
@@ -102,13 +114,16 @@ public class RatingServiceImpl implements RatingService {
         log.info("Rating ID: {} deleted successfully", ratingId);
 
         // Fetch the User object via UserService
-        UpdateUserRequest user = userFeignClient.getUserById(userId);
-        if (user != null) {
+        UserResponse user = userFeignClient.getUser(userId,bearerToken).getBody();
+        assert user != null;
+        UpdateUserRequest request1=ratingMapper.toUpdateDto(user);
+        if (request1 != null) {
             // Remove rating ID from user's ratings list
-            user.getRatings().remove(ratingId);
+            request1.getRatings().remove(ratingId);
+
 
             // Update the user via UserService
-            userFeignClient.updateProfile(userId, user);
+            userFeignClient.updateProfile(userId, request1,bearerToken);
         }
     }
 

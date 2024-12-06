@@ -2,6 +2,7 @@ package com.shopapp.ShopService.mapper;
 
 import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
 import com.shopapp.ShopService.dto.image.response.ImageResponseDTO;
+import com.shopapp.ShopService.dto.product.response.ProductResponseDTO;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
 import com.shopapp.ShopService.model.Shop;
@@ -31,6 +32,17 @@ public class ShopMapper {
         response.setLongitude(shop.getLongitude());
         response.setStatus(shop.getStatus());
         response.setOwnerId(shop.getOwnerId());
+        response.setProducts(shop.getProducts().stream()
+                .map(product -> {
+                    ProductResponseDTO productResponse = new ProductResponseDTO();
+                    productResponse.setId(product.getId());
+                    productResponse.setName(product.getName());
+                    productResponse.setDescription(product.getDescription());
+                    productResponse.setPrice(product.getPrice());
+                    productResponse.setAvailable(product.isAvailable());
+                    return productResponse;
+                })
+                .collect(Collectors.toList()));
         response.setImages(shop.getImages().stream()
                 .map(image -> {
                     ImageResponseDTO imageResponse = new ImageResponseDTO();

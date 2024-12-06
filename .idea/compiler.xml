@@ -7,8 +7,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="EurekaServer" />
         <module name="UserService" />
+        <module name="ShopService" />
+        <module name="FavoriteService" />
+        <module name="DiscoveryClient" />
+        <module name="RatingService" />
         <module name="shopapp" />
+        <module name="ShopApprovalService" />
       </profile>
     </annotationProcessing>
   </component>

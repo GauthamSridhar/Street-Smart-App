@@ -5,6 +5,7 @@ import com.shopapp.RatingService.dto.rating.request.RatingCreateDTO;
 import com.shopapp.RatingService.dto.rating.request.RatingUpdateDTO;
 import com.shopapp.RatingService.dto.rating.response.RatingResponseDTO;
 import com.shopapp.RatingService.service.RatingService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,9 +38,9 @@ public class RatingController {
     public ResponseEntity<RatingResponseDTO> addRating(
             @RequestParam UUID userId,
             @RequestParam UUID shopId,
-            @Valid @RequestBody RatingCreateDTO ratingDTO) {
+            @Valid @RequestBody RatingCreateDTO ratingDTO, HttpServletRequest request) {
         log.info("User ID: {} adding rating for Shop ID: {}", userId, shopId);
-        RatingResponseDTO addedRating = ratingService.addRating(userId, shopId, ratingDTO);
+        RatingResponseDTO addedRating = ratingService.addRating(userId, shopId, ratingDTO,request);
 
         return ResponseEntity.ok(addedRating);
     }
@@ -72,9 +73,9 @@ public class RatingController {
     @DeleteMapping("/{ratingId}")
     public ResponseEntity<Void> deleteRating(
             @RequestParam UUID userId,
-            @PathVariable UUID ratingId) {
+            @PathVariable UUID ratingId,HttpServletRequest request) {
         log.info("User ID: {} deleting rating ID: {}", userId, ratingId);
-        ratingService.deleteRating(userId, ratingId);
+        ratingService.deleteRating(userId, ratingId,request);
         return ResponseEntity.noContent().build();
     }
 

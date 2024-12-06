@@ -7,6 +7,14 @@ spring:
 
   cloud:
     gateway:
+#      globalcors:
+#        cors-configurations:
+#          '[/**]':
+#            allowedOrigins: "http://localhost:4200/"
+#            allowedMethods: '*'
+#            allowedHeaders: '*'
+
+
       routes:
         - id: UserService
           uri: lb://UserService
@@ -20,6 +28,18 @@ spring:
             - Path=/api/shops/**
           filters:
             -name : AuthenticationFilter
+        - id: ShopService
+          uri: lb://ShopService
+          predicates:
+            - Path=/api/products/**
+          filters:
+            -name: AuthenticationFilter
+        - id: ShopService
+          uri: lb://ShopService
+          predicates:
+            - Path=/api/images/**
+          filters:
+            -name: AuthenticationFilter
         - id: ShopApprovalService
           uri: lb://ShopApprovalService
           predicates:

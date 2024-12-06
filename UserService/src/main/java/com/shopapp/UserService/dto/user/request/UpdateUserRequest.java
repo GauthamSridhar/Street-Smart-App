@@ -23,8 +23,7 @@ public class UpdateUserRequest {
     @Email(message = "Invalid email format")
     private String email;
     @NotBlank
-
-    private String password;
+    private  String password;
 
     List<UUID> ratings;
     List<UUID> favorites;

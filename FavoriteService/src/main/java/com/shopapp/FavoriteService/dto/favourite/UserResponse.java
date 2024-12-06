@@ -1,6 +1,5 @@
-package com.shopapp.ShopService.dto;
+package com.shopapp.FavoriteService.dto.favourite;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.List;

@@ -28,7 +28,7 @@ public class UserMapper {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setEmail(request.getEmail());
         user.setRatings(request.getRatings());
-        user.setFavorites(user.getFavorites());
+        user.setFavorites(request.getFavorites());
     }
 
     public UserResponse toResponse(User user) {

@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
             user.setRole(UserRole.USER);
         }
         // Set verification status to false by default
-        user.setVerified(false);
+
 
         User savedUser = userRepository.save(user);
         log.info("User registered successfully with ID: {}", savedUser.getId());
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
         log.debug("Update request details: {}", request);
         userMapper.updateEntity(user, request);
 
-        // If password is being updated, encode it
+//         If password is being updated, encode it
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
