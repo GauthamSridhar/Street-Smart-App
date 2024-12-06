@@ -7,37 +7,44 @@ spring:
 
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200/"
+            allowedMethods: '*'
+            allowedHeaders: '*'
+            allowCredentials: true
       routes:
         - id: UserService
           uri: lb://UserService
           predicates:
             - Path=/api/users/**
           filters:
-            -name : AuthenticationFilter
+              - name : AuthenticationFilter
         - id: ShopService
           uri: lb://ShopService
           predicates:
             - Path=/api/shops/**
           filters:
-            -name : AuthenticationFilter
+            - name : AuthenticationFilter
         - id: ShopApprovalService
           uri: lb://ShopApprovalService
           predicates:
             - Path=/api/approvals/**
           filters:
-            -name : AuthenticationFilter
+            - name : AuthenticationFilter
         - id: RatingService
           uri: lb://RatingService
           predicates:
               - Path=/api/ratings/**
           filters:
-            -name : AuthenticationFilter
+            - name : AuthenticationFilter
         - id: FavoriteService
           uri: lb://FavoriteService
           predicates:
               - Path=/api/favorites/**
           filters:
-            -name : AuthenticationFilter
+            - name : AuthenticationFilter
 eureka:
   client:
     service-url:

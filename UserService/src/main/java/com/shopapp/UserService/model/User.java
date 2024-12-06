@@ -37,6 +37,7 @@ public class User implements UserDetails {
     @NotBlank(message = "Full name is mandatory")
     @Column(nullable = false)
     private String fullName;
+    private  boolean is_verified;
 
     @NotBlank(message = "Phone number is mandatory")
     @Pattern(regexp = "^[+]?[0-9]{10,15}$", message = "Phone number must be valid")
