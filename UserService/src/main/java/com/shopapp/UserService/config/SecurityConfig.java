@@ -1,4 +1,4 @@
-package com.shopapp.UserService.security;
+package com.shopapp.UserService.config;
 
 import com.shopapp.UserService.service.impl.UserDetailsServiceImpl;
 import com.shopapp.UserService.security.JwtAuthenticationFilter;
