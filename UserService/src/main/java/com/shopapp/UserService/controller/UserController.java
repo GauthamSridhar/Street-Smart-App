@@ -18,7 +18,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin
 @Slf4j
 public class UserController {
 
@@ -36,6 +35,7 @@ public class UserController {
     public ResponseEntity<JwtToken> login(@Valid @RequestBody LoginRequest request) {
         log.info("User login attempt with identifier: {}", request.getIdentifier());
         JwtToken jwtToken = authenticationService.authenticate(request);
+        log.info("User logged in successfully with identifier: {}", request.getIdentifier());
         return ResponseEntity.ok(jwtToken);
     }
 

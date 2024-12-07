@@ -25,8 +25,8 @@ public class SecurityConfig {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+//    @Autowired
+//    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     /**
      * Bean for password encoding using BCrypt.
@@ -75,14 +75,15 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF as tokens are immune to it
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users/register").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users/register", "/api/users/validate").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                //.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+         ;
 
         return http.build();
     }

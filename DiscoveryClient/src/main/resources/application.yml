@@ -10,17 +10,16 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:4200/"
+            allowedOrigins: "*"
             allowedMethods: '*'
             allowedHeaders: '*'
-            allowCredentials: true
       routes:
         - id: UserService
           uri: lb://UserService
           predicates:
             - Path=/api/users/**
-          filters:
-              - name : AuthenticationFilter
+
+
         - id: ShopService
           uri: lb://ShopService
           predicates:

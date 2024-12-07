@@ -1,4 +1,6 @@
 package com.shopapp.UserService.dto.user;
 
-public record JwtToken (String jwt){
+import java.util.UUID;
+
+public record JwtToken (String jwt, String username){
 }
