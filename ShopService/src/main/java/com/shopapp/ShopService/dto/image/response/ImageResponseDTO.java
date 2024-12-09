@@ -7,6 +7,8 @@ import java.util.UUID;
 @Data
 public class ImageResponseDTO {
     private UUID id;
-    private String imageUrl;
+    private String fileName;
+    private String fileType;
     private UUID shopId;
+    private long fileSizeInBytes;
 }

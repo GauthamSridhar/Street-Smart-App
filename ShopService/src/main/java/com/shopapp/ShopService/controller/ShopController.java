@@ -1,6 +1,7 @@
 package com.shopapp.ShopService.controller;
 
 import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
+import com.shopapp.ShopService.dto.UpdateShopRequest;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
 import com.shopapp.ShopService.model.ShopStatus;
@@ -54,14 +55,14 @@ public class ShopController {
      * Updates the status of a shop.
      *
      * @param shopId the shop ID
-     * @param status the new shop status
+     * @param request the new shop status
      * @return the updated shop response DTO
      */
-    @PutMapping("/{shopId}/status")
-    public ResponseEntity<ShopResponse> updateShopStatus(
+    @PutMapping("/{shopId}")
+    public ResponseEntity<ShopResponse> updateShop(
             @PathVariable UUID shopId,
-            @RequestParam ShopStatus status) {
-        ShopResponse updatedShop = shopService.updateShopStatus(shopId, status);
+            @RequestBody UpdateShopRequest request) {
+        ShopResponse updatedShop = shopService.updateShop(shopId, request);
         return ResponseEntity.ok(updatedShop);
     }
 

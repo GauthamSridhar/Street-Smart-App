@@ -1,6 +1,7 @@
 package com.shopapp.ShopService.service.impl;
 
 import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
+import com.shopapp.ShopService.dto.UpdateShopRequest;
 import com.shopapp.ShopService.dto.UserResponse;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
@@ -77,14 +78,14 @@ public class ShopServiceImpl implements ShopService {
 
     @Override
     @Transactional
-    public ShopResponse updateShopStatus(UUID shopId, ShopStatus status) {
-        log.info("Updating status for shop ID: {} to {}", shopId, status);
+    public ShopResponse updateShop(UUID shopId, UpdateShopRequest request) {
+        log.info("Updating for shop ID: {} ", shopId);
 
         Shop shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop not found with ID: " + shopId));
 
+        shopMapper.updateEntity(shop,request);
         // Update the status and save the shop
-        shop.setStatus(status);
         Shop updatedShop = shopRepository.save(shop);
 
         log.info("Shop status updated successfully for ID: {}", updatedShop.getId());
@@ -103,7 +104,14 @@ public class ShopServiceImpl implements ShopService {
             shop.setStatus(ShopStatus.INACTIVE);
         } else if (shop.getStatus() == ShopStatus.INACTIVE) {
             shop.setStatus(ShopStatus.ACTIVE);
-        } else {
+        }
+        else if(shop.getStatus()==ShopStatus.PENDING){
+            shop.setStatus(ShopStatus.APPROVED);
+        }
+        else if(shop.getStatus()==ShopStatus.APPROVED){
+            shop.setStatus(ShopStatus.ACTIVE);
+        }
+        else {
             throw new IllegalStateException("Shop status cannot be toggled from " + shop.getStatus());
         }
 
@@ -113,11 +121,13 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
+    @Transactional
     public boolean doesShopExist(UUID shopId) {
         return shopRepository.existsById(shopId);
     }
 
     @Override
+    @Transactional
     public ShopBasicInfoDTO getShopBasicInfo(UUID shopId) {
         Shop shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop not found with ID: " + shopId));

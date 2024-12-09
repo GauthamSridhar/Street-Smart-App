@@ -2,6 +2,8 @@ package com.shopapp.UserService.service.impl;
 
 import com.shopapp.UserService.dto.user.JwtToken;
 import com.shopapp.UserService.dto.user.request.LoginRequest;
+import com.shopapp.UserService.repository.UserRepository;
+import com.shopapp.UserService.service.UserService;
 import com.shopapp.UserService.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,8 @@ public class AuthenticationService {
     private final JwtUtil jwtUtil;
     @Autowired
     private UserDetailsService userDetailsService;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Authenticates the user and generates a JWT token.
@@ -38,7 +42,8 @@ public class AuthenticationService {
         String username = authentication.getName();
         log.info("User authenticated successfully with username: {}", username);
         String token = jwtUtil.generateToken(username);
-        return new JwtToken(token,username);
+        String role=userRepository.findByEmailOrPhoneNumber(username,username).get().getRole().toString();
+        return new JwtToken(token,username,role);
 
     }
 

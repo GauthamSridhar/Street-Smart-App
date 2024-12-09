@@ -2,6 +2,7 @@ package com.shopapp.ShopService.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
 
@@ -11,13 +12,25 @@ import java.util.UUID;
 public class Image {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(nullable = false)
-    private String url;
+    @Lob
+    @Column(name = "image_data", nullable = false)
+    private byte[] imageData;
 
-    @ManyToOne
+    @Column(name = "file_name", nullable = false)
+    private String fileName;
+
+    @Column(name = "file_type", nullable = false)
+    private String fileType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id", nullable = false)
-    private Shop shop; // Reference to the Shop
+    private Shop shop;
 }

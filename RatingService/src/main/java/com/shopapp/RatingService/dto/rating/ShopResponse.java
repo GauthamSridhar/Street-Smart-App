@@ -1,4 +1,4 @@
-package com.shopapp.ShopService.dto.shop.response;
+package com.shopapp.RatingService.dto.rating;
 
 import com.shopapp.ShopService.dto.image.response.ImageResponseDTO;
 import com.shopapp.ShopService.dto.product.response.ProductResponseDTO;

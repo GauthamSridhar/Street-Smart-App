@@ -10,6 +10,7 @@ import com.shopapp.ShopApprovalService.service.ShopApprovalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
     private final ShopFeignClient shopFeignClient;
 
     @Override
+    @Transactional
     public void createApprovalRequest(UUID shopId) {
         log.info("Creating approval request for shop ID: {}", shopId);
 
@@ -37,6 +39,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
     }
 
     @Override
+    @Transactional
     public ShopApprovalResponseDTO approveShop(UUID shopId) {
         log.info("Approving shop ID: {}", shopId);
 
@@ -52,7 +55,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
         approval.setApproved(true);
 
         // Update the shop status in ShopService
-        shopFeignClient.updateShopStatus(shopId, ShopStatus.INACTIVE);
+        shopFeignClient.toggleShopStatus(shopId);
 
         shopApprovalRepository.save(approval);
         log.info("Shop ID: {} approved successfully", shopId);
@@ -60,6 +63,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
     }
 
     @Override
+    @Transactional
     public ShopApprovalResponseDTO rejectShop(UUID shopId, String reason) {
         log.info("Rejecting shop ID: {} with reason: {}", shopId, reason);
 
@@ -75,7 +79,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
         approval.setReason(reason);
 
         // Update the shop status in ShopService
-        shopFeignClient.updateShopStatus(shopId, ShopStatus.REJECTED);
+        shopFeignClient.toggleShopStatus(shopId);
 
         shopApprovalRepository.save(approval);
         log.info("Shop ID: {} rejected successfully", shopId);
@@ -83,6 +87,7 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
     }
 
     @Override
+    @Transactional
     public List<ShopApprovalResponseDTO> getPendingApprovals() {
         log.info("Fetching all pending approvals");
         return shopApprovalRepository.findByApprovalStatus(ShopStatus.PENDING).stream()

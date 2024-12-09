@@ -1,4 +1,4 @@
-package com.shopapp.ShopService.dto.shop.response;
+package com.shopapp.ShopService.dto;
 
 import com.shopapp.ShopService.dto.image.response.ImageResponseDTO;
 import com.shopapp.ShopService.dto.product.response.ProductResponseDTO;
@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-public class ShopResponse {
-    private UUID id;
+public class UpdateShopRequest {
     private String name;
     private String description;
     private String address;

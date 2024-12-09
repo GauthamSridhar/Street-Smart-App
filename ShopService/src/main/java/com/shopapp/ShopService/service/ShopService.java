@@ -1,6 +1,7 @@
 package com.shopapp.ShopService.service;
 
 import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
+import com.shopapp.ShopService.dto.UpdateShopRequest;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
 import com.shopapp.ShopService.model.ShopStatus;
@@ -14,7 +15,7 @@ public interface ShopService {
 
     ShopResponse getShopById(UUID shopId);
 
-    ShopResponse updateShopStatus(UUID shopId, ShopStatus status);
+    ShopResponse updateShop(UUID shopId, UpdateShopRequest request);
 
     ShopResponse toggleShopStatus(UUID shopId);
 

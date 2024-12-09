@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     private final FavoriteMapper favoriteMapper;
 
     @Override
+    @Transactional
     public FavoriteResponseDTO addFavorite(UUID userId, UUID shopId,HttpServletRequest  req) {
 
         String bearerToken = req.getHeader("Authorization");
@@ -53,9 +55,15 @@ public class FavoriteServiceImpl implements FavoriteService {
         if (shopExists == null || !shopExists) {
             throw new ResourceNotFoundException("Shop not found with ID: " + shopId);
         }
+        // Check if shop is already a favorite
+        if (request.getFavorites().contains(shopId)) {
+            removeFavorite(userId,shopId,req);
+            return null;
+        }
         Favorite favorite = new Favorite();
         favorite.setUserId(userId);
         favorite.setShopId(shopId);
+
         Favorite savedFavorite = favouriteRepository.save(favorite);
         log.info("Shop ID: {} added to User ID: {} favorites", shopId, userId);
 
@@ -80,6 +88,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    @Transactional
     public void removeFavorite(UUID userId, UUID shopId,HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
         log.info("Removing Shop ID: {} from User ID: {} favorites", shopId, userId);
@@ -107,6 +116,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    @Transactional
     public List<FavoriteResponseDTO> getFavoritesByUser(UUID userId, HttpServletRequest req) {
 
         String bearerToken = req.getHeader("Authorization");
@@ -135,6 +145,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
 
     @Override
+    @Transactional
     public boolean isFavorite(UUID userId, UUID shopId) {
         log.info("Checking if Shop ID: {} is a favorite for User ID: {}", shopId, userId);
         return favouriteRepository.existsByUserIdAndShopId(userId, shopId);

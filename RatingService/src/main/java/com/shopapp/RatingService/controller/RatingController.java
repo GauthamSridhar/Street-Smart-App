@@ -34,7 +34,7 @@ public class RatingController {
      * @param ratingDTO the rating creation request DTO
      * @return the created rating response DTO
      */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<RatingResponseDTO> addRating(
             @RequestParam UUID userId,
             @RequestParam UUID shopId,
@@ -73,9 +73,9 @@ public class RatingController {
     @DeleteMapping("/{ratingId}")
     public ResponseEntity<Void> deleteRating(
             @RequestParam UUID userId,
-            @PathVariable UUID ratingId,HttpServletRequest request) {
+            @PathVariable UUID ratingId,@RequestParam UUID shopId, HttpServletRequest request) {
         log.info("User ID: {} deleting rating ID: {}", userId, ratingId);
-        ratingService.deleteRating(userId, ratingId,request);
+        ratingService.deleteRating(userId, ratingId,shopId,request);
         return ResponseEntity.noContent().build();
     }
 

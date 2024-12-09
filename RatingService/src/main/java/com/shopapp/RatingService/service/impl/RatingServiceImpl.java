@@ -1,5 +1,7 @@
 package com.shopapp.RatingService.service.impl;
 
+import com.shopapp.RatingService.dto.rating.ShopResponse;
+import com.shopapp.RatingService.dto.rating.UpdateShopRequest;
 import com.shopapp.RatingService.dto.rating.UpdateUserRequest;
 import com.shopapp.RatingService.dto.rating.UserResponse;
 import com.shopapp.RatingService.dto.rating.request.RatingCreateDTO;
@@ -14,7 +16,6 @@ import com.shopapp.RatingService.model.Rating;
 import com.shopapp.RatingService.repository.RatingRepository;
 import com.shopapp.RatingService.service.RatingService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,11 +53,15 @@ public class RatingServiceImpl implements RatingService {
             throw new ResourceNotFoundException("User not found with ID: " + userId);
         }
         UpdateUserRequest request1=ratingMapper.toUpdateDto(user);
+
         // Validate shop existence via ShopService
-        Boolean shopExists = shopFeignClient.doesShopExist(shopId);
-        if (shopExists == null || !shopExists) {
+        ShopResponse shopExists = shopFeignClient.getShop(shopId,bearerToken).getBody();
+        System.out.println("Shop :" + shopExists);
+        if (shopExists == null ) {
             throw new ResourceNotFoundException("Shop not found with ID: " + shopId);
         }
+
+        UpdateShopRequest shopRequest=ratingMapper.toUpdateShop(shopExists);
 
         Rating rating = ratingMapper.toEntity(ratingDTO);
         rating.setUserId(userId);
@@ -69,10 +74,14 @@ public class RatingServiceImpl implements RatingService {
         if(request1.getRatings()==null){
             request1.setRatings(new ArrayList<>());
         }
-            request1.getRatings().add(savedRating.getId());
-        System.out.println("User ratings: "+user.getRatings());
-        // Update the user via UserService
+        request1.getRatings().add(savedRating.getId());
         userFeignClient.updateProfile(userId, request1,bearerToken);
+        if(shopRequest.getRatings()==null){
+            shopRequest.setRatings(new ArrayList<>());
+        }
+        shopRequest.getRatings().add(savedRating.getId());
+        shopFeignClient.updateShop(shopId,shopRequest);
+
 
         return ratingMapper.toDTO(savedRating);
     }
@@ -97,7 +106,7 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     @Transactional
-    public void deleteRating(UUID userId, UUID ratingId,HttpServletRequest request) {
+    public void deleteRating(UUID userId, UUID ratingId,UUID shopId,HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
 
 
@@ -117,6 +126,9 @@ public class RatingServiceImpl implements RatingService {
         UserResponse user = userFeignClient.getUser(userId,bearerToken).getBody();
         assert user != null;
         UpdateUserRequest request1=ratingMapper.toUpdateDto(user);
+        ShopResponse shop=shopFeignClient.getShop(shopId,bearerToken).getBody();
+        assert shop != null;
+        UpdateShopRequest request2=ratingMapper.toUpdateShop(shop);
         if (request1 != null) {
             // Remove rating ID from user's ratings list
             request1.getRatings().remove(ratingId);
@@ -125,9 +137,18 @@ public class RatingServiceImpl implements RatingService {
             // Update the user via UserService
             userFeignClient.updateProfile(userId, request1,bearerToken);
         }
+        if (request2 != null) {
+            // Remove rating ID from user's ratings list
+            request2.getRatings().remove(ratingId);
+
+
+            // Update the user via UserService
+            shopFeignClient.updateShop(shopId, request2);
+        }
     }
 
     @Override
+    @Transactional
     public List<RatingResponseDTO> getShopRatings(UUID shopId) {
         log.info("Fetching ratings for Shop ID: {}", shopId);
 
@@ -136,6 +157,7 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
+    @Transactional
     public RatingResponseDTO getRating(UUID ratingId) {
         log.info("Fetching Rating ID: {}", ratingId);
 

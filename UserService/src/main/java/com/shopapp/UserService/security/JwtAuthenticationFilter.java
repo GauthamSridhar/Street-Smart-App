@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @NonNullApi
-//@Component
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired

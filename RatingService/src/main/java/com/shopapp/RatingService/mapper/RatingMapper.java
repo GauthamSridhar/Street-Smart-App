@@ -1,6 +1,8 @@
 package com.shopapp.RatingService.mapper;
 
 
+import com.shopapp.RatingService.dto.rating.ShopResponse;
+import com.shopapp.RatingService.dto.rating.UpdateShopRequest;
 import com.shopapp.RatingService.dto.rating.UpdateUserRequest;
 import com.shopapp.RatingService.dto.rating.UserResponse;
 import com.shopapp.RatingService.dto.rating.request.RatingCreateDTO;
@@ -31,6 +33,19 @@ public class RatingMapper {
         request.setFullName(user.getFullName());
         request.setRatings(user.getRatings());
         request.setFavorites(user.getFavorites());
+        return request;
+    }
+    public UpdateShopRequest toUpdateShop(ShopResponse shop){
+        UpdateShopRequest request=new UpdateShopRequest();
+        request.setName(shop.getName());
+        request.setDescription(shop.getDescription());
+        request.setAddress(shop.getAddress());
+        request.setLatitude(shop.getLatitude());
+        request.setLongitude(shop.getLongitude());
+        request.setOwnerId(shop.getOwnerId());
+        request.setProducts(shop.getProducts());
+        request.setImages(shop.getImages());
+        request.setRatings(shop.getRatings());
         return request;
     }
 

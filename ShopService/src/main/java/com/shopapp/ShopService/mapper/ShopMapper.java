@@ -1,6 +1,7 @@
 package com.shopapp.ShopService.mapper;
 
 import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
+import com.shopapp.ShopService.dto.UpdateShopRequest;
 import com.shopapp.ShopService.dto.image.response.ImageResponseDTO;
 import com.shopapp.ShopService.dto.product.response.ProductResponseDTO;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
@@ -9,6 +10,7 @@ import com.shopapp.ShopService.model.Shop;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
+
 @Component
 public class ShopMapper {
 
@@ -20,6 +22,16 @@ public class ShopMapper {
         shop.setLatitude(request.getLatitude());
         shop.setLongitude(request.getLongitude());
         return shop;
+    }
+
+    public void updateEntity(Shop shop, UpdateShopRequest request) {
+        shop.setName(request.getName());
+        shop.setDescription(request.getDescription());
+        shop.setAddress(request.getAddress());
+        shop.setLatitude(request.getLatitude());
+        shop.setLongitude(request.getLongitude());
+        shop.setOwnerId(request.getOwnerId());
+        shop.setRatings(request.getRatings());
     }
 
     public ShopResponse toResponse(Shop shop) {
@@ -47,10 +59,14 @@ public class ShopMapper {
                 .map(image -> {
                     ImageResponseDTO imageResponse = new ImageResponseDTO();
                     imageResponse.setId(image.getId());
-                    imageResponse.setImageUrl(image.getUrl());
+                    imageResponse.setFileName(image.getFileName());
+                    imageResponse.setFileType(image.getFileType());
+                    imageResponse.setShopId(image.getShop().getId());
+                    imageResponse.setFileSizeInBytes(image.getImageData().length);
                     return imageResponse;
                 })
                 .collect(Collectors.toList()));
+        response.setRatings(shop.getRatings());
         return response;
     }
 

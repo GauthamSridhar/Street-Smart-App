@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface RatingService {
     RatingResponseDTO addRating(UUID userId, UUID shopId, RatingCreateDTO ratingDTO, HttpServletRequest req);
     RatingResponseDTO updateRating(UUID userId, UUID ratingId, RatingUpdateDTO ratingDTO);
-    void deleteRating(UUID userId, UUID ratingId,HttpServletRequest request);
+    void deleteRating(UUID userId, UUID ratingId,UUID shopId,HttpServletRequest request);
     List<RatingResponseDTO> getShopRatings(UUID shopId);
     RatingResponseDTO getRating(UUID ratingId);
 }

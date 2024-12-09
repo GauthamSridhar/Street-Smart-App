@@ -11,8 +11,7 @@ import java.util.UUID;
 @FeignClient(name = "ShopService", path = "/api/shops")
 public interface ShopFeignClient {
 
-    @PutMapping("/{shopId}/status")
-    void updateShopStatus(
-            @PathVariable("shopId") UUID shopId,
-            @RequestParam("status") ShopStatus status);
+    @PutMapping("/{shopId}/toggle-status")
+    void toggleShopStatus(
+            @PathVariable("shopId") UUID shopId);
 }
