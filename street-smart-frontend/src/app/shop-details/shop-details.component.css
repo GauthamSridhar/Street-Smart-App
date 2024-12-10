@@ -1,0 +1,35 @@
+/* src/app/shop-details/shop-details.component.css */
+
+/* Heart Icon Styling */
+h2 i {
+  font-size: 1.5rem; /* Adjust the size as needed */
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+h2 i:hover {
+  color: #ff0000; /* Optional: Change color on hover for better UX */
+  transform: scale(1.2); /* Optional: Slightly enlarge on hover */
+}
+
+/* Navigation Buttons Styling */
+button {
+  cursor: pointer;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Tabs Styling */
+ul.flex li {
+  transition: color 0.3s ease;
+}
+
+ul.flex li:hover {
+  color: #a3a3a3; /* Slightly lighter on hover */
+}
+
+ul.flex li.font-bold {
+  color: #ffffff; /* Active tab color */
+}

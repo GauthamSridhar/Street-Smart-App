@@ -1,0 +1,155 @@
+<!-- src/app/login/login.component.html -->
+
+<app-navbar></app-navbar>
+<div class="min-h-screen bg-gradient-to-br from-black to-gray-800 flex flex-col lg:flex-row items-center justify-center px-4 relative">
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black opacity-50"></div>
+
+  <!-- Login Form Container -->
+  <div class="flex-1 flex items-center justify-center z-10">
+    <div class="bg-black bg-opacity-70 backdrop-filter backdrop-blur-lg border border-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-6 text-center text-white">Login</h2>
+      <form [formGroup]="loginForm" (ngSubmit)="loginUser()">
+        <!-- Email/Phone Toggle -->
+        <div class="flex justify-center space-x-4 mb-6">
+          <button
+            type="button"
+            (click)="setInputType('email')"
+            class="w-1/2 py-2 font-semibold rounded-l-lg focus:outline-none transition-transform duration-300 transform hover:scale-105"
+            [ngClass]="{
+              'bg-white text-black border border-white shadow-md': currentInput === 'email',
+              'bg-transparent text-white border border-white': currentInput !== 'email'
+            }"
+            [attr.aria-pressed]="currentInput === 'email'"
+            aria-label="Login with Email"
+          >
+            Email
+          </button>
+          <button
+            type="button"
+            (click)="setInputType('phone')"
+            class="w-1/2 py-2 font-semibold rounded-r-lg focus:outline-none transition-transform duration-300 transform hover:scale-105"
+            [ngClass]="{
+              'bg-white text-black border border-white shadow-md': currentInput === 'phone',
+              'bg-transparent text-white border border-white': currentInput !== 'phone'
+            }"
+            [attr.aria-pressed]="currentInput === 'phone'"
+            aria-label="Login with Phone"
+          >
+            Phone
+          </button>
+        </div>
+
+        <!-- Email Input -->
+        <div *ngIf="currentInput === 'email'" class="mb-6 relative">
+          <label for="login-email" class="block mb-2 font-semibold text-white">Email</label>
+          <input
+            id="login-email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+            [ngClass]="{'border-red-500': isControlInvalid('email')}"
+            [attr.aria-invalid]="isControlInvalid('email')"
+            aria-required="true"
+          />
+          <div *ngIf="isControlInvalid('email')" class="text-red-500 text-sm mt-1">
+            Please enter a valid email.
+          </div>
+        </div>
+
+        <!-- Phone Input -->
+        <div *ngIf="currentInput === 'phone'" class="mb-6 relative">
+          <label for="login-phone" class="block mb-2 font-semibold text-white">Phone Number</label>
+          <div class="flex items-center">
+            <select
+              id="login-country-code"
+              formControlName="countryCode"
+              class="w-1/4 mr-2 pl-3 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+              [ngClass]="{'border-red-500': isControlInvalid('countryCode')}"
+              [attr.aria-invalid]="isControlInvalid('countryCode')"
+              aria-required="true"
+            >
+              <option value="" disabled>Select Code</option>
+              <option *ngFor="let code of countryCodes" [value]="code.code">{{ code.code }}</option>
+            </select>
+            <input
+              id="login-phone"
+              type="tel"
+              formControlName="phone"
+              placeholder="Enter your phone number"
+              class="w-3/4 pl-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+              [ngClass]="{'border-red-500': isControlInvalid('phone')}"
+              [attr.aria-invalid]="isControlInvalid('phone')"
+              aria-required="true"
+            />
+          </div>
+          <div *ngIf="isControlInvalid('phone')" class="text-red-500 text-sm mt-1">
+            Please enter a valid phone number.
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-6 relative">
+          <label for="login-password" class="block mb-2 font-semibold text-white">Password</label>
+          <input
+            id="login-password"
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+            [ngClass]="{'border-red-500': isControlInvalid('password')}"
+            [attr.aria-invalid]="isControlInvalid('password')"
+            aria-required="true"
+          />
+          <div *ngIf="isControlInvalid('password')" class="text-red-500 text-sm mt-1">
+            Password must be at least 6 characters long.
+          </div>
+        </div>
+
+        <!-- Login Button -->
+        <button
+          type="submit"
+          [disabled]="loginForm.invalid || isLoading"
+          class="w-full py-2 bg-gradient-to-r from-black to-gray-900 text-white font-semibold rounded-lg hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          aria-label="Login"
+        >
+          <span *ngIf="!isLoading">Login</span>
+          <svg *ngIf="isLoading" class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <p class="text-center mt-6 text-white">
+        Don't have an account? <a routerLink="/register" class="font-semibold text-white underline">Register</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Right Section (Welcome + Image) -->
+  <div class="hidden lg:flex flex-1 flex-col items-center justify-center text-center mb-10 mt-5 lg:mb-0 lg:ml-6 z-10">
+    <!-- Welcome Title -->
+    <div class="mb-6">
+      <h1 class="text-3xl lg:text-4xl font-semibold text-white">
+        Welcome to
+      </h1>
+      <h2 class="text-5xl lg:text-6xl font-bold mt-2 text-white">
+        <span class="inline-block px-4 py-1 animate-pulse street-smart-text">
+          Street Smart
+        </span>
+      </h2>
+      <p class="mt-4 text-xl lg:text-2xl text-white max-w-md mx-auto">
+        Register and discover the smartest way to connect with your favorite shops.
+      </p>
+    </div>
+
+    <!-- Image -->
+    <img
+      src="images/login.svg" 
+      alt="Street Smart Illustration"
+      class="w-full max-w-md rounded-lg shadow-lg filter brightness-125"
+    />
+  </div>
+</div>

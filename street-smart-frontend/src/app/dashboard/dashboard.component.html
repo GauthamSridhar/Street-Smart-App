@@ -1,0 +1,48 @@
+<!-- src/app/dashboard/dashboard.component.html -->
+
+<app-navbar></app-navbar>
+<div class="flex h-screen bg-gray-50 relative">
+  <!-- Map Section -->
+  <div class="relative flex-1 h-screen">
+    <app-map
+      #map
+      [shops]="filteredShops"
+      [currentLocation]="currentLocation"
+      (shopMarkerClicked)="onShopSelected($event)"
+      (locateUser)="locateUser()"
+      (searchShops)="filterShops($event)"
+      (filterCategory)="filterByCategory($event)"
+      class="h-full"
+    ></app-map>
+
+    <div *ngIf="geolocationError" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg">
+      {{ geolocationError }}
+    </div>
+  </div>
+
+  <app-shop-details
+    *ngIf="isShopSelected && selectedShop"
+    [shop]="selectedShop"
+    [isOpen]="isShopSelected"
+    (close)="closeShopDetails()"
+    (navigateToShop)="onNavigateToShop($event)"
+    (cancelNavigationEvent)="onCancelNavigation()"
+    class="w-1/4 h-screen bg-white shadow-lg z-50 overflow-y-auto"
+  ></app-shop-details>
+
+  <button
+    *ngIf="isNavigating"
+    class="absolute bottom-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-red-600 z-50"
+    (click)="cancelNavigation()"
+    aria-label="Cancel Navigation"
+  >
+    Cancel Navigation
+  </button>
+
+  <div *ngIf="loadingNavigation" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+    <svg class="animate-spin h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+    </svg>
+  </div>
+</div>

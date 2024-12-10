@@ -1,0 +1,99 @@
+<app-navbar></app-navbar>
+<div class="reviews-container bg-gradient-to-b from-black to-gray-900 text-gray-200 p-8  shadow-2xl ">
+  <h2 class="reviews-title text-4xl font-bold mb-8 text-center text-white tracking-wide">
+    Shop Reviews
+  </h2>
+
+  <!-- Sorting and Filtering Options -->
+  <div class="sorting-filtering flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
+    <!-- Sorting Options -->
+    <div class="sorting-options flex items-center space-x-4">
+      <span class="text-gray-300 text-lg">Sort Reviews:</span>
+      <select 
+        [(ngModel)]="sortOption" 
+        (change)="sortReviews()" 
+        class="bg-gray-700 text-gray-200 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 transition-transform transform hover:scale-105 duration-300"
+      >
+        <option value="recent">Most Recent</option>
+        <option value="high-to-low">High to Low</option>
+        <option value="low-to-high">Low to High</option>
+      </select>
+    </div>
+
+    <!-- Ratings Count -->
+    <div class="ratings-count w-full md:w-auto">
+      <h3 class="text-2xl font-semibold text-white mb-4">Ratings Summary</h3>
+      <ul>
+        <li *ngFor="let rating of ratings" class="flex items-center mb-2">
+          <!-- Star Icons -->
+          <div class="flex items-center mr-2">
+            <ng-container *ngFor="let star of getStarsArray(rating.value)">
+              <i class="fas fa-star text-yellow-400"></i>
+            </ng-container>
+            <ng-container *ngIf="rating.value < 5">
+              <ng-container *ngFor="let star of getStarsArray(5 - rating.value)">
+                <i class="far fa-star text-gray-500"></i>
+              </ng-container>
+            </ng-container>
+          </div>
+          <!-- Rating Count Bar -->
+          <div class="flex-1 bg-gray-700 h-4 rounded-full mr-2">
+            <div 
+              class="bg-gray-300 h-4 rounded-full" 
+              [style.width.%]="calculatePercentage(rating.count)"
+            ></div>
+          </div>
+          <span class="text-gray-300 text-lg">{{ rating.count }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Reviews List -->
+  <ul class="reviews-list space-y-6">
+    <li 
+      *ngFor="let review of reviews" 
+      class="review-item bg-gray-800 p-6 rounded-lg shadow-md hover:bg-gray-700 transition-transform transform hover:scale-105 duration-300"
+    >
+      <div class="review-header flex justify-between items-center">
+        <!-- User Info with Avatar -->
+        <div class="flex items-center">
+          <img 
+            [src]="review.avatar" 
+            alt="{{ review.userName }}'s avatar" 
+            class="w-12 h-12 rounded-full mr-4 object-cover"
+          />
+          <div>
+            <h3 class="review-user text-xl font-semibold text-white">
+              {{ review.userName }}
+            </h3>
+            <p class="text-gray-400 text-sm">
+              {{ review.date | date: 'mediumDate' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="review-rating flex items-center">
+          <span class="text-yellow-400 text-lg font-bold mr-2">{{ review.rating }}</span>
+          <span class="text-gray-400">/ 5</span>
+          <div class="ml-4 flex">
+            <ng-container *ngFor="let star of getStarsArray(review.rating)">
+              <i class="fas fa-star text-yellow-400"></i>
+            </ng-container>
+            <ng-container *ngIf="review.rating < 5">
+              <ng-container *ngFor="let star of getStarsArray(5 - review.rating)">
+                <i class="far fa-star text-gray-500"></i>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Comment -->
+      <p class="review-comment mt-4 text-gray-300">
+        {{ review.comment }}
+      </p>
+    </li>
+  </ul>
+</div>

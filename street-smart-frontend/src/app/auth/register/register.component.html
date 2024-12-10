@@ -1,0 +1,267 @@
+<!-- src/app/register/register.component.html -->
+
+<app-navbar></app-navbar>
+<div class="min-h-screen bg-gradient-to-br from-black to-gray-800 flex flex-col lg:flex-row items-center justify-center px-4 relative overflow-hidden p-8">
+
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black opacity-50"></div>
+
+  <!-- Left Section (Welcome Title + Image) -->
+  <div class="flex-1 flex flex-col items-center justify-center text-center lg:text-left lg:items-start lg:pr-8 z-10">
+    <!-- Welcome Title -->
+    <div class="mb-8">
+      <h1 class="text-3xl lg:text-4xl font-semibold text-white">
+        Welcome to
+      </h1>
+      <h2 class="text-5xl lg:text-6xl font-bold mt-2 text-white">
+        <span class="inline-block px-4 py-1 animate-pulse"
+          style="
+            color: black;
+            font-weight: bold;
+            text-shadow: 
+              1px 1px 0 rgb(255, 255, 255), 
+              -1px -1px 0 rgb(255, 255, 255), 
+              1px -1px 0 rgb(255, 255, 255), 
+              -1px 1px 0 rgb(255, 255, 255);
+            transition: text-shadow 0.3s ease-in-out;
+          "
+        >
+          Street Smart
+        </span>
+      </h2>
+      <p class="mt-4 text-xl lg:text-2xl text-white max-w-md mx-auto lg:mx-0">
+        Register and discover the smartest way to connect with your favorite shops.
+      </p>
+    </div>
+
+    <!-- Image -->
+    <img
+      src="images/sign_up.svg"
+      alt="Street Smart Illustration"
+      class="w-full max-w-md rounded-lg shadow-lg filter brightness-125"
+    />
+  </div>
+
+  <!-- Right Section (Registration Form) -->
+  <div class="flex-1 flex items-center justify-center z-6">
+    <div class="bg-black bg-opacity-70 backdrop-filter backdrop-blur-lg border border-white p-10 rounded-lg shadow-2xl w-full max-w-lg">
+      <h2 class="text-2xl font-bold mb-6 text-center text-white">Register</h2>
+      <form [formGroup]="registerForm" (ngSubmit)="registerUser()">
+        <!-- Phone Number -->
+        <div class="mb-4 relative">
+          <label for="register-phone" class="block mb-2 font-semibold text-white">Phone Number</label>
+          <div class="flex items-center">
+            <!-- Country Code Select -->
+            <div class="relative w-1/3 mr-2">
+              <select
+                id="register-phone-country-code"
+                class="w-full pl-3 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+                formControlName="phoneCountryCode"
+              >
+                <option disabled value="">Code</option>
+                <option *ngFor="let code of countryCodes" [value]="code.code">
+                  {{ code.code }} ({{ code.country }})
+                </option>
+              </select>
+              <!-- Validation Error -->
+              <div *ngIf="registerForm.get('phoneCountryCode')?.invalid && (registerForm.get('phoneCountryCode')?.dirty || registerForm.get('phoneCountryCode')?.touched)" class="text-red-500 text-sm mt-1">
+                Country code is required.
+              </div>
+            </div>
+            <!-- Phone Number Input -->
+            <div class="flex-grow relative">
+              <input
+                id="register-phone"
+                type="tel"
+                placeholder="Enter your phone number"
+                class="w-full pl-3 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+                formControlName="phoneNumber"
+              />
+              <!-- Validation Error -->
+              <div *ngIf="registerForm.get('phoneNumber')?.invalid && (registerForm.get('phoneNumber')?.dirty || registerForm.get('phoneNumber')?.touched)" class="text-red-500 text-sm mt-1">
+                Valid phone number is required (10-15 digits).
+              </div>
+            </div>
+            <!-- Get OTP Button -->
+            <button
+              type="button"
+              class="ml-2 py-2 px-3 bg-gradient-to-r from-black to-gray-800 text-white rounded hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95"
+              (click)="openOtpDialog('phone')"
+              [disabled]="isPhoneVerified || isLoading"
+            >
+              {{ isPhoneVerified ? 'Verified' : 'Get OTP' }}
+            </button>
+          </div>
+          <small id="register-phone-help" class="text-gray-400">We'll never share your phone number.</small>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-4 relative">
+          <label for="register-email" class="block mb-2 font-semibold text-white">Email</label>
+          <div class="flex items-center">
+            <div class="flex-grow relative">
+              <input
+                id="register-email"
+                type="email"
+                placeholder="Enter your email"
+                class="w-full pl-3 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+                formControlName="email"
+              />
+              <!-- Validation Error -->
+              <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)" class="text-red-500 text-sm mt-1">
+                Valid email is required.
+              </div>
+            </div>
+            <!-- Get OTP Button -->
+            <button
+              type="button"
+              class="ml-2 py-2 px-3 bg-gradient-to-r from-black to-gray-800 text-white rounded hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95"
+              (click)="openOtpDialog('email')"
+              [disabled]="isEmailVerified || isLoading"
+            >
+              {{ isEmailVerified ? 'Verified' : 'Get OTP' }}
+            </button>
+          </div>
+          <small id="register-email-help" class="text-gray-400">We'll never share your email.</small>
+        </div>
+
+        <!-- Full Name and Role -->
+        <div class="flex flex-col lg:flex-row lg:space-x-4 mb-4">
+          <!-- Full Name -->
+          <div class="relative flex-1 mb-4 lg:mb-0">
+            <label for="register-fullname" class="block mb-2 font-semibold text-white">Full Name</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.346 0 4.526.537 6.371 1.46M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </span>
+              <input
+                id="register-fullname"
+                type="text"
+                placeholder="Enter your full name"
+                class="w-full pl-10 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+                formControlName="fullName"
+              />
+              <!-- Validation Error -->
+              <div *ngIf="registerForm.get('fullName')?.invalid && (registerForm.get('fullName')?.dirty || registerForm.get('fullName')?.touched)" class="text-red-500 text-sm mt-1">
+                Full name is required (minimum 2 characters).
+              </div>
+            </div>
+            <small id="register-fullname-help" class="text-gray-400">Enter your full legal name.</small>
+          </div>
+
+          <!-- Role -->
+          <div class="relative flex-1">
+            <label for="register-role" class="block mb-2 font-semibold text-white">Role</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2 9 3.343 9 5s1.343 3 3 3zM6 20v-2a6 6 0 0112 0v2h-2v-2a4 4 0 00-8 0v2h-2z" />
+                </svg>
+              </span>
+              <select
+                id="register-role"
+                class="w-full pl-10 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+                formControlName="role"
+              >
+                <option disabled value="">Select Role</option>
+                <option value="USER">User</option>
+                <option value="SHOPKEEPER">Shopkeeper</option>
+              </select>
+              <!-- Validation Error -->
+              <div *ngIf="registerForm.get('role')?.invalid && (registerForm.get('role')?.dirty || registerForm.get('role')?.touched)" class="text-red-500 text-sm mt-1">
+                Role is required.
+              </div>
+            </div>
+            <small id="register-role-help" class="text-gray-400">Choose your role.</small>
+          </div>
+        </div>
+
+        <!-- Password and Confirm Password -->
+        <div class="flex flex-col lg:flex-row lg:space-x-4 mb-6">
+          <!-- Password -->
+          <div class="relative flex-1 mb-4 lg:mb-0">
+            <label for="register-password" class="block mb-2 font-semibold text-white">Password</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.343 3-3V7a3 3 0 10-6 0v1c0 1.657 1.343 3 3 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7a8 8 0 1116 0v4h-2V7a6 6 0 10-12 0v4H4V7z" />
+                </svg>
+              </span>
+              <input
+                id="register-password"
+                type="password"
+                placeholder="Enter your password"
+                class="w-full pl-10 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+                formControlName="password"
+              />
+              <!-- Validation Error -->
+              <div *ngIf="registerForm.get('password')?.errors?.['weakPassword'] && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)" class="text-red-500 text-sm mt-1">
+                Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.
+              </div>
+            </div>
+            <small id="register-password-help" class="text-gray-400">Choose a strong password.</small>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="relative flex-1">
+            <label for="register-confirm-password" class="block mb-2 font-semibold text-white">Confirm Password</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.343 3-3V7a3 3 0 10-6 0v1c0 1.657 1.343 3 3 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7a8 8 0 1116 0v4h-2V7a6 6 0 10-12 0v4H4V7z" />
+                </svg>
+              </span>
+              <input
+                id="register-confirm-password"
+                type="password"
+                placeholder="Confirm your password"
+                class="w-full pl-10 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+                formControlName="confirmPassword"
+              />
+              <!-- Validation Error -->
+              <div *ngIf="registerForm.hasError('passwordMismatch') && (registerForm.get('confirmPassword')?.dirty || registerForm.get('confirmPassword')?.touched)" class="text-red-500 text-sm mt-1">
+                Passwords do not match.
+              </div>
+            </div>
+            <small id="register-confirm-password-help" class="text-gray-400">Re-enter your password.</small>
+          </div>
+        </div>
+
+        <!-- Register Button -->
+        <button
+          type="submit"
+          class="w-full py-2 bg-gradient-to-r from-black to-gray-900 text-white font-semibold rounded-lg hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95 flex items-center justify-center"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="!isLoading">Register</span>
+          <svg *ngIf="isLoading" class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Display any form error -->
+      <div *ngIf="formError" class="mb-4 text-red-500 text-center">
+        {{ formError }}
+      </div>
+
+      <!-- OTP Verification Modal -->
+      <app-otp-dialog
+        *ngIf="showOtpDialog"
+        [otpType]="otpType"
+        [contactInfo]="contactInfo"
+        (close)="onOtpDialogClose($event)"
+      ></app-otp-dialog>
+
+      <p class="text-center mt-6 text-white">
+        Already have an account?
+        <a routerLink="/login" class="font-semibold text-white underline">Login</a>
+      </p>
+    </div>
+  </div>
+</div>

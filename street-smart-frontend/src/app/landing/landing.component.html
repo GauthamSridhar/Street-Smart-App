@@ -1,0 +1,73 @@
+<app-navbar></app-navbar>
+
+<div class="min-h-screen bg-gradient-to-br from-black to-gray-800 text-black dark:text-white flex flex-col px-4 lg:px-16 py-8 lg:py-16">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+    <!-- Left Container -->
+    <div class="flex flex-col space-y-8 lg:space-y-16">
+      <div class="flex flex-col lg:flex-row space-y-8 lg:space-y-0 lg:space-x-8 bg-white">
+        <!-- Motivational Quote -->
+        <div class="flex flex-col items-center justify-center bg-white text-black p-4 w-full lg:w-1/2">
+          <p class="text-4xl lg:text-5xl font-bold text-center leading-relaxed">
+            Stay Smart,<br />Shop Smarter.
+          </p>
+        </div>
+      
+        <!-- Right Section Content -->
+        <div class="flex flex-col items-center bg-white p-4 w-full lg:w-1/2">
+          <p class="text-lg font-light text-black leading-relaxed text-center">
+            The smartest way to shop is just around the corner.
+          </p>
+          <button
+          routerLink="/register"
+            class="w-full lg:w-auto py-3 px-8 mt-6 font-medium text-white bg-black rounded transition duration-300 bg-gradient-to-br from-black to-gray-600 hover:from-gray-600 hover:to-black"
+          >
+            Try for Free
+          </button>
+        </div>
+        
+      </div>
+      
+      <!-- Reach Out and About Us Side by Side -->
+      <div class="flex flex-col lg:flex-row space-y-8 lg:space-y-0 lg:space-x-8">
+        <!-- Reach Out -->
+        <div class="flex flex-col items-center space-y-4 w-full lg:w-1/2">
+          <img src="images/reach.svg" alt="Reach Out" class="w-full" />
+          <div class="text-center">
+            <h2 class="text-2xl font-bold mt-4">Reach Out</h2>
+            <div class="flex justify-center space-x-4 mt-4">
+              <a href="#" aria-label="Mail" class="hover:text-gray-700"><i class="fas fa-envelope text-2xl"></i></a>
+              <a href="#" aria-label="Instagram" class="hover:text-gray-700"><i class="fab fa-instagram text-2xl"></i></a>
+              <a href="#" aria-label="YouTube" class="hover:text-gray-700"><i class="fab fa-youtube text-2xl"></i></a>
+              <a href="#" aria-label="LinkedIn" class="hover:text-gray-700"><i class="fab fa-linkedin text-2xl"></i></a>
+              <a href="#" aria-label="Facebook" class="hover:text-gray-700"><i class="fab fa-facebook text-2xl"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- About Us -->
+        <div class="flex flex-col items-center space-y-4 w-full lg:w-1/2">
+          <img src="images/about.svg" alt="About Us" class="w-full" />
+          <div class="text-center">
+            <h2 class="text-2xl font-bold mt-4">Know About Us</h2>
+            <p class="text-lg mt-2 leading-relaxed">
+              Street Smart helps you connect with local businesses, explore products, and get timely updates on deals
+              and promotions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Container -->
+    <div class="flex flex-col justify-center">
+      <!-- Image Section -->
+      <div>
+        <img
+          src="images/landing.svg"
+          alt="Street Smart Theme"
+          class="w-full h-auto"
+        />
+      </div>
+    </div>
+  </div>
+</div>
