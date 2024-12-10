@@ -4,5 +4,5 @@ import com.shopapp.UserService.model.UserRole;
 
 import java.util.UUID;
 
-public record JwtToken (String jwt, String username, String role){
+public record JwtToken (String jwt, String username, String role,String id){
 }

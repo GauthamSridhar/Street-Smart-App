@@ -7,6 +7,7 @@ import com.shopapp.ShopService.dto.shop.response.ShopResponse;
 import com.shopapp.ShopService.model.ShopStatus;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ShopService {
@@ -22,4 +23,8 @@ public interface ShopService {
     boolean doesShopExist(UUID shopId);
 
     ShopBasicInfoDTO getShopBasicInfo(UUID shopId);
+
+    ShopResponse getShopByOwner(UUID userId);
+
+    List<ShopResponse> getAllShops();
 }

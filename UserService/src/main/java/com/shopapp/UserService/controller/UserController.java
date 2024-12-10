@@ -55,6 +55,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+
     @PostMapping("/validate")
     public ResponseEntity<Void> validateToken(@RequestParam String token) {
         log.info("Validating token: {}", token);

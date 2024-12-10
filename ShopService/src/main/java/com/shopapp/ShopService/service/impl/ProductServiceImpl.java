@@ -1,6 +1,5 @@
 package com.shopapp.ShopService.service.impl;
 
-
 import com.shopapp.ShopService.dto.product.request.AddProductRequest;
 import com.shopapp.ShopService.dto.product.response.ProductResponseDTO;
 import com.shopapp.ShopService.exception.ResourceNotFoundException;
@@ -49,13 +48,16 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + productId));
 
-        productMapper.updateEntity(existingProduct, request);
+        // Just toggle availability, do not update name from request
+        existingProduct.setAvailable(!existingProduct.isAvailable());
 
+        // Do not call productMapper.updateEntity(existingProduct, request) if not changing name
         Product updatedProduct = productRepository.save(existingProduct);
         log.info("Product ID: {} updated successfully", productId);
 
         return productMapper.toDTO(updatedProduct);
     }
+
 
     @Override
     public void deleteProduct(UUID productId) {

@@ -18,6 +18,7 @@ public class ShopResponse {
     private Double longitude;
     private ShopStatus status;
     private UUID ownerId;
+    private String category;
     private List<ProductResponseDTO> products;
     private List<ImageResponseDTO> images;
     private List<UUID> ratings;

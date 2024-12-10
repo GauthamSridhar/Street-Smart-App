@@ -9,8 +9,6 @@ import java.util.UUID;
 public class ProductResponseDTO {
     private UUID id;
     private String name;
-    private String description;
-    private BigDecimal price;
     private boolean available;
     private UUID shopId;
 }

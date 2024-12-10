@@ -11,8 +11,6 @@ public class ProductMapper {
     public Product toEntity(AddProductRequest request) {
         Product product = new Product();
         product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
         product.setAvailable(request.isAvailable());
         return product;
     }
@@ -21,17 +19,19 @@ public class ProductMapper {
         ProductResponseDTO dto = new ProductResponseDTO();
         dto.setId(product.getId());
         dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
         dto.setAvailable(product.isAvailable());
         dto.setShopId(product.getShop().getId());
         return dto;
     }
 
     public void updateEntity(Product existingProduct, AddProductRequest request) {
-        existingProduct.setName(request.getName());
-        existingProduct.setDescription(request.getDescription());
-        existingProduct.setPrice(request.getPrice());
+        // Only update name if provided and non-empty
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            existingProduct.setName(request.getName());
+        }
+
+        // Always update availability if needed
         existingProduct.setAvailable(request.isAvailable());
     }
+
 }

@@ -19,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -133,4 +135,24 @@ public class ShopServiceImpl implements ShopService {
                 .orElseThrow(() -> new ResourceNotFoundException("Shop not found with ID: " + shopId));
         return shopMapper.toBasicInfo(shop);
     }
+
+    @Override
+    @Transactional
+    public ShopResponse getShopByOwner(UUID userId) {
+        Shop shop = shopRepository.findByOwnerId(userId);
+        if(shop==null){
+            return null;
+        }
+        return shopMapper.toResponse(shop);
+    }
+
+    @Override
+    @Transactional
+    public List<ShopResponse> getAllShops() {
+        List<Shop> shopEntities = shopRepository.findAll();
+        return shopEntities.stream()
+                .map(shopMapper::toResponse)
+                .toList(); // toList() requires Java 16+, use collect(Collectors.toList()) if on older Java
+    }
+
 }

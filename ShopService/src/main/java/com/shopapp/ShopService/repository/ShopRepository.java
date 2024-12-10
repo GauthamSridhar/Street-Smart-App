@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface ShopRepository extends JpaRepository<Shop, UUID> {
     List<Shop> findByStatus(ShopStatus status);
-    List<Shop> findByOwnerId(UUID ownerId);
+    Shop findByOwnerId(UUID ownerId);
 
     @Query(value = "SELECT s.* FROM shops s " +
             "WHERE ST_DWithin(ST_MakePoint(s.longitude, s.latitude)::geography, " +

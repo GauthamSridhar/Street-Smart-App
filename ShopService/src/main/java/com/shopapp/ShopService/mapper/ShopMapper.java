@@ -21,6 +21,7 @@ public class ShopMapper {
         shop.setAddress(request.getAddress());
         shop.setLatitude(request.getLatitude());
         shop.setLongitude(request.getLongitude());
+        shop.setCategory(request.getCategory());
         return shop;
     }
 
@@ -43,14 +44,13 @@ public class ShopMapper {
         response.setLatitude(shop.getLatitude());
         response.setLongitude(shop.getLongitude());
         response.setStatus(shop.getStatus());
+        response.setCategory(shop.getCategory());
         response.setOwnerId(shop.getOwnerId());
         response.setProducts(shop.getProducts().stream()
                 .map(product -> {
                     ProductResponseDTO productResponse = new ProductResponseDTO();
                     productResponse.setId(product.getId());
                     productResponse.setName(product.getName());
-                    productResponse.setDescription(product.getDescription());
-                    productResponse.setPrice(product.getPrice());
                     productResponse.setAvailable(product.isAvailable());
                     return productResponse;
                 })

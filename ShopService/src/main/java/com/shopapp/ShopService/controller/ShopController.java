@@ -4,7 +4,6 @@ import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
 import com.shopapp.ShopService.dto.UpdateShopRequest;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
-import com.shopapp.ShopService.model.ShopStatus;
 import com.shopapp.ShopService.service.ShopService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -33,8 +33,9 @@ public class ShopController {
      */
     @PostMapping("/register")
     public ResponseEntity<ShopResponse> registerShop(
-            @RequestParam UUID userId,
+            @RequestParam("userId") UUID userId,
             @Valid @RequestBody ShopRegistrationRequest request, HttpServletRequest req) {
+        System.out.println("ShopController.registerShop");
         ShopResponse registeredShop = shopService.registerShop(userId, request, req);
         return ResponseEntity.ok(registeredShop);
     }
@@ -86,6 +87,17 @@ public class ShopController {
     public ResponseEntity<ShopBasicInfoDTO> getShopBasicInfo(@PathVariable UUID shopId) {
         ShopBasicInfoDTO shopInfo = shopService.getShopBasicInfo(shopId);
         return ResponseEntity.ok(shopInfo);
+    }
+    @GetMapping("/owner/{userId}")
+    public ResponseEntity<ShopResponse> getShopByOwner(@PathVariable UUID userId) {
+        ShopResponse shop = shopService.getShopByOwner(userId);
+        return ResponseEntity.ok(shop);
+    }
+    //get all shops data by a list
+    @GetMapping
+    public ResponseEntity<List<ShopResponse>> getAllShops() {
+        List<ShopResponse> shops = shopService.getAllShops();
+        return ResponseEntity.ok(shops);
     }
 
 

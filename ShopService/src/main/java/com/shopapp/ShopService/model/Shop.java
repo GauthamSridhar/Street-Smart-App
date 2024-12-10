@@ -26,6 +26,10 @@ public class Shop {
     @Column(nullable = false)
     private String description;
 
+    @NotBlank(message = "Category is required")
+    @Column(name = "category")
+    private String category;
+
     @NotBlank(message = "Address is required")
     @Column(nullable = false)
     private String address;

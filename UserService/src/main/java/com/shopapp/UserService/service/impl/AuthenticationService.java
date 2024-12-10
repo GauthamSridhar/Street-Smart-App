@@ -43,7 +43,8 @@ public class AuthenticationService {
         log.info("User authenticated successfully with username: {}", username);
         String token = jwtUtil.generateToken(username);
         String role=userRepository.findByEmailOrPhoneNumber(username,username).get().getRole().toString();
-        return new JwtToken(token,username,role);
+        String id=userRepository.findByEmailOrPhoneNumber(username,username).get().getId().toString();
+        return new JwtToken(token,username,role,id);
 
     }
 
