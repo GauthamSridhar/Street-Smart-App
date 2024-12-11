@@ -12,4 +12,7 @@ public class FavoriteRequestDTO {
 
     @NotNull(message = "Shop ID cannot be null")
     private UUID shopId;
+
+    String rating;;
+    String review;
 }

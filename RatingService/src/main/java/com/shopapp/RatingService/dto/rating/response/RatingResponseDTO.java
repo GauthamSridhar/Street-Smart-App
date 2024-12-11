@@ -9,5 +9,8 @@ public  class RatingResponseDTO {
     private UUID id;
     private Integer rating;
     private String review;
+    private String userId;
+    private String ShopId;
+    private String UpdatedAt;
 
 }

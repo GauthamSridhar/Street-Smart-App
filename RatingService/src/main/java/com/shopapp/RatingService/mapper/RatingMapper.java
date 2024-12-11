@@ -54,6 +54,10 @@ public class RatingMapper {
         dto.setId(rating.getId());
         dto.setRating(rating.getRating());
         dto.setReview(rating.getReview());
+        dto.setUserId(rating.getUserId().toString());
+        dto.setShopId(rating.getShopId().toString());
+        dto.setUpdatedAt(rating.getUpdatedAt().toString());
+
         return dto;
     }
 }
