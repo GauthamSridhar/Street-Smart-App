@@ -46,4 +46,9 @@ public class FavoriteController {
         boolean result = favoriteService.isFavorite(userId, shopId);
         return ResponseEntity.ok(result);
     }
+    @GetMapping("/count/{userId}")
+    public ResponseEntity<Integer> getFavoriteCount(@PathVariable UUID userId,HttpServletRequest request) {
+        int count = favoriteService.getFavoriteCount(userId,request);
+        return ResponseEntity.ok(count);
+    }
 }

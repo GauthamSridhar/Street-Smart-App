@@ -80,4 +80,12 @@ public class ProductController {
         List<ProductResponseDTO> products = productService.getProductsByShop(shopId);
         return ResponseEntity.ok(products);
     }
+
+    /*get count of products of a particular shop*/
+    @GetMapping("/count/{shopId}")
+    public ResponseEntity<Long> getProductCount(@PathVariable UUID shopId) {
+        log.info("Fetching product count for Shop ID: {}", shopId);
+        Long count = productService.getProductCount(shopId);
+        return ResponseEntity.ok(count);
+    }
 }

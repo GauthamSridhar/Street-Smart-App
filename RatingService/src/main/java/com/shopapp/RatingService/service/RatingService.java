@@ -16,4 +16,6 @@ public interface RatingService {
     void deleteRating(UUID userId, UUID ratingId,UUID shopId,HttpServletRequest request);
     List<RatingResponseDTO> getShopRatings(UUID shopId);
     RatingResponseDTO getRating(UUID ratingId);
+
+    Long getShopRatingsCount(UUID shopId);
 }

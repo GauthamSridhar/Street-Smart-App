@@ -91,4 +91,12 @@ public class RatingController {
         List<RatingResponseDTO> ratings = ratingService.getShopRatings(shopId);
         return ResponseEntity.ok(ratings);
     }
+    //get ratings count of a particular shop
+    @GetMapping("/count/{shopId}")
+    public ResponseEntity<Long> getShopRatingsCount(@PathVariable UUID shopId) {
+        log.info("Fetching ratings count for Shop ID: {}", shopId);
+        Long count = ratingService.getShopRatingsCount(shopId);
+        return ResponseEntity.ok(count);
+    }
+
 }

@@ -95,6 +95,13 @@ public class ShopApprovalServiceImpl implements ShopApprovalService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Long getPendingApprovalsCount() {
+        log.info("Fetching pending approvals count");
+        return shopApprovalRepository.countByApprovalStatus(ShopStatus.PENDING);
+
+    }
+
 
     /**
      * Helper method to map ShopApproval to ShopApprovalResponseDTO.

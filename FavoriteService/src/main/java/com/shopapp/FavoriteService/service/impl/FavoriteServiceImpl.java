@@ -150,4 +150,22 @@ public class FavoriteServiceImpl implements FavoriteService {
         log.info("Checking if Shop ID: {} is a favorite for User ID: {}", shopId, userId);
         return favouriteRepository.existsByUserIdAndShopId(userId, shopId);
     }
+
+    @Override
+    public int getFavoriteCount(UUID userId, HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+
+        if (bearerToken == null) {
+            return 0;
+        }
+        log.info("Fetching favorite count for User ID: {}", userId);
+
+        // Fetch the User object via UserService
+        UserResponse user = userFeignClient.getUser(userId,bearerToken).getBody();
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found with ID: " + userId);
+        }
+
+        return user.getFavorites().size();
+    }
 }

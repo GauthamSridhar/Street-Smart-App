@@ -14,4 +14,6 @@ public interface ProductService {
     void deleteProduct(UUID productId);
     List<ProductResponseDTO> getProductsByShop(UUID shopId);
     ProductResponseDTO getProductById(UUID productId);
+
+    Long getProductCount(UUID shopId);
 }

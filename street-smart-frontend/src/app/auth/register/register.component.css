@@ -1,0 +1,38 @@
+/* Typing container */
+.typing-container {
+  display: inline-block;
+  overflow: hidden; /* Hide overflowing text */
+  white-space: nowrap; /* Prevent text wrapping */
+  animation: typing 3s steps(12, end); /* Typing animation for the text */
+}
+
+/* Typing text */
+.street-smart-text {
+  display: inline-block;
+  color: inherit; /* Ensure the text color matches inline styles */
+}
+
+/* Blinking cursor */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  background-color: black; /* Matches the inline style for text */
+  animation: blink 0.5s step-end infinite; /* Cursor blinking animation */
+}
+
+/* Typing effect animation */
+@keyframes typing {
+  from {
+    width: 0; /* Start with no width */
+  }
+  to {
+    width: 100%; /* Reveal the full text */
+  }
+}
+
+/* Blinking cursor animation */
+@keyframes blink {
+  50% {
+    background-color: transparent; /* Makes the cursor disappear for blinking */
+  }
+}

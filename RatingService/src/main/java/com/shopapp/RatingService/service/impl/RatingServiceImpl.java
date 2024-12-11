@@ -165,4 +165,11 @@ public class RatingServiceImpl implements RatingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Rating not found with ID: " + ratingId));
         return ratingMapper.toDTO(rating);
     }
+
+    @Override
+    public Long getShopRatingsCount(UUID shopId) {
+        log.info("Fetching ratings count for Shop ID: {}", shopId);
+
+        return ratingRepository.countByShopId(shopId);
+    }
 }

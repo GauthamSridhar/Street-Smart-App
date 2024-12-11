@@ -98,6 +98,11 @@ export class ProductsService {
         catchError(error => this.handleError(error, 'deleteProduct'))
       );
   }
+  getProductsCount(userId: string): Observable<number> {
+    const headers = this.buildHeaders();
+    return this.http.get<number>(`${this.baseUrl}/count/${userId}`,{headers});
+  }
+  
 
   /**
    * Helper method to build HTTP headers with Bearer token.

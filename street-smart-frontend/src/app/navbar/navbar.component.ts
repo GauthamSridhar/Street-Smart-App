@@ -1,77 +1,148 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { FavoritesService } from '../services/favorite-service.service';
+import { RequestsService } from '../services/requests.service';
+import { ReviewService } from '../services/review.service';
+import { ProductsService } from '../services/products.service';
+import { Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
-  imports: [CommonModule, RouterModule]
+  imports: [CommonModule,RouterModule]
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   isMobileMenuOpen: boolean = false;
-  menuItems: { name: string; count?: number }[] = []; 
-  favouritesCount: number = 5;
-  requestsCount: number = 12;
-  reviewsCount: number = 8;
-  productsCount: number = 15;
 
-  constructor(private router: Router) {}
+  // Variables for counts
+  favoritesCount: number = 0;
+  reviewsCount: number = 0;
+  requestsCount: number = 0;
+  productsCount: number = 0;
+
+  // Menu items for display
+  menuItems: { name: string; count?: number }[] = [];
+
+  private subscriptions: Subscription[] = [];
+
+  constructor(
+    private router: Router,
+    private favoritesService: FavoritesService,
+    private requestsService: RequestsService,
+    private reviewsService: ReviewService,
+    private productsService: ProductsService
+  ) {}
 
   ngOnInit() {
     this.updateMenuItemsBasedOnSession();
   }
 
   ngOnDestroy() {
-    // No subscriptions to unsubscribe from now.
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private updateMenuItemsBasedOnSession() {
     const token = sessionStorage.getItem('tokenId');
     const role = sessionStorage.getItem('role'); // 'USER', 'SHOPKEEPER', or 'ADMIN'
+    const userId = sessionStorage.getItem('id');
 
-    console.log('Checking session data for navbar:', { token, role });
-
-    if (!token || !role) {
-      // No user logged in, show only login
-      this.menuItems = [
-        { name: 'Login' }
-      ];
-    } else {
-      // User is logged in, show items based on role
-      switch (role) {
-        case 'USER':
-          this.menuItems = [
-            { name: 'favorites', count: this.favouritesCount },
-            { name: 'profile' },
-            { name: 'logout' }
-          ];
-          break;
-        case 'SHOPKEEPER':
-          this.menuItems = [
-            { name: 'reviews', count: this.reviewsCount },
-            { name: 'profile' },
-            { name: 'products', count: this.productsCount },
-            { name: 'logout' }
-          ];
-          break;
-        case 'ADMIN':
-          this.menuItems = [
-            { name: 'requests', count: this.requestsCount },
-            { name: 'profile' },
-            { name: 'logout' }
-          ];
-          break;
-        default:
-          this.menuItems = [
-            { name: 'Login' }
-          ];
-          break;
-      }
+    if (!token || !role || !userId) {
+      this.menuItems = [{ name: 'Login' }];
+      return;
     }
 
-    console.log('Updated menu items based on session:', this.menuItems);
+    switch (role) {
+      case 'USER':
+        this.menuItems = [
+          { name: 'favorites', count: this.favoritesCount },
+          { name: 'profile' },
+          { name: 'logout' },
+        ];
+        this.fetchFavoritesCount(userId);
+        break;
+
+      case 'SHOPKEEPER':
+        this.menuItems = [
+          { name: 'reviews', count: this.reviewsCount },
+          { name: 'products', count: this.productsCount },
+          { name: 'profile' },
+          { name: 'logout' },
+        ];
+        this.fetchReviewsCount(userId);
+        this.fetchProductsCount(userId);
+        break;
+
+      case 'ADMIN':
+        this.menuItems = [
+          { name: 'requests', count: this.requestsCount },
+          { name: 'profile' },
+          { name: 'logout' },
+        ];
+        this.fetchRequestsCount(userId);
+        break;
+
+      default:
+        this.menuItems = [{ name: 'Login' }];
+        break;
+    }
+  }
+
+  private fetchFavoritesCount(userId: string): void {
+    const sub = this.favoritesService.getFavoritesCount(userId).subscribe({
+      next: (count) => {
+        console.log(`Favorites count fetched for userId ${userId}:`, count);
+        this.favoritesCount = count;
+        this.updateMenuCounts('favorites', count);
+      },
+      error: (err) => console.error('Error fetching favorites count:', err),
+    });
+    this.subscriptions.push(sub);
+  }
+
+  private fetchReviewsCount(userId: string): void {
+    const sub = this.reviewsService.getReviewsCount(userId).subscribe({
+      next: (count) => {
+        console.log(`Reviews count fetched for userId ${userId}:`, count);
+        this.reviewsCount = count;
+        this.updateMenuCounts('reviews', count);
+      },
+      error: (err) => console.error('Error fetching reviews count:', err),
+    });
+    this.subscriptions.push(sub);
+  }
+
+  private fetchRequestsCount(userId: string): void {
+    const sub = this.requestsService.getRequestsCount(userId).subscribe({
+      next: (count) => {
+        console.log(`Requests count fetched for userId ${userId}:`, count);
+        this.requestsCount = count;
+        this.updateMenuCounts('requests', count);
+      },
+      error: (err) => console.error('Error fetching requests count:', err),
+    });
+    this.subscriptions.push(sub);
+  }
+
+  private fetchProductsCount(userId: string): void {
+    const sub = this.productsService.getProductsCount(userId).subscribe({
+      next: (count) => {
+        console.log(`Products count fetched for userId ${userId}:`, count);
+        this.productsCount = count;
+        this.updateMenuCounts('products', count);
+      },
+      error: (err) => console.error('Error fetching products count:', err),
+    });
+    this.subscriptions.push(sub);
+  }
+
+  private updateMenuCounts(name: string, count: number): void {
+    const item = this.menuItems.find((item) => item.name === name);
+    if (item) {
+      item.count = count;
+    }
   }
 
   toggleMobileMenu() {
@@ -79,8 +150,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    console.log('Logout clicked');
-    // Clear session storage and navigate to login
     sessionStorage.clear();
     this.router.navigate(['/login']);
   }

@@ -84,7 +84,11 @@ export class RequestsService {
         catchError((error: HttpErrorResponse) => this.handleError(error, 'rejectRequest'))
       );
   }
-
+  
+  getRequestsCount(userId: string): Observable<number> {
+    const headers = this.buildHeaders();
+    return this.http.get<number>(`${this.baseUrl}/approvals/pending/count`,{headers});
+  }
   /**
    * Helper method to build HTTP headers with Bearer token.
    */
@@ -96,7 +100,7 @@ export class RequestsService {
       'Authorization': token ? `Bearer ${token}` : ''
     });
   }
-
+  
   /**
    * Handle HTTP errors.
    * @param error - The HTTP error response.
@@ -112,4 +116,5 @@ export class RequestsService {
     });
     return throwError(() => error);
   }
+  
 }

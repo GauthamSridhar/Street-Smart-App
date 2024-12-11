@@ -16,4 +16,6 @@ public interface ShopApprovalService {
     ShopApprovalResponseDTO rejectShop(UUID shopId, String reason);
 
     List<ShopApprovalResponseDTO> getPendingApprovals();
+
+    Long getPendingApprovalsCount();
 }

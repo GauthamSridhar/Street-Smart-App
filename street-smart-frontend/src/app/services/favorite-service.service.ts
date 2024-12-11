@@ -92,4 +92,11 @@ export class FavoritesService {
       headers: this.getAuthHeaders()
     });
   }
+
+  getFavoritesCount(userId: string): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/favorites/count/${userId}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+  
 }

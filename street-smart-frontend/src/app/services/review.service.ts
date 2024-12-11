@@ -124,6 +124,11 @@ export class ReviewService {
       'Authorization': token ? `Bearer ${token}` : ''
     });
   }
+  getReviewsCount(userId: string): Observable<number> {
+    const headers = this.buildHeaders(); // Assumes buildHeaders is implemented
+    return this.http.get<number>(`${this.baseUrl}/count/${userId}`, { headers });
+  }
+  
 
   /**
    * Handle HTTP errors.

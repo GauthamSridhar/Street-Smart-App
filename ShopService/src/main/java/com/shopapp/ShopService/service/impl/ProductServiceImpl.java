@@ -90,4 +90,11 @@ public class ProductServiceImpl implements ProductService {
 
         return productMapper.toDTO(product);
     }
+
+    @Override
+    public Long getProductCount(UUID shopId) {
+        log.info("Fetching product count for Shop ID: {}", shopId);
+
+        return productRepository.countByShopId(shopId);
+    }
 }

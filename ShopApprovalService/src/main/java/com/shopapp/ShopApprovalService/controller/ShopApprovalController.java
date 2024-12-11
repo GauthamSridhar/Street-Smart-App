@@ -45,4 +45,12 @@ public class ShopApprovalController {
         List<ShopApprovalResponseDTO> pendingApprovals = shopApprovalService.getPendingApprovals();
         return ResponseEntity.ok(pendingApprovals);
     }
+    //count of pending status shops
+    @GetMapping("/pending/count")
+    public ResponseEntity<Long> getPendingApprovalsCount() {
+        log.info("Fetching pending approvals count");
+        Long count = shopApprovalService.getPendingApprovalsCount();
+        return ResponseEntity.ok(count);
+    }
+
 }

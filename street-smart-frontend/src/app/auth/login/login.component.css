@@ -1,0 +1,45 @@
+/* Typing container */
+.typing-container {
+  display: inline-block;
+  overflow: hidden; /* Hide overflowing text */
+  white-space: nowrap; /* Prevent text wrapping */
+  font-family: inherit; /* Use the same font as parent */
+  font-weight: inherit; /* Inherit the weight from parent */
+  animation: typing 2s steps(12, end), blink 0.5s step-end infinite;
+}
+
+/* Typing text */
+.street-smart-text {
+  display: inline-block;
+  color: white;
+  text-shadow: 
+    1px 1px 0 rgb(255, 255, 255), 
+    -1px -1px 0 rgb(255, 255, 255), 
+    1px -1px 0 rgb(255, 255, 255), 
+    -1px 1px 0 rgb(255, 255, 255);
+}
+
+/* Cursor */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  background-color: white; /* White cursor to match the text */
+  animation: blink 0.5s step-end infinite;
+}
+
+/* Typing effect animation */
+@keyframes typing {
+  from {
+    width: 0; /* Start with no width (hidden text) */
+  }
+  to {
+    width: 100%; /* Reveal full text */
+  }
+}
+
+/* Blinking cursor animation */
+@keyframes blink {
+  50% {
+    background-color: transparent;
+  }
+}

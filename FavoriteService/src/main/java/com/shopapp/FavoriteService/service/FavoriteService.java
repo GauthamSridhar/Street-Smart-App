@@ -15,4 +15,6 @@ public interface FavoriteService {
     List<FavoriteResponseDTO> getFavoritesByUser(UUID userId,HttpServletRequest req);
 
     boolean isFavorite(UUID userId, UUID shopId);
+
+    int getFavoriteCount(UUID userId, HttpServletRequest request);
 }
