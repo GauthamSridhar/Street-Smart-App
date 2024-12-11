@@ -2,7 +2,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { environment } from '..//environment';
+import { environment } from '../environment'; // Corrected import path
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AddProductRequest } from '../model/add-product-request.model';
@@ -65,6 +65,37 @@ export class ProductsService {
       .pipe(
         tap(updatedProduct => console.log('Product availability updated:', updatedProduct)),
         catchError(error => this.handleError(error, 'toggleAvailability'))
+      );
+  }
+
+  /**
+   * Update an existing product.
+   * PUT /api/products/{productId}
+   * @param productId - The ID of the product to update.
+   * @param updatedProduct - The updated product data.
+   */
+  updateProduct(productId: string, updatedProduct: Partial<AddProductRequest>): Observable<ProductResponseDTO> {
+    const headers = this.buildHeaders();
+    console.log(`Updating Product ID: ${productId} with data:`, updatedProduct);
+    return this.http.put<ProductResponseDTO>(`${this.baseUrl}/${productId}`, updatedProduct, { headers })
+      .pipe(
+        tap(product => console.log('Product updated:', product)),
+        catchError(error => this.handleError(error, 'updateProduct'))
+      );
+  }
+
+  /**
+   * Delete a product from the shop.
+   * DELETE /api/products/{productId}
+   * @param productId - The ID of the product to delete.
+   */
+  deleteProduct(productId: string): Observable<void> {
+    const headers = this.buildHeaders();
+    console.log(`Deleting Product ID: ${productId}`);
+    return this.http.delete<void>(`${this.baseUrl}/${productId}`, { headers })
+      .pipe(
+        tap(() => console.log('Product deleted:', productId)),
+        catchError(error => this.handleError(error, 'deleteProduct'))
       );
   }
 

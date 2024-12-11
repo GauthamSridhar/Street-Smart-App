@@ -12,31 +12,22 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Shop } from '../model/shop.model';
-import { FormsModule, NgModel } from '@angular/forms';
-// Mock Interfaces (Replace with actual models as needed)
-interface Product {
-  name: string;
-  available: boolean;
-}
-
-interface Review {
-  id: string;
-  userId: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  date: Date;
-}
-
+import { FormsModule } from '@angular/forms';
+import { Review } from '../model/review.model'; // Use the new Review model
+import { ReviewService } from '../services/review.service';
+import { FavoritesService } from '../services/favorite-service.service';
+import { Subscription } from 'rxjs';
+import { ProductResponseDTO } from '../model/product-response-dto.model';
+import { ProductsService } from '../services/products.service';
 @Component({
   selector: 'app-shop-details',
   templateUrl: './shop-details.component.html',
   styleUrls: ['./shop-details.component.css'],
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
 })
 export class ShopDetailsComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() shop!: Shop; // Ensure 'shop' is provided
+  @Input() shop!: Shop;
   @Input() isOpen = false;
 
   @Output() close = new EventEmitter<void>();
@@ -49,30 +40,29 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, OnChanges {
   navigationActive = false;
   isFavorite = false;
 
-  products: Product[] = [
-    { name: 'Product A', available: true },
-    { name: 'Product B', available: false },
-    { name: 'Product C', available: true },
-    { name: 'Product D', available: false }
-  ];
-  showAvailableProducts = true; // Toggle for available/unavailable products
-
-  // Reviews related properties
   reviews: Review[] = [];
   userReview: Review | null = null;
-  newReview: Partial<Review> = { rating: 5, comment: '' };
-  isEditingReview: boolean = false;
-  isAddingReview: boolean = false;
-  loadingReviews: boolean = false;
-  currentUserId: string = 'user123'; // Mock current user ID
-  currentUserName: string = 'John Doe'; // Mock current user name
+  
+  // Adjusted to match Review model: replace `comment` with `review`
+  reviewForm: Partial<Review> = { rating: 5, review: '' };
 
-  // New Form Model
-  reviewForm: Partial<Review> = { rating: 5, comment: '' };
+  isEditingReview = false;
+  isAddingReview = false;
+  loadingReviews = false;
+  products: ProductResponseDTO[] = []; // Replace the hardcoded array with this dynamic list
+loadingProducts: boolean = false; // Add a loading state for products
+  currentUserId: string = sessionStorage.getItem('id') || ''; // Example user ID
+  currentUserName: string = 'John Doe'; // Example user name
+
+
+  showAvailableProducts = true;
+
+  private subscriptions: Subscription[] = [];
 
   constructor(
-    // private reviewService: ReviewService, // Uncomment when integrating backend
-    // private authService: AuthService // Uncomment when integrating backend
+    private reviewService: ReviewService,
+    private favoritesService: FavoritesService,
+    private productService: ProductsService
   ) {}
 
   ngOnInit(): void {
@@ -80,10 +70,16 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, OnChanges {
       this.checkIfFavorite();
       this.fetchReviews();
       this.getCurrentUser();
+      this.fetchProducts();
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['shop'] && !changes['shop'].firstChange) {
+      this.fetchReviews();
+      this.fetchProducts(); // Refetch products if the shop changes
+      this.checkIfFavorite();
+    }
     if (changes['isOpen']) {
       if (changes['isOpen'].currentValue === false) {
         this.resetNavigationState();
@@ -95,17 +91,16 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, OnChanges {
 
     if (changes['shop'] && !changes['shop'].firstChange) {
       this.fetchReviews();
+      this.checkIfFavorite();
     }
   }
 
   ngOnDestroy(): void {
-    // Cleanup if necessary
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 
   calculateAverageRating(ratings: number[]): number {
-    return ratings.length
-      ? ratings.reduce((a, b) => a + b, 0) / ratings.length
-      : 0;
+    return ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
   }
 
   onNavigate(): void {
@@ -117,26 +112,32 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, OnChanges {
   onCancelNavigation(): void {
     this.cancelNavigationEvent.emit();
     this.navigationActive = false;
-    console.log('Navigation cancelled.');
   }
 
   checkIfFavorite(): void {
-    this.isFavorite = false;
-    // Mock logic to check if the shop is a favorite
-    // Example:
-    // this.isFavorite = this.favoritesService.isFavorite(this.shop.id);
+    if (!this.shop?.id) return;
+    const sub = this.favoritesService.isFavorite(this.shop.id, this.currentUserId).subscribe({
+      next: (isFav) => this.isFavorite = isFav,
+      error: (err) => console.error('Error checking favorite:', err)
+    });
+    this.subscriptions.push(sub);
   }
 
   toggleFavorite(): void {
-    this.isFavorite = !this.isFavorite;
-    console.log(`Shop is now ${this.isFavorite ? 'a favorite' : 'not a favorite'}.`);
-    // Mock logic to add/remove from favorites
-    // Example:
-    // if (this.isFavorite) {
-    //   this.favoritesService.addFavorite(this.shop.id);
-    // } else {
-    //   this.favoritesService.removeFavorite(this.shop.id);
-    // }
+    if (!this.shop?.id) return;
+
+    const action$ = this.isFavorite
+      ? this.favoritesService.removeFavoriteShop(this.shop.id, this.currentUserId)
+      : this.favoritesService.addFavorite(this.shop.id, this.currentUserId);
+
+    const sub = action$.subscribe({
+      next: () => {
+        this.isFavorite = !this.isFavorite;
+        console.log(`Shop is now ${this.isFavorite ? 'a favorite' : 'not a favorite'}.`);
+      },
+      error: (err) => console.error('Error toggling favorite:', err)
+    });
+    this.subscriptions.push(sub);
   }
 
   resetNavigationState(): void {
@@ -153,86 +154,75 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, OnChanges {
     this.showAvailableProducts = !this.showAvailableProducts;
   }
 
-  get filteredProducts(): Product[] {
+  get filteredProducts() {
     return this.products.filter(
       product => product.available === this.showAvailableProducts
     );
   }
 
-  // Review Methods
-
   getCurrentUser(): void {
-    // Mock current user retrieval
+    // If integrated with AuthService:
     // const currentUser = this.authService.getCurrentUser();
-    // if (currentUser) {
-    //   this.currentUserId = currentUser.id;
-    //   this.currentUserName = currentUser.name;
-    // }
+    // this.currentUserId = currentUser.id;
+    // this.currentUserName = currentUser.name;
+  }
+  fetchProducts(): void {
+    if (!this.shop?.id) return;
+  
+    this.loadingProducts = true; // Set loading state to true
+    const sub = this.productService.getProductsByShop(this.shop.id).subscribe({
+      next: (fetchedProducts) => {
+        this.products = fetchedProducts; // Assign the fetched products to the component variable
+        this.loadingProducts = false; // Reset loading state
+        console.log('Products loaded:', this.products);
+      },
+      error: (err) => {
+        console.error('Error fetching products:', err);
+        this.loadingProducts = false; // Reset loading state on error
+      },
+    });
+  
+    this.subscriptions.push(sub); // Add the subscription to manage lifecycle
   }
 
   fetchReviews(): void {
     if (!this.shop || !this.shop.id) return;
-
     this.loadingReviews = true;
-
-    // Mock fetching reviews
-    setTimeout(() => {
-      // Sample mock reviews
-      this.reviews = [
-        {
-          id: 'rev1',
-          userId: 'user123',
-          userName: 'John Doe',
-          rating: 5,
-          comment: 'Excellent service and quality!',
-          date: new Date('2023-08-15T10:00:00')
-        },
-        {
-          id: 'rev2',
-          userId: 'user456',
-          userName: 'Jane Smith',
-          rating: 4,
-          comment: 'Great products but delivery was slow.',
-          date: new Date('2023-08-14T12:30:00')
-        },
-        {
-          id: 'rev3',
-          userId: 'user789',
-          userName: 'Alice Johnson',
-          rating: 3,
-          comment: 'Average experience.',
-          date: new Date('2023-08-13T09:15:00')
-        }
-      ];
-
-      // Mock user's own review
-      this.userReview = this.reviews.find(review => review.userId === this.currentUserId) || null;
-
-      this.loadingReviews = false;
-    }, 1000); // Simulate API delay
+    const sub = this.reviewService.getReviewsByShop(this.shop.id).subscribe({
+      next: (fetchedReviews) => {
+        this.reviews = fetchedReviews;
+        this.userReview = this.reviews.find(review => review.userId === this.currentUserId) || null;
+        this.loadingReviews = false;
+      },
+      error: (err) => {
+        console.error('Error fetching reviews:', err);
+        this.loadingReviews = false;
+      }
+    });
+    this.subscriptions.push(sub);
   }
 
   startAddingReview(): void {
     this.isAddingReview = true;
-    this.reviewForm = { rating: 5, comment: '' };
+    this.reviewForm = { rating: 5, review: '' };
   }
 
   toggleEditMode(): void {
     if (this.isEditingReview) {
       // Cancel editing
       this.isEditingReview = false;
-      this.reviewForm = { rating: 5, comment: '' };
+      this.reviewForm = { rating: 5, review: '' };
     } else if (this.userReview) {
       // Start editing
       this.isEditingReview = true;
-      this.reviewForm = { ...this.userReview };
+      this.reviewForm = { rating: this.userReview.rating, review: this.userReview.review };
     }
   }
 
   cancelReviewForm(): void {
     this.isAddingReview = false;
     this.isEditingReview = false;
-    this.reviewForm = { rating: 5, comment: '' };
+    this.reviewForm = { rating: 5, review: '' };
   }
 
   submitReview(): void {
@@ -244,53 +234,74 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   addReview(): void {
-    if (!this.reviewForm.rating || !this.reviewForm.comment?.trim()) {
-      alert('Please provide both rating and comment.');
+    if (!this.reviewForm.rating || !this.reviewForm.review?.trim() || !this.shop?.id) {
+      alert('Please provide both rating and review text.');
       return;
     }
 
-    // Mock adding a review
-    const addedReview: Review = {
-      id: `rev${this.reviews.length + 1}`,
+    const sub = this.reviewService
+    .addReview(this.shop.id, {
+      rating: this.reviewForm.rating!,
+      review: this.reviewForm.review!.trim(),
       userId: this.currentUserId,
       userName: this.currentUserName,
-      rating: this.reviewForm.rating!,
-      comment: this.reviewForm.comment.trim(),
-      date: new Date()
-    };
-
-    // Update reviews list
-    this.reviews.unshift(addedReview);
-    this.userReview = addedReview;
-    this.reviewForm = { rating: 5, comment: '' };
-    this.isAddingReview = false;
-    console.log('Review added successfully.');
-  }
+    })
+    .subscribe({
+      next: (newReview) => {
+        this.reviews.unshift(newReview); // Add the new review to the beginning of the reviews array
+        this.userReview = newReview; // Update the user's review
+        this.reviewForm = { rating: 5, review: '' }; // Reset the review form
+        this.isAddingReview = false; // Exit adding review mode
+        console.log('Review added successfully:', newReview);
+      },
+      error: (err) => console.error('Error adding review:', err),
+    });
+  
+  this.subscriptions.push(sub);
+  }  
 
   editReview(): void {
-    if (!this.userReview) return;
-
-    if (!this.reviewForm.rating || !this.reviewForm.comment?.trim()) {
-      alert('Please provide both rating and comment.');
+    if (!this.userReview || !this.shop?.id) return;
+    if (!this.reviewForm.rating || !this.reviewForm.review?.trim()) {
+      alert('Please provide both rating and review text.');
       return;
     }
-
-    // Mock updating a review
-    this.userReview.rating = this.reviewForm.rating!;
-    this.userReview.comment = this.reviewForm.comment.trim();
-    this.isEditingReview = false;
-    console.log('Review updated successfully.');
+  
+    const sub = this.reviewService
+      .updateReview(this.currentUserId, this.userReview.id, {
+        rating: this.reviewForm.rating!,
+        review: this.reviewForm.review!.trim(),
+      })
+      .subscribe({
+        next: (updatedReview) => {
+          const index = this.reviews.findIndex((r) => r.id === updatedReview.id);
+          if (index > -1) {
+            this.reviews[index] = updatedReview;
+          }
+          this.userReview = updatedReview;
+          this.isEditingReview = false;
+          console.log('Review updated successfully:', updatedReview);
+        },
+        error: (err) => console.error('Error updating review:', err),
+      });
+  
+    this.subscriptions.push(sub);
   }
+  
 
   deleteReview(): void {
-    if (!this.userReview) return;
-
+    if (!this.userReview || !this.shop?.id) return;
     if (!confirm('Are you sure you want to delete your review?')) return;
 
-    // Mock deleting a review
-    this.reviews = this.reviews.filter(review => review.id !== this.userReview?.id);
-    this.userReview = null;
-    this.isEditingReview = false;
-    console.log('Review deleted successfully.');
+    const sub = this.reviewService.deleteReview(this.shop.id, this.userReview.id).subscribe({
+      next: () => {
+        this.reviews = this.reviews.filter(review => review.id !== this.userReview?.id);
+        this.userReview = null;
+        this.isEditingReview = false;
+        console.log('Review deleted successfully.');
+      },
+      error: (err) => console.error('Error deleting review:', err)
+    });
+    this.subscriptions.push(sub);
   }
 }
