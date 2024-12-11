@@ -28,14 +28,20 @@ export class FavoritesComponent implements OnInit, OnDestroy {
    * Fetches favorite shops from the FavoritesService.
    */
   fetchFavoriteShops(): void {
-    this.subscription = this.favoritesService.getFavoriteShops().subscribe(
+    const userId = sessionStorage.getItem('id'); // Replace with actual user ID
+    if (userId) {
+      this.subscription = this.favoritesService.getFavoriteShops(userId).subscribe(
       (shops: Shop[]) => {
         this.favoriteShops = shops;
       },
       (error) => {
         console.error('Error fetching favorite shops:', error);
       }
-    );
+      );
+    } else {
+      console.error('User ID is null');
+    }
+
   }
 
   /**
@@ -51,18 +57,20 @@ export class FavoritesComponent implements OnInit, OnDestroy {
    * @param shopId The ID of the shop to remove.
    */
   removeFromFavorites(shopId: string): void {
-    this.favoritesService.removeFavoriteShop(shopId).subscribe(
-      (response) => {
-        console.log(response.message);
-        // Refresh the favorite shops list
-        this.fetchFavoriteShops();
-      },
-      (error) => {
-        console.error('Error removing favorite shop:', error);
-      }
-    );
+    const userId = sessionStorage.getItem('id'); // Replace with actual user ID
+    if (userId) {
+      this.favoritesService.removeFavoriteShop(shopId, userId).subscribe(
+        (response) => {
+          console.log(response);
+          // Refresh the favorite shops list
+          this.fetchFavoriteShops();
+        },
+        (error) => {
+          console.error('Error removing favorite shop:', error);
+        }
+      );
   }
-
+}
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
