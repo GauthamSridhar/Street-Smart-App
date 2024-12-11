@@ -1,146 +1,191 @@
-<div class="min-h-screen bg-gradient-to-br from-black to-gray-800 flex items-center justify-center px-4 py-12 relative">
+<app-navbar></app-navbar>
+<div class="min-h-screen bg-gradient-to-br from-black to-gray-800 flex flex-col lg:flex-row items-center justify-center px-4 relative overflow-hidden p-8">
+  
   <!-- Overlay -->
   <div class="absolute inset-0 bg-black opacity-50"></div>
-
-  <!-- Registration Form Container -->
-  <div class="bg-black bg-opacity-70 backdrop-filter backdrop-blur-lg border border-white p-8 rounded-lg shadow-2xl w-full max-w-2xl relative z-10">
-    <h2 class="text-3xl font-bold mb-6 text-center text-white">Shopkeeper Registration</h2>
-    <form #registrationForm="ngForm" (ngSubmit)="onSubmit(registrationForm)">
-
-      <!-- Shop Name (name) -->
-      <div class="mb-6">
-        <label for="name" class="block mb-2 font-semibold text-white">Shop Name</label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          [(ngModel)]="shopkeeper.name"
-          required
-          minlength="3"
-          maxlength="100"
-          placeholder="Enter your shop name"
-          class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
-        />
-        <div *ngIf="registrationForm.submitted && (registrationForm.controls['name']?.invalid)" class="text-red-500 text-sm mt-1">
-          Shop name is required (3-100 characters).
-        </div>
-      </div>
-
-      <!-- Category -->
-      <div class="mb-6">
-        <label for="category" class="block mb-2 font-semibold text-white">Category</label>
-        <select
-          id="category"
-          name="category"
-          [(ngModel)]="shopkeeper.category"
-          required
-          class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
+  
+  <!-- Left Section (Welcome Title + Image) -->
+  <div class="flex-1 flex flex-col items-center justify-center text-center lg:text-left lg:items-start lg:pr-8 z-10">
+    <!-- Welcome Title -->
+    <div class="mb-8">
+      <h1 class="text-3xl lg:text-4xl font-semibold text-white">
+        Welcome to
+      </h1>
+      <h2 class="text-5xl lg:text-6xl font-bold mt-2 text-white">
+        <span class="inline-block px-4 py-1 animate-pulse"
+          style="
+            color: black;
+            font-weight: bold;
+            text-shadow: 
+              1px 1px 0 rgb(255, 255, 255), 
+              -1px -1px 0 rgb(255, 255, 255), 
+              1px -1px 0 rgb(255, 255, 255), 
+              -1px 1px 0 rgb(255, 255, 255);
+            transition: text-shadow 0.3s ease-in-out;
+          "
         >
-          <option value="" disabled>Select Category</option>
-          <option value="Grocery">Grocery</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Books">Books</option>
-          <option value="Pharmacy">Pharmacy</option>
-          <option value="Restaurant">Restaurant</option>
-        </select>
-        <div *ngIf="registrationForm.submitted && (registrationForm.controls['category']?.invalid)" class="text-red-500 text-sm mt-1">
-          Category is required.
-        </div>
-      </div>
-
-      <!-- Description -->
-      <div class="mb-6">
-        <label for="description" class="block mb-2 font-semibold text-white">Description</label>
-        <textarea
-          id="description"
-          name="description"
-          [(ngModel)]="shopkeeper.description"
-          required
-          minlength="10"
-          maxlength="1000"
-          placeholder="Describe your shop or the goods/services you offer"
-          class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
-          rows="4"
-        ></textarea>
-        <div *ngIf="registrationForm.submitted && (registrationForm.controls['description']?.invalid)" class="text-red-500 text-sm mt-1">
-          Description is required (10-1000 characters).
-        </div>
-      </div>
-
-      <!-- Address -->
-      <div class="mb-6">
-        <label for="address" class="block mb-2 font-semibold text-white">Address</label>
-        <textarea
-          id="address"
-          name="address"
-          [(ngModel)]="shopkeeper.address"
-          required
-          placeholder="Enter your shop address"
-          class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
-          rows="3"
-        ></textarea>
-        <div *ngIf="registrationForm.submitted && (registrationForm.controls['address']?.invalid)" class="text-red-500 text-sm mt-1">
-          Address is required.
-        </div>
-      </div>
-
-      <!-- Location Access -->
-      <div class="mb-6">
-        <label class="block mb-2 font-semibold text-white">Shop Location</label>
-        <button
-          type="button"
-          (click)="getLocation()"
-          class="w-full py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-900 transition-all duration-300 border border-white shadow-md active:scale-95"
-        >
-          Allow Location Access
-        </button>
-        <div *ngIf="locationError" class="text-red-500 text-sm mt-2">
-          {{ locationError }}
-        </div>
-        <div class="mt-4">
-          <label for="latitude" class="block mb-2 font-semibold text-white">Latitude</label>
-          <input
-            id="latitude"
-            name="latitude"
-            type="text"
-            [(ngModel)]="shopkeeper.latitude"
-            readonly
-            placeholder="Latitude"
-            class="w-full pl-4 pr-4 py-2 border border-white rounded bg-gray-800 text-gray-300"
-          />
-        </div>
-        <div class="mt-4">
-          <label for="longitude" class="block mb-2 font-semibold text-white">Longitude</label>
-          <input
-            id="longitude"
-            name="longitude"
-            type="text"
-            [(ngModel)]="shopkeeper.longitude"
-            readonly
-            placeholder="Longitude"
-            class="w-full pl-4 pr-4 py-2 border border-white rounded bg-gray-800 text-gray-300"
-          />
-        </div>
-      </div>
-
-      <!-- Register Button -->
-      <button
-        type="submit"
-        class="w-full py-2 bg-gradient-to-r from-black to-gray-900 text-white font-semibold rounded-lg hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95"
-      >
-        Register
-      </button>
-    </form>
-
-    <!-- Form Error Message -->
-    <div *ngIf="formError" class="mt-4 text-center text-red-500">
-      {{ formError }}
+          Street Smart
+        </span>
+      </h2>
+      <p class="mt-4 text-xl lg:text-2xl text-white max-w-md mx-auto lg:mx-0">
+        Shopkeeper Registration made easy.
+      </p>
     </div>
 
-    <!-- Confirmation Message -->
-    <div *ngIf="registrationSuccess" class="mt-6 text-center text-green-400">
-      Registration successful! Please check your email for confirmation.
+    <!-- Image -->
+    <img
+      src="images/sign_up.svg"
+      alt="Shopkeeper Registration Illustration"
+      class="w-full max-w-md rounded-lg shadow-lg filter brightness-125"
+    />
+  </div>
+  
+  <!-- Right Section (Registration Form) -->
+  <div class="flex-1 flex items-center justify-center z-10">
+    <div class="bg-black bg-opacity-70 backdrop-filter backdrop-blur-lg border border-white p-8 lg:p-10 rounded-lg shadow-2xl w-full max-w-lg">
+      <h2 class="text-2xl font-bold mb-6 text-center text-white">Shopkeeper Registration</h2>
+      <form #registrationForm="ngForm" (ngSubmit)="onSubmit(registrationForm)" class="flex flex-col space-y-6">
+        
+        <!-- Shop Name -->
+        <div class="flex flex-col">
+          <label for="name" class="block mb-2 font-semibold text-white">Shop Name</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            [(ngModel)]="shopkeeper.name"
+            required
+            minlength="3"
+            maxlength="100"
+            placeholder="Enter your shop name"
+            class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white transition"
+          />
+          <div *ngIf="registrationForm.submitted && registrationForm.controls['name']?.invalid" class="text-red-500 text-sm mt-1">
+            Shop name is required (3-100 characters).
+          </div>
+        </div>
+        
+        <!-- Category -->
+        <div class="flex flex-col">
+          <label for="category" class="block mb-2 font-semibold text-white">Category</label>
+          <select
+            id="category"
+            name="category"
+            [(ngModel)]="shopkeeper.category"
+            required
+            class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white transition"
+          >
+            <option value="" disabled>Select Category</option>
+            <option value="Grocery">Grocery</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Books">Books</option>
+            <option value="Pharmacy">Pharmacy</option>
+            <option value="Restaurant">Restaurant</option>
+          </select>
+          <div *ngIf="registrationForm.submitted && registrationForm.controls['category']?.invalid" class="text-red-500 text-sm mt-1">
+            Category is required.
+          </div>
+        </div>
+        
+        <!-- Description -->
+        <div class="flex flex-col">
+          <label for="description" class="block mb-2 font-semibold text-white">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            [(ngModel)]="shopkeeper.description"
+            required
+            minlength="10"
+            maxlength="1000"
+            placeholder="Describe your shop or the goods/services you offer"
+            class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white transition"
+            rows="4"
+          ></textarea>
+          <div *ngIf="registrationForm.submitted && registrationForm.controls['description']?.invalid" class="text-red-500 text-sm mt-1">
+            Description is required (10-1000 characters).
+          </div>
+        </div>
+        
+        <!-- Address -->
+        <div class="flex flex-col">
+          <label for="address" class="block mb-2 font-semibold text-white">Address</label>
+          <textarea
+            id="address"
+            name="address"
+            [(ngModel)]="shopkeeper.address"
+            required
+            placeholder="Enter your shop address"
+            class="w-full pl-4 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white transition"
+            rows="3"
+          ></textarea>
+          <div *ngIf="registrationForm.submitted && registrationForm.controls['address']?.invalid" class="text-red-500 text-sm mt-1">
+            Address is required.
+          </div>
+        </div>
+        
+        <!-- Location Access -->
+        <div class="flex flex-col">
+          <label class="block mb-2 font-semibold text-white">Shop Location</label>
+          <button
+            type="button"
+            (click)="getLocation()"
+            class="w-full py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-900 transition-all duration-300 border border-white shadow-md active:scale-95"
+          >
+            Allow Location Access
+          </button>
+          <div *ngIf="locationError" class="text-red-500 text-sm mt-2">
+            {{ locationError }}
+          </div>
+          
+          <!-- Latitude and Longitude Fields -->
+          <div class="mt-4 flex flex-col lg:flex-row lg:space-x-4">
+            <div class="flex flex-col mb-4 lg:mb-0 lg:w-1/2">
+              <label for="latitude" class="block mb-2 font-semibold text-white">Latitude</label>
+              <input
+                id="latitude"
+                name="latitude"
+                type="text"
+                [(ngModel)]="shopkeeper.latitude"
+                readonly
+                placeholder="Latitude"
+                class="w-full pl-4 pr-4 py-2 border border-white rounded bg-gray-800 text-gray-300"
+              />
+            </div>
+            <div class="flex flex-col lg:w-1/2">
+              <label for="longitude" class="block mb-2 font-semibold text-white">Longitude</label>
+              <input
+                id="longitude"
+                name="longitude"
+                type="text"
+                [(ngModel)]="shopkeeper.longitude"
+                readonly
+                placeholder="Longitude"
+                class="w-full pl-4 pr-4 py-2 border border-white rounded bg-gray-800 text-gray-300"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <!-- Register Button -->
+        <button
+          type="submit"
+          class="w-full py-2 bg-gradient-to-r from-black to-gray-900 text-white font-semibold rounded-lg hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95"
+        >
+          Register
+        </button>
+      </form>
+      
+      <!-- Form Error Message -->
+      <div *ngIf="formError" class="mt-4 text-center text-red-500">
+        {{ formError }}
+      </div>
+      
+      <!-- Confirmation Message -->
+      <div *ngIf="registrationSuccess" class="mt-6 text-center text-green-400">
+        Registration successful! Please check your email for confirmation.
+      </div>
     </div>
   </div>
+  
 </div>

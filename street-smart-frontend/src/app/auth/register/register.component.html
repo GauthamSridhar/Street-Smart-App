@@ -52,7 +52,7 @@
           <label for="register-phone" class="block mb-2 font-semibold text-white">Phone Number</label>
           <div class="flex items-center">
             <!-- Country Code Select -->
-            <div class="relative w-1/3 mr-2">
+            <div class="relative w-1/4 mr-2">
               <select
                 id="register-phone-country-code"
                 class="w-full pl-3 pr-4 py-2 border border-white rounded bg-black text-white focus:outline-none focus:ring-2 focus:ring-white"
@@ -85,7 +85,7 @@
             <!-- Get OTP Button -->
             <button
               type="button"
-              class="ml-2 py-2 px-3 bg-gradient-to-r from-black to-gray-800 text-white rounded hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95"
+              class="ml-2 py-2 px-3 bg-white text-black rounded  transition-all duration-300 border border-white shadow-md active:scale-95"
               (click)="openOtpDialog('phone')"
               [disabled]="isPhoneVerified || isLoading"
             >
@@ -115,7 +115,7 @@
             <!-- Get OTP Button -->
             <button
               type="button"
-              class="ml-2 py-2 px-3 bg-gradient-to-r from-black to-gray-800 text-white rounded hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95"
+              class="ml-2 py-2 px-3 bg-white text-black rounded  transition-all duration-300 border border-white shadow-md active:scale-95"
               (click)="openOtpDialog('email')"
               [disabled]="isEmailVerified || isLoading"
             >
@@ -234,7 +234,7 @@
         <!-- Register Button -->
         <button
           type="submit"
-          class="w-full py-2 bg-gradient-to-r from-black to-gray-900 text-white font-semibold rounded-lg hover:from-gray-800 hover:to-black transition-all duration-300 border border-white shadow-md active:scale-95 flex items-center justify-center"
+          class="w-full py-2 bg-white text-black font-semibold rounded-lg transition-all duration-300 border border-white shadow-md active:scale-95 flex items-center justify-center"
           [disabled]="isLoading"
         >
           <span *ngIf="!isLoading">Register</span>

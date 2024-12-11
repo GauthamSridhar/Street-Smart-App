@@ -6,4 +6,6 @@ export interface Review {
   rating: number;
   review: string;
   date: string; // ISO date string (use created_at or updated_at as per your backend)
+    avatar: string; // URL to avatar image
+
 }

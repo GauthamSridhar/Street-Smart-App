@@ -19,6 +19,7 @@ import { FavoritesService } from '../services/favorite-service.service';
 import { Subscription } from 'rxjs';
 import { ProductResponseDTO } from '../model/product-response-dto.model';
 import { ProductsService } from '../services/products.service';
+
 @Component({
   selector: 'app-shop-details',
   templateUrl: './shop-details.component.html',
@@ -71,9 +72,19 @@ loadingProducts: boolean = false; // Add a loading state for products
       this.fetchReviews();
       this.getCurrentUser();
       this.fetchProducts();
+      this.filterProducts('available');
+
     }
   }
+  filterProducts(status: 'available' | 'unavailable'): void {
+    this.showAvailableProducts = status === 'available';
+  }
 
+  get filteredProducts() {
+    return this.products.filter(
+      (product) => product.available === this.showAvailableProducts
+    );
+  }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['shop'] && !changes['shop'].firstChange) {
       this.fetchReviews();
@@ -154,11 +165,6 @@ loadingProducts: boolean = false; // Add a loading state for products
     this.showAvailableProducts = !this.showAvailableProducts;
   }
 
-  get filteredProducts() {
-    return this.products.filter(
-      product => product.available === this.showAvailableProducts
-    );
-  }
 
   getCurrentUser(): void {
     // If integrated with AuthService:

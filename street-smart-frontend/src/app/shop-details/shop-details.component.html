@@ -1,7 +1,7 @@
 <!-- src/app/shop-details/shop-details.component.html -->
 <div
   *ngIf="isOpen && shop"
-  class="p-6 w-full md:w-[450px] max-w-full h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 rounded-md shadow-lg fixed top-0 right-0 z-50"
+  class="p-6 w-full md:w-[450px] max-w-full h-screen flex flex-col bg-black text-white rounded-md shadow-lg fixed top-0 right-0 z-50"
 >
   <!-- Header -->
   <div class="flex justify-between items-center flex-shrink-0">
@@ -9,16 +9,16 @@
       {{ shop.name }}
       <i
         class="ml-2 cursor-pointer"
-        [ngClass]="isFavorite ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-400'"
+        [ngClass]="isFavorite ? 'fas fa-heart text-white' : 'far fa-heart text-white/50 '"
         (click)="toggleFavorite()"
         tabindex="0"
         role="button"
         aria-label="Toggle Favorite"
-        title="{{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}"
+        [title]="isFavorite ? 'Remove from Favorites' : 'Add to Favorites'"
       ></i>
     </h2>
     <button
-      class="text-gray-400 hover:text-gray-300 transition-colors"
+      class="text-white/50 hover:text-white transition-colors"
       (click)="closeSidebar()"
       aria-label="Close Shop Details"
     >
@@ -28,8 +28,8 @@
 
   <!-- Address and Ratings -->
   <div class="mt-2 flex-shrink-0">
-    <p class="text-sm text-gray-400">{{ shop.address }}</p>
-    <p class="text-sm text-gray-400">
+    <p class="text-sm text-white/70">{{ shop.address }}</p>
+    <p class="text-sm text-white/70">
       ⭐ {{ calculateAverageRating(shop.ratings) | number:'1.1-1' }}
       ({{ shop.ratings.length }} reviews)
     </p>
@@ -39,7 +39,7 @@
   <div class="flex justify-start space-x-2 mt-4 flex-shrink-0">
     <button
       *ngIf="!navigationActive"
-      class="bg-gradient-to-r from-gray-800 to-gray-600 text-gray-100 px-4 py-2 rounded shadow-lg hover:from-gray-700 hover:to-gray-500 transition-transform transform hover:scale-105"
+      class="bg-white text-black px-4 py-2 rounded shadow hover:bg-black hover:text-white transition-transform transform hover:scale-105"
       (click)="onNavigate()"
       aria-label="Navigate to Shop"
     >
@@ -47,7 +47,7 @@
     </button>
     <button
       *ngIf="navigationActive"
-      class="bg-red-600 text-gray-100 px-4 py-2 rounded shadow-lg hover:bg-red-500 transition-transform transform hover:scale-105"
+      class="bg-white text-black px-4 py-2 rounded shadow hover:bg-black hover:text-white transition-transform transform hover:scale-105"
       (click)="onCancelNavigation()"
       aria-label="Cancel Navigation"
     >
@@ -58,12 +58,12 @@
   <!-- Tabs Navigation and Content -->
   <div class="mt-4 flex-1 flex flex-col overflow-y-auto">
     <!-- Tabs Navigation -->
-    <ul class="flex border-b border-gray-700">
+    <ul class="flex border-b border-white/50">
       <li
         *ngFor="let tab of tabs"
         [class.font-bold]="activeTab === tab"
         (click)="activeTab = tab"
-        class="cursor-pointer px-4 py-2 text-gray-400 hover:text-gray-300"
+        class="cursor-pointer px-4 py-2 text-white/70 hover:text-white"
       >
         {{ tab }}
       </li>
@@ -72,21 +72,17 @@
     <!-- Tabs Content -->
     <div class="mt-4">
       <!-- Overview Tab -->
-      <div *ngIf="activeTab === 'Overview'" class="text-gray-300">
+      <div *ngIf="activeTab === 'Overview'" class="text-white/90">
         {{ shop.description }}
-        <!-- Add more mock content to enable scrolling -->
-        <p *ngFor="let i of [].constructor(50)">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        </p>
       </div>
 
       <!-- Reviews Tab -->
-      <div *ngIf="activeTab === 'Reviews'" class="text-gray-300">
+      <div *ngIf="activeTab === 'Reviews'" class="text-white/90">
         <h3 class="text-lg font-semibold mb-2">Reviews</h3>
 
         <!-- Loading Indicator -->
         <div *ngIf="loadingReviews" class="flex justify-center items-center">
-          <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg class="animate-spin h-6 w-6 text-white/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
           </svg>
@@ -94,25 +90,24 @@
 
         <!-- List of Reviews -->
         <ul *ngIf="!loadingReviews && reviews.length > 0">
-          <li *ngFor="let review of reviews" class="mb-4 p-2 border-b border-gray-700">
+          <li *ngFor="let review of reviews" class="mb-4 p-2 border-b border-white/50">
             <div class="flex justify-between items-center">
               <div>
-                <span class="font-semibold">{{ review.userName || 'Anonymous' }}</span>
-                <span class="text-sm text-gray-400"> - {{ review.date | date:'medium' }}</span>
+                <span class="font-semibold text-white">{{ review.userName || 'Anonymous' }}</span>
+                <span class="text-sm text-white/50"> - {{ review.date | date:'medium' }}</span>
               </div>
-              <div class="flex items-center">
-                <span class="text-yellow-400">⭐ {{ review.rating }}</span>
-                <!-- Edit/Delete buttons for user's own review -->
+              <div class="flex items-center space-x-2">
+                <span class="text-white">⭐ {{ review.rating }}</span>
                 <div *ngIf="review.userId === currentUserId" class="ml-2 space-x-2">
                   <button
-                    class="text-blue-400 hover:text-blue-600 focus:outline-none"
+                    class="text-white hover:text-white/50 focus:outline-none"
                     (click)="toggleEditMode()"
                     aria-label="Edit Review"
                   >
                     <i class="fas fa-edit"></i>
                   </button>
                   <button
-                    class="text-red-400 hover:text-red-600 focus:outline-none"
+                    class="text-white hover:text-white/50 focus:outline-none"
                     (click)="deleteReview()"
                     aria-label="Delete Review"
                   >
@@ -121,16 +116,16 @@
                 </div>
               </div>
             </div>
-            <p class="mt-1">{{ review.review }}</p>
+            <p class="mt-1 text-white/90">{{ review.review }}</p>
           </li>
         </ul>
 
-        <p *ngIf="!loadingReviews && reviews.length === 0" class="text-gray-400">No reviews yet. Be the first to review!</p>
+        <p *ngIf="!loadingReviews && reviews.length === 0" class="text-white/50">No reviews yet. Be the first to review!</p>
 
         <!-- Add Review Button -->
         <div *ngIf="!userReview && !isAddingReview" class="mt-4">
           <button
-            class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500 focus:outline-none"
+            class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
             (click)="startAddingReview()"
             aria-label="Add Review"
           >
@@ -145,27 +140,27 @@
           </h4>
           <form (ngSubmit)="submitReview()">
             <div class="mb-2">
-              <label for="rating" class="block text-sm text-gray-400">Rating:</label>
+              <label for="rating" class="block text-sm text-white/80">Rating:</label>
               <select
                 id="rating"
                 [(ngModel)]="reviewForm.rating"
                 name="rating"
                 required
-                class="w-full px-3 py-2 bg-gray-700 text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 bg-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-white"
                 #rating="ngModel"
               >
                 <option *ngFor="let r of [1,2,3,4,5]" [value]="r">{{ r }}</option>
               </select>
             </div>
             <div class="mb-2">
-              <label for="review" class="block text-sm text-gray-400">Review:</label>
+              <label for="review" class="block text-sm text-white/80">Review:</label>
               <textarea
                 id="review"
                 [(ngModel)]="reviewForm.review"
                 name="review"
                 required
                 rows="3"
-                class="w-full px-3 py-2 bg-gray-700 text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 bg-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-white"
               ></textarea>
             </div>
             <div class="flex justify-end space-x-2">
@@ -173,14 +168,14 @@
                 type="button"
                 *ngIf="isEditingReview || isAddingReview"
                 (click)="cancelReviewForm()"
-                class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-500 focus:outline-none"
+                class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
                 aria-label="Cancel"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 focus:outline-none"
+                class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
                 [attr.aria-label]="isEditingReview ? 'Update Review' : 'Submit Review'"
               >
                 {{ isEditingReview ? 'Update Review' : 'Submit Review' }}
@@ -200,34 +195,61 @@
         />
       </div>
 
-      <div *ngIf="loadingProducts" class="text-gray-500">Loading products...</div>
-      <ul *ngIf="!loadingProducts && products.length > 0">
-        <li *ngFor="let product of products">
-          {{ product.name }} - 
-          <span [class.text-green-500]="product.available" [class.text-red-500]="!product.available">
-            {{ product.available ? 'Available' : 'Unavailable' }}
-          </span>
-        </li>
-      </ul>
-      <p *ngIf="!loadingProducts && products.length === 0" class="text-gray-500">
-        No products available for this shop.
-      </p>
-      
+      <!-- Products Tab -->
+      <!-- Tabs Content -->
+    <div class="mt-4">
+      <!-- Products Tab -->
+      <div *ngIf="activeTab === 'Products'" class="text-white/90">
+        <!-- Available/Unavailable Buttons -->
+        <div class="flex space-x-2 mb-4">
+          <button
+            class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
+            (click)="filterProducts('available')"
+            [class.font-bold]="showAvailableProducts"
+            aria-label="Show Available Products"
+          >
+            Available
+          </button>
+          <button
+            class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
+            (click)="filterProducts('unavailable')"
+            [class.font-bold]="!showAvailableProducts"
+            aria-label="Show Unavailable Products"
+          >
+            Unavailable
+          </button>
+        </div>
 
-        <ul>
+        <!-- Loading Indicator -->
+        <div *ngIf="loadingProducts" class="text-white/50">Loading products...</div>
+
+        <!-- List of Products -->
+        <ul
+          *ngIf="!loadingProducts && filteredProducts.length > 0"
+          class="space-y-2"
+        >
           <li
             *ngFor="let product of filteredProducts"
-            class="flex justify-between items-center py-2 border-b border-gray-700"
+            class="flex justify-between items-center py-2 border-b border-white/30"
           >
             <span>{{ product.name }}</span>
             <span
-              [class.text-green-400]="product.available"
-              [class.text-red-400]="!product.available"
+              [class.text-white]="product.available"
+              [class.text-white]="!product.available"
             >
               {{ product.available ? 'Available' : 'Unavailable' }}
             </span>
           </li>
         </ul>
+
+        <p
+          *ngIf="!loadingProducts && filteredProducts.length === 0"
+          class="text-white/50"
+        >
+          No products available for this shop.
+        </p>
       </div>
     </div>
+    </div>
+  </div>
 </div>

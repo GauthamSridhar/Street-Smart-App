@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ShopRegistrationService } from '../services/shop-registration.service';
+import { toast } from 'ngx-sonner';
+import { NavbarComponent } from "../navbar/navbar.component";
 
 interface Shopkeeper {
   name: string;
@@ -15,7 +17,7 @@ interface Shopkeeper {
 @Component({
   selector: 'app-shopkeeper-registration',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, NavbarComponent],
   templateUrl: './shopkeeper-registration.component.html',
   styleUrls: ['./shopkeeper-registration.component.css']
 })
@@ -64,6 +66,7 @@ export class ShopkeeperRegistrationComponent {
       next: (response) => {
         console.log('Registration successful:', response);
         this.registrationSuccess = true;
+
 
         // Reset the form
         form.resetForm();

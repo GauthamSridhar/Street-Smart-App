@@ -6,10 +6,10 @@ import { Observable } from 'rxjs';
 import { environment } from '../environment';
 
 export interface Shop {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
+  shopId: string;
+  id: string | null;
+  shopName: string;
+  userId: string;
 }
 
 @Injectable({
@@ -60,9 +60,7 @@ export class FavoritesService {
   isFavorite(shopId: string, userId: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/favorites/${shopId}/is-favorite?userId=${userId}`,{
       headers: this.getAuthHeaders()
-    }
-
-    );
+    });
   }
 
   /**
