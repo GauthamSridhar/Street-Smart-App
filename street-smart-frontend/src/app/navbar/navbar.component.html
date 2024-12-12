@@ -1,12 +1,12 @@
 <nav class="bg-black px-6 lg:px-16 py-4 flex items-center justify-between shadow-md relative">
-  <!-- Logo -->
-  <div class="text-2xl font-bold text-white flex items-center">
+  <!-- Logo (Left Most) -->
+  <div class="text-2xl font-bold text-white flex items-center cursor-pointer" (click)="navigateToDashboard()">
     <i class="fas fa-map-marked-alt mr-2"></i>
     Street Smart
   </div>
 
-  <!-- Desktop Navigation Links -->
-  <ul class="hidden md:flex space-x-6">
+  <!-- Desktop Navigation Links (Right-Aligned) -->
+  <ul class="hidden md:flex space-x-6 ml-auto">
     <li *ngFor="let item of menuItems">
       <a
         *ngIf="item.name !== 'logout' && item.name !== 'Login'"

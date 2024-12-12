@@ -1,8 +1,27 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <div class="bg-white p-8 rounded shadow-md text-center">
-      <h1 class="text-2xl font-bold mb-4">Something Went Wrong</h1>
-      <p class="mb-6">An unexpected error occurred. Please try again later.</p>
-      <a routerLink="/login" class="text-blue-500 underline">Back to Login</a>
+<div class="flex justify-center items-center min-h-screen bg-black text-white">
+  <!-- Main Container for Error Message and Images -->
+  <div class="flex flex-col items-center p-8 bg-gray-800 rounded-lg shadow-lg max-w-md w-full">
+    <!-- Top Image Section -->
+    <div class="mb-6">
+      <img src="images/error.svg" alt="Error Illustration" class="w-32 h-32 object-contain grayscale">
+    </div>
+
+    <!-- Message Section -->
+    <h1 class="text-2xl md:text-3xl font-semibold mb-4">Something Went Wrong</h1>
+    <p class="text-center text-sm md:text-lg mb-6">
+      An unexpected error occurred. Please try again later.
+    </p>
+
+
+
+    <!-- Back to Login Button -->
+    <div>
+      <a
+        routerLink="/login"
+        class="inline-block bg-white text-black px-6 py-2 rounded-lg shadow hover:bg-gray-200 transition"
+      >
+        Back to Login
+      </a>
     </div>
   </div>
-  
+</div>

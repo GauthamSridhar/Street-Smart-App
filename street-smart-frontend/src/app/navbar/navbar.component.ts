@@ -15,6 +15,35 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule,RouterModule]
 })
 export class NavbarComponent implements OnInit, OnDestroy {
+// navbar.component.ts
+
+// Add this method inside your NavbarComponent class
+navigateToDashboard() {
+  const token = sessionStorage.getItem('tokenId');
+  const role = sessionStorage.getItem('role'); // 'USER', 'SHOPKEEPER', or 'ADMIN'
+
+  if (!token || !role) {
+    // If not logged in, navigate to home (root)
+    this.router.navigate(['/']);
+  } else {
+    // Navigate based on role
+    switch (role) {
+      case 'USER':
+        this.router.navigate(['/dashboard']);  // Adjust the route to your user dashboard
+        break;
+      case 'SHOPKEEPER':
+        this.router.navigate(['/shop-dashboard']);  // Adjust the route to your shopkeeper dashboard
+        break;
+      case 'ADMIN':
+        this.router.navigate(['/admin-dashboard']);  // Adjust the route to your admin dashboard
+        break;
+      default:
+        this.router.navigate(['/']);
+        break;
+    }
+  }
+}
+
   isMobileMenuOpen: boolean = false;
 
   // Variables for counts

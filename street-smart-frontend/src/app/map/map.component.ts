@@ -35,7 +35,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private directionsService: google.maps.DirectionsService | null = null;
   private directionsRenderer: google.maps.DirectionsRenderer | null = null;
 
-  categories = ['Food', 'Clothing', 'Electronics'];
+  categories = [ 'Clothing', 'Electronics','Grocery','Books','Pharmacy','Restaurant'];
 
   readonly API_KEY = environment.googleMapsApiKey;
 

@@ -222,6 +222,16 @@ export class LoginComponent implements OnInit {
           });
           return;
         }
+        else if(shopDetails.status==="REJECTED"){
+          console.warn('Shop exists but not verified. Redirecting to /error.');
+          this.router.navigate(['/shop-rejected'], { queryParams: { message: 'Shop is rejected.' } }).then(() => {
+            console.log('Navigation to /error successful');
+          }).catch(err => {
+            console.error('Navigation to /error failed:', err);
+            this.handleLoginError('Redirection failed. Please try again.');
+          });
+          return
+        }
 
         // Shop exists and is verified
         console.log('Shop is verified. Redirecting to /shop-dashboard.');

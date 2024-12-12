@@ -1,7 +1,5 @@
-// src/app/services/shop.service.ts
-
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environment';
 import { Shop } from '../model/shop.model';
 import { Observable, throwError } from 'rxjs';
@@ -49,6 +47,22 @@ export class ShopService {
   }
 
   /**
+   * Fetch the shop owned by a specific shopkeeper.
+   * GET /api/shops/shopkeeper/{shopkeeperId}
+   * @param shopkeeperId - The ID of the shopkeeper.
+   * @returns An Observable of the Shop object.
+   */
+  getShopByShopkeeperId(shopkeeperId: string): Observable<Shop> {
+    const headers = this.buildHeaders();
+    console.log(`Fetching shop for shopkeeper ID: ${shopkeeperId}`);
+    return this.http.get<Shop>(`${this.baseUrl}/shopkeeper/${shopkeeperId}`, { headers })
+      .pipe(
+        tap(shop => console.log('Shop retrieved for shopkeeper:', shop)),
+        catchError(error => this.handleError(error, 'getShopByShopkeeperId'))
+      );
+  }
+
+  /**
    * Add a new shop.
    * POST /api/shops
    * @param shop - The shop data to add.
@@ -78,6 +92,22 @@ export class ShopService {
       .pipe(
         tap(shop => console.log('Shop updated:', shop)),
         catchError(error => this.handleError(error, 'updateShop'))
+      );
+  }
+
+  /**
+   * Toggle the active/inactive status of a shop.
+   * PUT /api/shops/{shopId}/toggle-status
+   * @param shopId - The ID of the shop to toggle the status.
+   * @returns An Observable of the updated Shop object.
+   */
+  toggleShopStatus(shopId: string): Observable<Shop> {
+    const headers = this.buildHeaders();
+    console.log(`Toggling status for Shop ID: ${shopId}`);
+    return this.http.put<Shop>(`${this.baseUrl}/${shopId}/toggle-status`, null, { headers })
+      .pipe(
+        tap(shop => console.log('Shop status toggled:', shop)),
+        catchError(error => this.handleError(error, 'toggleShopStatus'))
       );
   }
 
@@ -130,34 +160,21 @@ export class ShopService {
       // Backend returned an unsuccessful response code
       switch (error.status) {
         case 400:
-          // Bad Request
-          if (typeof error.error === 'object') {
-            const validationErrors = Object.entries(error.error).map(
-              ([field, message]) => `${field}: ${message}`
-            ).join('\n');
-            errorMessage = `Validation errors:\n${validationErrors}`;
-          } else if (typeof error.error === 'string') {
-            errorMessage = `Error: ${error.error}`;
-          }
+          errorMessage = 'Bad request. Please check the input data.';
           break;
         case 401:
-          // Unauthorized
           errorMessage = 'Unauthorized. Please log in again.';
           break;
         case 403:
-          // Forbidden
-          errorMessage = 'You do not have permission to perform this action.';
+          errorMessage = 'Forbidden. You do not have access to this resource.';
           break;
         case 404:
-          // Not Found
-          errorMessage = 'The requested resource was not found.';
+          errorMessage = 'Resource not found.';
           break;
         case 500:
-          // Internal Server Error
-          errorMessage = 'An internal server error occurred. Please try again later.';
+          errorMessage = 'Internal server error. Please try again later.';
           break;
         default:
-          // Other errors
           errorMessage = `Unexpected error: ${error.statusText} (${error.status})`;
       }
     }
