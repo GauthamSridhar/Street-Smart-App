@@ -18,6 +18,10 @@ spring:
           uri: lb://UserService
           predicates:
             - Path=/api/users/**
+        - id: UserService
+          uri: lb://UserService
+          predicates:
+            - Path=/api/sms/**
           
 
         - id: ShopService

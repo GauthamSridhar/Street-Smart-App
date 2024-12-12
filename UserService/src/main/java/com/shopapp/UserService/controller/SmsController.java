@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Random;
+
 @RestController
 @RequestMapping("/api/sms")
 public class SmsController {
@@ -22,6 +24,9 @@ public class SmsController {
     @PostMapping("/send")
     public ResponseEntity<String> sendSms(@RequestParam String phoneNumber, @RequestParam String message) {
         try {
+            Random random = new Random();
+            int sixDigitNumber = 100000 + random.nextInt(900000); // Ensures a 6-digit number
+            message= Integer.toString(sixDigitNumber);
             smsSender.sendSms(phoneNumber, message);
             return ResponseEntity.ok("OTP sent successfully.");
         } catch (Exception e) {

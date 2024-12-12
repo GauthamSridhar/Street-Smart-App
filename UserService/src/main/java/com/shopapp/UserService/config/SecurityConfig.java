@@ -75,7 +75,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF as tokens are immune to it
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users/register", "/api/users/validate").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users/register", "/api/users/validate","/api/sms/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
