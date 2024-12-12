@@ -215,7 +215,6 @@ export class LoginComponent implements OnInit {
           console.warn('Shop exists but not verified. Redirecting to /error.');
           this.router.navigate(['/error'], { queryParams: { message: 'Shop is not verified.' } }).then(() => {
             console.log('Navigation to /error successful');
-            alert('Your shop is not verified. Please contact support.');
           }).catch(err => {
             console.error('Navigation to /error failed:', err);
             this.handleLoginError('Redirection failed. Please try again.');
