@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./otp-dialog.component.css']
 })
 export class OtpDialogComponent implements OnInit {
+  @Input() otpType: string | undefined;  // This should be defined as @Input()
   @Input() contactInfo: string = ''; // Phone number to send OTP
   @Output() close = new EventEmitter<{ success: boolean }>();
   generatedOtp: string = '';
@@ -19,7 +20,6 @@ export class OtpDialogComponent implements OnInit {
   resendCountdown: number = 60;
   resendInterval: any;
   errorMessage: string = '';
-otpType: any;
 
   constructor(private http: HttpClient) {}
 

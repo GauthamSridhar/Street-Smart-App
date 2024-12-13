@@ -1,1 +1,66 @@
+<!-- src/app/shop-dashboard/shop-dashboard.component.html -->
+
 <app-navbar></app-navbar>
+
+<div class="min-h-screen bg-black text-white p-6">
+  <h1 class="text-3xl font-bold border-b border-gray-700 pb-4 mb-6">Shop Dashboard</h1>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="flex justify-center items-center">
+    <p class="text-gray-400">Loading shop details...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="bg-red-800 text-red-200 p-4 rounded mb-6">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Shop Details -->
+  <div *ngIf="!isLoading && shopDetails; else noShop" class="space-y-6">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+      <h2 class="text-2xl font-semibold mb-4">Shop Details</h2>
+      <ul class="space-y-2">
+        <li>
+          <span class="font-medium">ID:</span> {{ shopDetails.id }}
+        </li>
+        <li>
+          <span class="font-medium">Name:</span> {{ shopDetails.name }}
+        </li>
+        <li>
+          <span class="font-medium">Description:</span> {{ shopDetails.description }}
+        </li>
+        <li>
+          <span class="font-medium">Address:</span> {{ shopDetails.address }}
+        </li>
+        <li>
+          <span class="font-medium">Category:</span> {{ shopDetails.category }}
+        </li>
+        <li>
+          <span class="font-medium">Status:</span> 
+          <span [ngClass]="{
+            'text-green-400': shopDetails.status === 'Open',
+            'text-red-400': shopDetails.status !== 'Open'
+          }">
+            {{ shopDetails.status }}
+          </span>
+        </li>
+        <li>
+          <span class="font-medium">Owner ID:</span> {{ shopDetails.ownerId }}
+        </li>
+        <li>
+          <span class="font-medium">Latitude:</span> {{ shopDetails.latitude }}
+        </li>
+        <li>
+          <span class="font-medium">Longitude:</span> {{ shopDetails.longitude }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- No Shop Details Available -->
+  <ng-template #noShop>
+    <div class="flex justify-center items-center h-32">
+      <p class="text-gray-500">No shop details available.</p>
+    </div>
+  </ng-template>
+</div>
