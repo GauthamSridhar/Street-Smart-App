@@ -11,7 +11,7 @@ COPY RatingService RatingService
 COPY FavoriteService FavoriteService
 RUN mvn -B -ntp -DskipTests package
 
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:25-jre-jammy
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 ARG SERVICE
 WORKDIR /app
