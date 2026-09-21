@@ -1,47 +1,53 @@
 package com.shopapp.ShopApprovalService.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "shop_approvals", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "shop_id")
-})
+@Table(name = "shop_approvals")
 public class ShopApproval {
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Id
-    @GeneratedValue
-    private UUID id;
+  @Column(nullable = false, unique = true)
+  private UUID shopId;
 
-    @Column(name = "shop_id", nullable = false, unique = true)
-    private UUID shopId;
+  private long revision;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ShopStatus approvalStatus;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ShopStatus approvalStatus;
 
-    private String reason;
+  @Column(length = 1000)
+  private String reason;
 
-    @Column(nullable = false)
-    private Boolean approved;
+  @Column(nullable = false)
+  private Boolean approved = false;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+  private UUID decidedBy;
+  private LocalDateTime decidedAt;
 
-    @PrePersist
-    public void prePersist() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.updatedAt = now;
-        this.approved = false; // Default value
-    }
+  @Column(nullable = false)
+  private boolean synchronizedWithShop = true;
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
+  @Version private long version;
+
+  @PrePersist
+  public void create() {
+    createdAt = LocalDateTime.now();
+    updatedAt = createdAt;
+  }
+
+  @PreUpdate
+  public void update() {
+    updatedAt = LocalDateTime.now();
+  }
 }

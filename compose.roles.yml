@@ -1,0 +1,30 @@
+# docker compose --env-file .env --env-file .env.roles -f compose.yml -f compose.roles.yml up -d
+# Run migrations with the base configuration before starting these restricted runtime services.
+x-runtime: &runtime
+  SPRING_FLYWAY_ENABLED: 'false'
+services:
+  users:
+    environment:
+      <<: *runtime
+      DB_USER: app_users
+      DB_PASSWORD: ${USERS_DB_PASSWORD:?Run scripts/database-roles.ps1}
+  shops:
+    environment:
+      <<: *runtime
+      DB_USER: app_shops
+      DB_PASSWORD: ${SHOPS_DB_PASSWORD:?Run scripts/database-roles.ps1}
+  approvals:
+    environment:
+      <<: *runtime
+      DB_USER: app_approvals
+      DB_PASSWORD: ${APPROVALS_DB_PASSWORD:?Run scripts/database-roles.ps1}
+  ratings:
+    environment:
+      <<: *runtime
+      DB_USER: app_ratings
+      DB_PASSWORD: ${RATINGS_DB_PASSWORD:?Run scripts/database-roles.ps1}
+  favorites:
+    environment:
+      <<: *runtime
+      DB_USER: app_favorites
+      DB_PASSWORD: ${FAVORITES_DB_PASSWORD:?Run scripts/database-roles.ps1}

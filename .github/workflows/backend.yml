@@ -1,0 +1,32 @@
+name: Backend verification
+on:
+  push:
+    paths-ignore: ['street-smart-frontend/**', '**.md', '**.png', '**.jpeg']
+  pull_request:
+    paths-ignore: ['street-smart-frontend/**', '**.md', '**.png', '**.jpeg']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build and test every active backend module
+        run: bash UserService/mvnw -B -ntp verify
+      - name: Configure isolated local environment
+        shell: pwsh
+        run: ./scripts/backend.ps1 -Action Init
+      - name: Run PostgreSQL integration tests
+        shell: pwsh
+        run: ./scripts/backend.ps1 -Action TestPostgres
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: '**/target/surefire-reports/*'

@@ -1,141 +1,101 @@
-// src/app/requests/requests.component.ts
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RequestsService, ShopApprovalResponseDTO } from '../services/requests.service';
-import { Subscription } from 'rxjs';
+
 import { FormsModule } from '@angular/forms';
-import { NavbarComponent } from "../navbar/navbar.component";
-import { Router } from '@angular/router';
-
-
+import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { RequestsService, ShopApprovalResponseDTO } from '../services/requests.service';
+import { NavbarComponent } from '../navbar/navbar.component';
+import { apiError } from '../services/api-error';
 @Component({
   selector: 'app-requests',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [FormsModule, RouterModule, NavbarComponent],
   templateUrl: './requests.component.html',
-  styleUrls: ['./requests.component.css']
+  styleUrls: ['./requests.component.css'],
 })
 export class RequestsComponent implements OnInit, OnDestroy {
   approvals: ShopApprovalResponseDTO[] = [];
-  private subscription!: Subscription;
-
-  // Variables for the rejection dialog
-  showRejectionDialog: boolean = false;
+  page = 0;
+  loading = false;
+  busy = false;
+  showRejectionDialog = false;
   selectedShopId: string | null = null;
-  rejectionReason: string = '';
-
-  constructor(private requestsService: RequestsService, private router: Router) {}
-
+  rejectionReason = '';
+  message = '';
+  errorMessage = '';
+  private subscriptions = new Subscription();
+  constructor(private requests: RequestsService) {}
   ngOnInit(): void {
-    console.log('RequestsComponent initialized. Fetching approvals...');
     this.fetchApprovals();
   }
-
-  /**
-   * Fetch all pending shop approval requests.
-   */
   fetchApprovals(): void {
-    this.subscription = this.requestsService.getPendingRequests().subscribe(
-      (approvals: ShopApprovalResponseDTO[]) => {
-        console.log('Approvals retrieved successfully:', approvals);
-        this.approvals = approvals;
-      },
-      (error) => {
-        console.error('Error fetching approvals:', error);
-        console.error('Check the backend logs or token validity.');
-        alert('Failed to fetch shop approvals. Please try again later.');
-      }
+    this.loading = true;
+    this.errorMessage = '';
+    this.subscriptions.add(
+      this.requests.getPendingRequests(this.page).subscribe({
+        next: (rows) => {
+          this.approvals = rows;
+          this.loading = false;
+          if (!rows.length && this.page > 0) {
+            this.page--;
+            this.fetchApprovals();
+          }
+        },
+        error: (error) => {
+          this.loading = false;
+          this.errorMessage = apiError(error);
+        },
+      }),
     );
   }
-
-  /**
-   * Approve a specific shop request.
-   * @param shopId - The ID of the shop to approve.
-   */
-  approveRequest(shopId: string): void {
-    console.log(`Approving request for shop ID: ${shopId}`);
-    this.requestsService.approveRequest(shopId).subscribe(
-      (response) => {
-        console.log('Shop approved:', response);
-        // Remove the approved shop from the list
-        this.approvals = this.approvals.filter(a => a.shopId !== shopId);
-        alert(`Shop ID: ${shopId} approved successfully.`);
-      },
-      (error) => {
-        console.error('Error approving request:', error);
-        alert(`Failed to approve Shop ID: ${shopId}. Please try again.`);
-      }
-    );
+  move(delta: number): void {
+    if (!this.loading && !this.busy) {
+      this.page += delta;
+      this.fetchApprovals();
+    }
   }
-
-  /**
-   * Open the rejection dialog for a specific shop request.
-   * @param shopId - The ID of the shop to reject.
-   */
-  openRejectionDialog(shopId: string): void {
-    console.log(`Opening rejection dialog for shop ID: ${shopId}`);
-    this.selectedShopId = shopId;
+  approveRequest(id: string): void {
+    this.decide(id);
+  }
+  openRejectionDialog(id: string): void {
+    this.selectedShopId = id;
     this.rejectionReason = '';
     this.showRejectionDialog = true;
   }
-
-  /**
-   * Close the rejection dialog without taking action.
-   */
   closeRejectionDialog(): void {
-    console.log('Closing rejection dialog');
-    this.showRejectionDialog = false;
+    if (this.busy) return;
     this.selectedShopId = null;
-    this.rejectionReason = '';
+    this.showRejectionDialog = false;
   }
-
-  /**
-   * Submit the rejection of a specific shop request with a reason.
-   */
   submitRejection(): void {
-    if (this.selectedShopId && this.rejectionReason.trim() !== '') {
-      console.log(`Rejecting shop ID: ${this.selectedShopId} with reason: "${this.rejectionReason}"`);
-      this.requestsService.rejectRequest(this.selectedShopId, this.rejectionReason).subscribe(
-        (response) => {
-          console.log('Shop rejected:', response);
-          // Remove the rejected shop from the list
-          this.approvals = this.approvals.filter(a => a.shopId !== this.selectedShopId);
-          alert(`Shop ID: ${this.selectedShopId} rejected successfully.`);
+    if (this.selectedShopId && this.rejectionReason.trim() && this.rejectionReason.length <= 1000)
+      this.decide(this.selectedShopId, this.rejectionReason.trim());
+  }
+  private decide(id: string, reason?: string): void {
+    if (this.busy) return;
+    this.busy = true;
+    this.errorMessage = '';
+    this.subscriptions.add(
+      (reason
+        ? this.requests.rejectRequest(id, reason)
+        : this.requests.approveRequest(id)
+      ).subscribe({
+        next: (result) => {
+          this.busy = false;
           this.closeRejectionDialog();
+          this.message = result.deliveryPending
+            ? 'Decision saved. Delivery to the shop is pending and will retry automatically.'
+            : 'Decision saved.';
+          this.fetchApprovals();
         },
-        (error) => {
-          console.error('Error rejecting request:', error);
-          alert(`Failed to reject Shop ID: ${this.selectedShopId}. Please try again.`);
-        }
-      );
-    } else {
-      console.warn('No reason provided for rejection.');
-      alert('Please provide a reason for rejection.');
-    }
+        error: (error) => {
+          this.busy = false;
+          this.errorMessage = apiError(error);
+        },
+      }),
+    );
   }
-
-  /**
-   * Optionally, navigate to the shop details page if such a route exists.
-   * @param shopId - The ID of the shop to navigate to.
-   */
-  navigateToShop(shopId: string): void {
-    console.log(`Navigating to shop details for shop ID: ${shopId}`);
-    // Example: Navigate to '/shop-details/:shopId'
-    this.router.navigate(['/shop-details', shopId]).then(success => {
-      if (success) {
-        console.log(`Navigation to shop-details/${shopId} successful.`);
-      } else {
-        console.error(`Navigation to shop-details/${shopId} failed.`);
-        alert('Failed to navigate to shop details.');
-      }
-    });
-  }
-
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-      console.log('Unsubscribed from getPendingRequests');
-    }
+    this.subscriptions.unsubscribe();
   }
 }

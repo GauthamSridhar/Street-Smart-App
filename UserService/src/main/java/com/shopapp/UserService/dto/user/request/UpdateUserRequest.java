@@ -1,30 +1,26 @@
 package com.shopapp.UserService.dto.user.request;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
-
-import java.util.List;
-import java.util.UUID;
 
 @Data
 public class UpdateUserRequest {
+  @NotBlank
+  @Size(max = 100)
+  private String fullName;
 
+  @NotBlank
+  @Email
+  @Size(max = 254)
+  private String email;
 
-    @NotBlank(message = "Full name is required")
-    private String fullName;
+  @NotBlank
+  @Pattern(regexp = "^\\+[1-9]\\d{9,14}$")
+  private String phoneNumber;
 
-    @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number format")
-    private String phoneNumber;
+  @Size(min = 8, max = 72)
+  private String password;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    private String email;
-    @NotBlank
-    private  String password;
-
-    List<UUID> ratings;
-    List<UUID> favorites;
+  private String currentPassword;
+  private String phoneVerificationToken;
 }

@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Street Smart on-demand learning lab. No inbound ports, NAT, load balancer or RDS.
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.large
+    AllowedValues: [t3.large, t3.xlarge]
+  ImageId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+Resources:
+  Network:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.42.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref Network
+      InternetGatewayId: !Ref InternetGateway
+  Subnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Network
+      CidrBlock: 10.42.1.0/24
+      MapPublicIpOnLaunch: true
+  Routes:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Network
+  InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachment
+    Properties:
+      RouteTableId: !Ref Routes
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  RouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet
+      RouteTableId: !Ref Routes
+  Firewall:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: No inbound access. Connect through Session Manager only.
+      VpcId: !Ref Network
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: 0.0.0.0/0
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: {Service: ec2.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+  Profile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref InstanceRole]
+  Lab:
+    Type: AWS::EC2::Instance
+    DependsOn: InternetRoute
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref Profile
+      SubnetId: !Ref Subnet
+      SecurityGroupIds: [!Ref Firewall]
+      InstanceInitiatedShutdownBehavior: stop
+      MetadataOptions:
+        HttpTokens: required
+        HttpPutResponseHopLimit: 1
+      CreditSpecification:
+        CPUCredits: standard
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 40
+            VolumeType: gp3
+            Encrypted: true
+            DeleteOnTermination: true
+      Tags:
+        - {Key: Name, Value: street-smart-lab}
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -euo pipefail
+          # Install the stop timer first, so package failures do not leave a lab running indefinitely.
+          printf '[Unit]\nDescription=Stop learning lab\n[Service]\nType=oneshot\nExecStart=/usr/sbin/shutdown -h now\n' > /etc/systemd/system/lab-stop.service
+          printf '[Unit]\nDescription=Stop lab two hours after each boot\n[Timer]\nOnBootSec=2h\nUnit=lab-stop.service\n[Install]\nWantedBy=timers.target\n' > /etc/systemd/system/lab-stop.timer
+          systemctl daemon-reload
+          systemctl enable --now lab-stop.timer
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io docker-compose-v2 git openssl
+          systemctl enable --now docker
+          mkdir -p /opt/street-smart
+Outputs:
+  InstanceId:
+    Value: !Ref Lab
+  Region:
+    Value: !Ref AWS::Region

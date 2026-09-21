@@ -1,6 +1,14 @@
 server:
-  port: 8761
+  port: ${PORT:8761}
+spring:
+  application:
+    name: EurekaServer
 eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

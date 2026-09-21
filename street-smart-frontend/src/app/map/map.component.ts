@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Loader } from '@googlemaps/js-api-loader';
 import { Shop } from '../model/shop.model';
-import { CommonModule } from '@angular/common';
+
 import { environment } from '../environment';
 
 @Component({
@@ -18,30 +18,27 @@ import { environment } from '../environment';
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
 })
 export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() shops: Shop[] = [];
   @Input() currentLocation: { lat: number; lng: number } | null = null;
-  
+
   @Output() shopMarkerClicked = new EventEmitter<Shop>();
   @Output() locateUser = new EventEmitter<void>();
-  @Output() searchShops = new EventEmitter<string>();
-  @Output() filterCategory = new EventEmitter<string>();
 
   private map: google.maps.Map | null = null;
   private markers: google.maps.Marker[] = [];
   private currentLocationMarker: google.maps.Marker | null = null;
-  private directionsService: google.maps.DirectionsService | null = null;
-  private directionsRenderer: google.maps.DirectionsRenderer | null = null;
+  private infoWindow: google.maps.InfoWindow | null = null;
 
-  categories = [ 'Clothing', 'Electronics','Grocery','Books','Pharmacy','Restaurant'];
+  categories = ['Clothing', 'Electronics', 'Grocery', 'Books', 'Pharmacy', 'Restaurant'];
 
   readonly API_KEY = environment.googleMapsApiKey;
 
-  currentNavigation: google.maps.DirectionsResult | null = null;
-  loadingMap: boolean = true;
-  loadingNavigation: boolean = false;
+  loadingMap: boolean = !!this.API_KEY;
+  mapError = this.API_KEY ? '' : 'Map is not configured. Use the product results above.';
+  private destroyed = false;
 
   ngAfterViewInit(): void {
     this.loadGoogleMaps();
@@ -58,12 +55,15 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.directionsRenderer) {
-      this.directionsRenderer.setMap(null);
-    }
+    this.destroyed = true;
+    this.markers.forEach((marker) => marker.setMap(null));
+    this.currentLocationMarker?.setMap(null);
   }
 
   async loadGoogleMaps(): Promise<void> {
+    if (!this.API_KEY) {
+      return;
+    }
     const loader = new Loader({
       apiKey: this.API_KEY,
       version: 'weekly',
@@ -71,9 +71,9 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     try {
       await loader.load();
-      this.initializeMap();
+      if (!this.destroyed) this.initializeMap();
     } catch (error) {
-      console.error('Error loading Google Maps:', error);
+      this.mapError = 'Map could not load. Product search is still available.';
       this.loadingMap = false;
     }
   }
@@ -85,11 +85,10 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
       zoom: 12,
     });
 
-    this.directionsService = new google.maps.DirectionsService();
-    this.directionsRenderer = new google.maps.DirectionsRenderer();
-    this.directionsRenderer.setMap(this.map);
+    this.infoWindow = new google.maps.InfoWindow();
 
     this.addMarkers();
+    this.addCurrentLocationMarker();
     this.loadingMap = false;
   }
 
@@ -107,11 +106,13 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
       });
 
       marker.addListener('click', () => {
+        this.openShopInfo(shop, marker);
         this.shopMarkerClicked.emit(shop);
       });
 
       this.markers.push(marker);
     });
+    this.fitToMarkers();
   }
 
   updateMarkers(): void {
@@ -139,48 +140,6 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.map.setZoom(14);
   }
 
-  onSearch(event: Event): void {
-    const query = (event.target as HTMLInputElement).value;
-    this.searchShops.emit(query);
-  }
-
-  onFilter(event: Event): void {
-    const category = (event.target as HTMLSelectElement).value;
-    this.filterCategory.emit(category);
-  }
-
-  navigateToLocation(shop: Shop): void {
-    if (!this.directionsService || !this.directionsRenderer || !this.currentLocation) return;
-
-    const request: google.maps.DirectionsRequest = {
-      origin: this.currentLocation,
-      destination: { lat: shop.latitude, lng: shop.longitude },
-      travelMode: google.maps.TravelMode.DRIVING,
-    };
-
-    this.loadingNavigation = true;
-
-    this.directionsService.route(request, (result, status) => {
-      if (status === 'OK' && result) {
-        this.directionsRenderer?.setDirections(result);
-        this.currentNavigation = result;
-      } else {
-        console.error('Directions request failed:', status);
-      }
-      this.loadingNavigation = false;
-    });
-  }
-
-  cancelNavigation(): void {
-    if (this.directionsRenderer) {
-      this.directionsRenderer.setDirections({
-        routes: [],
-        request: {} as google.maps.DirectionsRequest,
-      });
-      this.currentNavigation = null;
-    }
-  }
-
   updateCurrentLocation(location: { lat: number; lng: number }): void {
     this.currentLocation = location;
     if (this.currentLocationMarker) {
@@ -188,5 +147,34 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     } else {
       this.addCurrentLocationMarker();
     }
+  }
+
+  private openShopInfo(shop: Shop, marker: google.maps.Marker): void {
+    if (!this.infoWindow) return;
+    const content = document.createElement('div');
+    const name = document.createElement('strong');
+    name.textContent = shop.name;
+    const address = document.createElement('p');
+    address.textContent = shop.address;
+    content.append(name, address);
+    if (shop.mapProductNames?.length) {
+      const products = document.createElement('p');
+      products.textContent = `Matching: ${shop.mapProductNames.slice(0, 3).join(', ')}${shop.mapProductNames.length > 3 ? '…' : ''}`;
+      content.append(products);
+    }
+    this.infoWindow.setContent(content);
+    this.infoWindow.open({ map: this.map, anchor: marker });
+  }
+
+  private fitToMarkers(): void {
+    if (!this.map || !this.shops.length) return;
+    if (this.shops.length === 1) {
+      this.map.setCenter({ lat: this.shops[0].latitude, lng: this.shops[0].longitude });
+      this.map.setZoom(14);
+      return;
+    }
+    const bounds = new google.maps.LatLngBounds();
+    this.shops.forEach((shop) => bounds.extend({ lat: shop.latitude, lng: shop.longitude }));
+    this.map.fitBounds(bounds, 48);
   }
 }

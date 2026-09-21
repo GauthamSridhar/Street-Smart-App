@@ -1,47 +1,163 @@
-<!-- src/app/dashboard/dashboard.component.html -->
-
 <app-navbar></app-navbar>
-<div class="flex h-screen bg-gray-50 relative">
-  <div class="relative flex-1 h-screen">
-    <app-map
-      #map
-      [shops]="filteredShops"
-      [currentLocation]="currentLocation"
-      (shopMarkerClicked)="onShopSelected($event)"
-      (locateUser)="locateUser()"
-      (searchShops)="filterShops($event)"
-      (filterCategory)="filterByCategory($event)"
-      class="h-full"
-    ></app-map>
+<main class="ss-page">
+  <div class="ss-shell">
+    <p class="ss-kicker"><i class="fas fa-location-dot mr-1" aria-hidden="true"></i> Your neighbourhood, discovered</p>
+    <h1 class="ss-title">Find products in local shops</h1>
+    <p class="ss-subtitle">
+      Results match product names. Shop category narrows the same search. Availability is reported by
+      each shop, not a reservation.
+    </p>
 
-    <div *ngIf="geolocationError" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg">
-      {{ geolocationError }}
+    <div class="search-panel ss-card mt-6 p-5">
+      <div class="search-heading"><span><i class="fas fa-magnifying-glass" aria-hidden="true"></i> What are you looking for?</span><span class="search-hint">Find a product. Discover a local shop.</span></div>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <label class="ss-label mb-0"
+          >Product
+          <input
+            type="search"
+            aria-label="Search products"
+            placeholder="Try milk, rice, or a book"
+            maxlength="100"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="filtersChanged()"
+            class="ss-input mt-1.5"
+            />
+        </label>
+        <label class="ss-label mb-0"
+          >Shop category
+          <select [(ngModel)]="category" (ngModelChange)="filtersChanged()" class="ss-input mt-1.5">
+            <option value="">All categories</option>
+            @for (item of categories; track item) {
+              <option [value]="item">{{ item }}</option>
+            }
+          </select>
+        </label>
+        <label class="ss-label mb-0"
+          >Minimum price (₹)
+          <input type="number" min="0" step="0.01" [(ngModel)]="minPrice" (ngModelChange)="filtersChanged()" class="ss-input mt-1.5" />
+        </label>
+        <label class="ss-label mb-0"
+          >Maximum price (₹)
+          <input type="number" min="0" step="0.01" [(ngModel)]="maxPrice" (ngModelChange)="filtersChanged()" class="ss-input mt-1.5" />
+        </label>
+      </div>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <label class="search-option flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" [(ngModel)]="fuzzy" (ngModelChange)="filtersChanged()" /> Include similar product names</label>
+        <label class="ss-label mb-0"
+          >Radius
+          <select [(ngModel)]="radiusKm" (ngModelChange)="filtersChanged()" [disabled]="!currentLocation && search.query.latitude == null" class="ss-input mt-1.5 w-40">
+            <option [ngValue]="null">Any distance</option><option [ngValue]="1">1 km</option><option [ngValue]="5">5 km</option><option [ngValue]="25">25 km</option>
+          </select>
+        </label>
+        <label class="mt-6 flex items-center gap-2 text-sm font-medium text-slate-700">
+          <input type="checkbox" [(ngModel)]="availableOnly" (ngModelChange)="filtersChanged()" class="h-4 w-4 rounded border-slate-300 text-amber-500" />
+          Available products only
+        </label>
+        <button type="button" (click)="showMap = !showMap" class="ss-btn-ghost mt-6">
+          {{ showMap ? 'Hide map' : 'Show map' }}
+        </button>
+        <button type="button" (click)="locateUser()" class="ss-btn-primary mt-6">Use my location for nearby search</button>
+        @if (geolocationError) {
+          <span class="mt-6 text-sm text-rose-600">{{ geolocationError }}</span>
+        }
+      </div>
     </div>
+
+    @if (state.loading) {
+      <p role="status" class="ss-alert-info mt-4">Searching products...</p>
+    }
+    @if (state.error) {
+      <div role="alert" class="ss-alert-error mt-4">
+        {{ state.error }}
+        <button type="button" (click)="search.retry()" class="ml-2 font-semibold underline">Retry</button>
+      </div>
+    }
+    @if (state.page; as page) {
+      <section aria-label="Product results" class="mt-6">
+        <div class="results-heading"><h2>Local finds</h2><p role="status" class="text-sm font-medium text-slate-500">{{ page.totalElements }} matching products</p></div>
+        @if (!page.content.length) {
+          <p class="ss-card mt-4 p-8 text-center text-slate-500">
+            <span class="ss-empty-icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
+            No products match these filters. Try another product or include unavailable products.
+          </p>
+        }
+        <ul class="product-results my-4 grid gap-3 md:grid-cols-2">
+          @for (product of page.content; track product) {
+            <li class="product-result ss-card">
+              <button type="button" (click)="selectProduct(product)" class="h-full w-full p-5 text-left">
+                <span class="product-symbol" aria-hidden="true"><i class="fas fa-box-open"></i></span>
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <strong class="text-lg text-ink-950">{{ product.name }}</strong>
+                  <span [class]="product.available ? 'ss-badge-ok' : 'ss-badge-muted'">
+                    {{ product.available ? 'Available' : 'Unavailable' }}
+                  </span>
+                </div>
+                <span class="mt-1 block text-sm font-medium text-slate-600">{{ product.shopName }} · {{ product.category }}</span>
+                <span class="block text-sm text-slate-500">{{ product.address }}</span>
+                @if (product.shopStatus === 'INACTIVE') {
+                  <span class="ss-badge-warn mt-2">Shop currently inactive</span>
+                }
+                @if (product.price != null) {
+                  <span class="mt-2 block text-base font-semibold text-ink-950">{{ product.price | currency:'INR':'symbol':'1.0-2' }}</span>
+                }
+                @if (product.updatedAt) {
+                  <span class="mt-1 block text-xs text-slate-500">Listing updated {{ product.updatedAt | date:'mediumDate' }}</span>
+                }
+                <span class="result-action">View shop <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
+              </button>
+            </li>
+          }
+        </ul>
+        @if (page.totalPages > 1) {
+          <div class="ss-pager">
+            <button
+              type="button"
+              [disabled]="page.number === 0"
+              (click)="navigatePage(page.number - 1)"
+              class="ss-btn-ghost"
+              >
+              Previous
+            </button>
+            <span class="text-sm text-slate-500">Page {{ page.number + 1 }} of {{ page.totalPages }}</span>
+            <button
+              type="button"
+              [disabled]="page.number + 1 >= page.totalPages"
+              (click)="navigatePage(page.number + 1)"
+              class="ss-btn-ghost"
+              >
+              Next
+            </button>
+          </div>
+        }
+      </section>
+    }
+    @if (selectionLoading) {
+      <p role="status" class="ss-alert-info mt-4">Loading shop...</p>
+    }
+    @if (selectionError) {
+      <p role="alert" class="ss-alert-error mt-4">{{ selectionError }}</p>
+    }
+    @if (showMap) {
+      <div class="ss-card relative mt-4 h-[500px] overflow-hidden p-3">
+        <button type="button" (click)="locateUser()" class="ss-btn-primary mb-2">Use my location</button>
+        @if (geolocationError) {
+          <p role="status" class="mb-2 text-sm text-rose-600">{{ geolocationError }}</p>
+        }
+        <app-map
+          [shops]="filteredShops"
+          [currentLocation]="currentLocation"
+          (shopMarkerClicked)="onShopSelected($event)"
+        ></app-map>
+        <p class="mt-2 text-sm text-slate-500">Map shows shops from the current results page.</p>
+      </div>
+    }
+    @if (selectedShop) {
+      <app-shop-details
+          [shop]="selectedShop"
+          [isOpen]="true"
+          (close)="closeShopDetails()"
+          (navigateToShop)="onNavigateToShop($event)"
+        ></app-shop-details>
+    }
   </div>
-
-  <app-shop-details
-    *ngIf="isShopSelected && selectedShop"
-    [shop]="selectedShop"
-    [isOpen]="isShopSelected"
-    (close)="closeShopDetails()"
-    (navigateToShop)="onNavigateToShop($event)"
-    (cancelNavigationEvent)="onCancelNavigation()"
-    class="w-1/4 h-screen bg-white shadow-lg z-50 overflow-y-auto"
-  ></app-shop-details>
-
-  <button
-    *ngIf="isNavigating"
-    class="absolute bottom-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-red-600 z-50"
-    (click)="cancelNavigation()"
-    aria-label="Cancel Navigation"
-  >
-    Cancel Navigation
-  </button>
-
-  <div *ngIf="loadingNavigation" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-    <svg class="animate-spin h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-    </svg>
-  </div>
-</div>
+</main>

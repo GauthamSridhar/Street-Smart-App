@@ -1,36 +1,31 @@
 package com.shopapp.ShopService.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import org.hibernate.annotations.GenericGenerator;
-
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "images")
 public class Image {
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+  @Transient private byte[] imageData;
 
-    @Lob
-    @Column(name = "image_data", nullable = false)
-    private byte[] imageData;
+  @Column(nullable = false)
+  private String fileName;
 
-    @Column(name = "file_name", nullable = false)
-    private String fileName;
+  @Column(nullable = false)
+  private String fileType;
 
-    @Column(name = "file_type", nullable = false)
-    private String fileType;
+  @Column(nullable = false)
+  private long fileSizeInBytes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", nullable = false)
-    private Shop shop;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "shop_id", nullable = false)
+  private Shop shop;
 }

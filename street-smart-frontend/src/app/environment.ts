@@ -1,8 +1,10 @@
-// src/environments/environment.ts
+// Public deployment configuration. Never put backend secrets in this object.
+const runtime = (
+  window as Window & { streetSmartConfig?: { apiBaseUrl?: string; googleMapsApiKey?: string } }
+).streetSmartConfig;
 export const environment = {
   production: false,
-  googleMapsApiKey: 'AIzaSyBTkKADugSPPiiyUhPLgsOucJbMYie-AI0',
-  googleMapsId: 'ad432a5a924b9bb6',
-  apiBaseUrl: 'http://localhost:8080/api'
-
+  apiBaseUrl: runtime?.apiBaseUrl || '/api',
+  googleMapsApiKey: runtime?.googleMapsApiKey || '',
+  googleMapsId: '',
 };

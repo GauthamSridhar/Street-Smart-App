@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="560" viewBox="0 0 1440 560" role="img" aria-labelledby="title desc">
+  <title id="title">Street Smart shop approval lifecycle</title>
+  <desc id="desc">A shop registration is saved as pending with a delivery flag. A worker retries delivery to the approval service. An administrator decides, and a revision-aware response is applied by the shop service.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071724"/><stop offset="1" stop-color="#0c2736"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#38d6b1"/><stop offset="1" stop-color="#5aa9ff"/></linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#81aeba"/></marker>
+    <style>text{font-family:Inter,Arial,sans-serif}.title{fill:#f0fafb;font-size:32px;font-weight:800}.label{fill:#e8f4f7;font-size:19px;font-weight:700}.body{fill:#a5c6d0;font-size:15px}.box{fill:#102d3c;stroke:#2b5a6b;stroke-width:1.5}.line{stroke:#81aeba;stroke-width:2.5;fill:none;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1440" height="560" rx="28" fill="url(#bg)"/>
+  <text x="64" y="75" class="title">Reliable approval flow</text><text x="64" y="105" class="body">A persisted delivery flag makes temporary service failures recoverable without a distributed transaction.</text>
+  <g>
+    <rect x="64" y="220" width="210" height="130" rx="18" class="box"/><text x="92" y="260" class="label">1. Register shop</text><text x="92" y="290" class="body">Shop is saved PENDING</text><text x="92" y="313" class="body">with a delivery flag</text>
+    <rect x="340" y="220" width="210" height="130" rx="18" class="box"/><text x="368" y="260" class="label">2. Deliver request</text><text x="368" y="290" class="body">Worker retries until</text><text x="368" y="313" class="body">the request is accepted</text>
+    <rect x="616" y="220" width="210" height="130" rx="18" class="box"/><text x="644" y="260" class="label">3. Review</text><text x="644" y="290" class="body">Administrator approves</text><text x="644" y="313" class="body">or rejects with reason</text>
+    <rect x="892" y="220" width="210" height="130" rx="18" class="box"/><text x="920" y="260" class="label">4. Deliver decision</text><text x="920" y="290" class="body">Decision is persisted</text><text x="920" y="313" class="body">and retried if needed</text>
+    <rect x="1168" y="220" width="210" height="130" rx="18" fill="url(#accent)"/><text x="1196" y="260" fill="#062631" font-size="19" font-weight="800">5. Apply revision</text><text x="1196" y="290" fill="#0a4050" font-size="15">Older decisions cannot</text><text x="1196" y="313" fill="#0a4050" font-size="15">overwrite a resubmission</text>
+  </g>
+  <path d="M274 285 H340 M550 285 H616 M826 285 H892 M1102 285 H1168" class="line"/>
+  <path d="M445 372 C445 444 1010 444 1010 372" stroke="#38d6b1" stroke-width="2" stroke-dasharray="8 8" fill="none" marker-end="url(#arrow)"/>
+  <text x="574" y="486" class="body">Retryable, idempotent delivery | eventual consistency | auditable history</text>
+</svg>

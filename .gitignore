@@ -1,0 +1,13 @@
+**/target/
+**/node_modules/
+**/dist/
+**/build/
+.idea/
+.vscode/
+.env
+.env.*
+*.log
+*.pid
+*.hprof
+artifacts/
+.tmp/

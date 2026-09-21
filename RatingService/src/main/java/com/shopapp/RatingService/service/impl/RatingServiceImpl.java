@@ -1,175 +1,160 @@
 package com.shopapp.RatingService.service.impl;
 
-import com.shopapp.RatingService.dto.rating.ShopResponse;
-import com.shopapp.RatingService.dto.rating.UpdateShopRequest;
-import com.shopapp.RatingService.dto.rating.UpdateUserRequest;
-import com.shopapp.RatingService.dto.rating.UserResponse;
-import com.shopapp.RatingService.dto.rating.request.RatingCreateDTO;
-import com.shopapp.RatingService.dto.rating.request.RatingUpdateDTO;
+import com.shopapp.RatingService.dto.rating.request.*;
 import com.shopapp.RatingService.dto.rating.response.RatingResponseDTO;
-import com.shopapp.RatingService.exception.ResourceNotFoundException;
-import com.shopapp.RatingService.exception.UnauthorizedActionException;
 import com.shopapp.RatingService.feign.ShopFeignClient;
-import com.shopapp.RatingService.feign.UserFeignClient;
 import com.shopapp.RatingService.mapper.RatingMapper;
-import com.shopapp.RatingService.model.Rating;
 import com.shopapp.RatingService.repository.RatingRepository;
+import com.shopapp.RatingService.repository.ReviewReportRepository;
 import com.shopapp.RatingService.service.RatingService;
+import com.shopapp.common.*;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Transactional
 public class RatingServiceImpl implements RatingService {
+  private final RatingRepository ratings;
+  private final ReviewReportRepository reports;
+  private final RatingMapper mapper;
+  private final ShopFeignClient shops;
 
-    private final RatingRepository ratingRepository;
-    private final ShopFeignClient shopFeignClient;
-    private final UserFeignClient userFeignClient;
-    private final RatingMapper ratingMapper;
+  public RatingResponseDTO addRating(
+      UUID userId, UUID shopId, RatingCreateDTO request, HttpServletRequest ignored) {
+    Caller.role("USER");
+    Caller.owner(userId);
+    var shop = shops.getShop(shopId);
+    if (shop.getOwnerId().equals(userId))
+      throw ApiException.conflict("You cannot rate your own shop");
+    if (!Set.of("APPROVED", "ACTIVE", "INACTIVE").contains(shop.getStatus()))
+      throw ApiException.conflict("Only approved shops can be rated");
+    if (ratings.existsByUserIdAndShopId(userId, shopId))
+      throw ApiException.conflict("Edit your existing rating for this shop");
+    var rating = mapper.toEntity(request);
+    rating.setUserId(userId);
+    rating.setShopId(shopId);
+    return mapper.toDTO(ratings.saveAndFlush(rating));
+  }
 
-    @Override
-    @Transactional
-    public RatingResponseDTO addRating(UUID userId, UUID shopId, RatingCreateDTO ratingDTO, HttpServletRequest req) {
-        String bearerToken = req.getHeader("Authorization");
+  public RatingResponseDTO updateRating(UUID userId, UUID id, RatingUpdateDTO request) {
+    Caller.role("USER");
+    Caller.owner(userId);
+    var rating = ratings.findById(id).orElseThrow(() -> ApiException.notFound("Rating"));
+    Caller.owner(rating.getUserId());
+    mapper.updateEntity(rating, request);
+    return mapper.toDTO(ratings.saveAndFlush(rating));
+  }
 
-        if (bearerToken == null) {
-            return null;
-        }
-        log.info("User ID: {} adding rating for Shop ID: {}", userId, shopId);
+  public void deleteRating(UUID userId, UUID id, UUID shopId, HttpServletRequest ignored) {
+    Caller.role("USER");
+    Caller.owner(userId);
+    var rating = ratings.findById(id).orElseThrow(() -> ApiException.notFound("Rating"));
+    Caller.owner(rating.getUserId());
+    if (!rating.getShopId().equals(shopId))
+      throw new IllegalArgumentException("Rating does not belong to this shop");
+    ratings.delete(rating);
+  }
 
-        // Fetch the User object via UserService
-        UserResponse user = userFeignClient.getUser(userId,bearerToken).getBody();
-        System.out.println("User found");
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found with ID: " + userId);
-        }
-        UpdateUserRequest request1=ratingMapper.toUpdateDto(user);
+  @Transactional(readOnly = true)
+  public List<RatingResponseDTO> getShopRatings(UUID shopId) {
+    return getShopRatingsPage(shopId, 0, 100);
+  }
 
-        // Validate shop existence via ShopService
-        ShopResponse shopExists = shopFeignClient.getShop(shopId,bearerToken).getBody();
-        System.out.println("Shop :" + shopExists);
-        if (shopExists == null ) {
-            throw new ResourceNotFoundException("Shop not found with ID: " + shopId);
-        }
+  @Transactional(readOnly = true)
+  public List<RatingResponseDTO> getShopRatingsPage(UUID shopId, int page, int size) {
+    if (page < 0 || size < 1 || size > 100)
+      throw new IllegalArgumentException("Invalid pagination");
+    shops.getShop(shopId);
+    return ratings
+        .findByShopId(
+            shopId,
+            PageRequest.of(page, size, Sort.by("createdAt").descending().and(Sort.by("id"))))
+        .stream()
+        .map(mapper::toDTO)
+        .toList();
+  }
 
-        UpdateShopRequest shopRequest=ratingMapper.toUpdateShop(shopExists);
+  @Transactional(readOnly = true)
+  public RatingResponseDTO getRating(UUID id) {
+    var rating = ratings.findById(id).orElseThrow(() -> ApiException.notFound("Rating"));
+    shops.getShop(rating.getShopId());
+    return mapper.toDTO(rating);
+  }
 
-        Rating rating = ratingMapper.toEntity(ratingDTO);
-        rating.setUserId(userId);
-        rating.setShopId(shopId);
+  @Transactional(readOnly = true)
+  public Long getShopRatingsCount(UUID shopId) {
+    shops.getShop(shopId);
+    return ratings.countByShopId(shopId);
+  }
 
-        Rating savedRating = ratingRepository.save(rating);
-        log.info("Rating added successfully for Shop ID: {} by User ID: {}", shopId, userId);
+  @Transactional(readOnly = true)
+  public Map<String, Number> summary(UUID shopId) {
+    shops.getShop(shopId);
+    return Map.of(
+        "count", ratings.countByShopId(shopId), "average", ratings.averageByShopId(shopId));
+  }
 
-        // Add rating ID to user's ratings list
-        if(request1.getRatings()==null){
-            request1.setRatings(new ArrayList<>());
-        }
-        request1.getRatings().add(savedRating.getId());
-        userFeignClient.updateProfile(userId, request1,bearerToken);
-        if(shopRequest.getRatings()==null){
-            shopRequest.setRatings(new ArrayList<>());
-        }
-        shopRequest.getRatings().add(savedRating.getId());
-        shopFeignClient.updateShop(shopId,shopRequest);
+  public Map<String, Object> report(UUID ratingId, String reason) {
+    Caller.role("USER");
+    var rating = ratings.findById(ratingId).orElseThrow(() -> ApiException.notFound("Rating"));
+    shops.getShop(rating.getShopId());
+    if (rating.getUserId().equals(Caller.id()))
+      throw ApiException.conflict("You cannot report your own review");
+    if (reports.existsByRatingIdAndReporterId(ratingId, Caller.id()))
+      throw ApiException.conflict("You already reported this review");
+    var report = new com.shopapp.RatingService.model.ReviewReport();
+    report.setId(UUID.randomUUID());
+    report.setRatingId(ratingId);
+    report.setReporterId(Caller.id());
+    report.setReason(reason.trim());
+    report.setReviewSnapshot(Objects.toString(rating.getReview(), ""));
+    report.setStatus("OPEN");
+    report.setCreatedAt(java.time.LocalDateTime.now());
+    reports.saveAndFlush(report);
+    return Map.of("id", report.getId(), "status", report.getStatus());
+  }
 
+  @Transactional(readOnly = true)
+  public List<Map<String, Object>> reports(String status) {
+    Caller.role("ADMIN");
+    if (!Set.of("OPEN", "DISMISSED", "REMOVED").contains(status))
+      throw new IllegalArgumentException("Invalid report status");
+    return reports.findByStatusOrderByCreatedAtAsc(status, PageRequest.of(0, 100)).stream()
+        .map(
+            r ->
+                Map.<String, Object>of(
+                    "id",
+                    r.getId(),
+                    "ratingId",
+                    r.getRatingId(),
+                    "reason",
+                    r.getReason(),
+                    "createdAt",
+                    r.getCreatedAt(),
+                    "status",
+                    r.getStatus(),
+                    "review",
+                    r.getReviewSnapshot()))
+        .toList();
+  }
 
-        return ratingMapper.toDTO(savedRating);
-    }
-
-    @Override
-    @Transactional
-    public RatingResponseDTO updateRating(UUID userId, UUID ratingId, RatingUpdateDTO ratingDTO) {
-        log.info("User ID: {} updating Rating ID: {}", userId, ratingId);
-
-        Rating existingRating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating not found with ID: " + ratingId));
-
-        if (!existingRating.getUserId().equals(userId)) {
-            throw new UnauthorizedActionException("User ID: " + userId + " is not authorized to update this rating");
-        }
-
-        ratingMapper.updateEntity(existingRating, ratingDTO);
-        Rating updatedRating = ratingRepository.save(existingRating);
-        log.info("Rating ID: {} updated successfully", ratingId);
-        return ratingMapper.toDTO(updatedRating);
-    }
-
-    @Override
-    @Transactional
-    public void deleteRating(UUID userId, UUID ratingId,UUID shopId,HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-
-
-        log.info("User ID: {} deleting Rating ID: {}", userId, ratingId);
-
-        Rating existingRating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating not found with ID: " + ratingId));
-
-        if (!existingRating.getUserId().equals(userId)) {
-            throw new UnauthorizedActionException("User ID: " + userId + " is not authorized to delete this rating");
-        }
-
-        ratingRepository.delete(existingRating);
-        log.info("Rating ID: {} deleted successfully", ratingId);
-
-        // Fetch the User object via UserService
-        UserResponse user = userFeignClient.getUser(userId,bearerToken).getBody();
-        assert user != null;
-        UpdateUserRequest request1=ratingMapper.toUpdateDto(user);
-        ShopResponse shop=shopFeignClient.getShop(shopId,bearerToken).getBody();
-        assert shop != null;
-        UpdateShopRequest request2=ratingMapper.toUpdateShop(shop);
-        if (request1 != null) {
-            // Remove rating ID from user's ratings list
-            request1.getRatings().remove(ratingId);
-
-
-            // Update the user via UserService
-            userFeignClient.updateProfile(userId, request1,bearerToken);
-        }
-        if (request2 != null) {
-            // Remove rating ID from user's ratings list
-            request2.getRatings().remove(ratingId);
-
-
-            // Update the user via UserService
-            shopFeignClient.updateShop(shopId, request2);
-        }
-    }
-
-    @Override
-    @Transactional
-    public List<RatingResponseDTO> getShopRatings(UUID shopId) {
-        log.info("Fetching ratings for Shop ID: {}", shopId);
-
-        List<Rating> ratings = ratingRepository.findByShopId(shopId);
-        return ratings.stream().map(ratingMapper::toDTO).collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public RatingResponseDTO getRating(UUID ratingId) {
-        log.info("Fetching Rating ID: {}", ratingId);
-
-        Rating rating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating not found with ID: " + ratingId));
-        return ratingMapper.toDTO(rating);
-    }
-
-    @Override
-    public Long getShopRatingsCount(UUID shopId) {
-        log.info("Fetching ratings count for Shop ID: {}", shopId);
-
-        return ratingRepository.countByShopId(shopId);
-    }
+  public void resolveReport(UUID reportId, String action) {
+    Caller.role("ADMIN");
+    var report =
+        reports.findById(reportId).orElseThrow(() -> ApiException.notFound("Review report"));
+    if (!report.getStatus().equals("OPEN"))
+      throw ApiException.conflict("Review report is already resolved");
+    if (!Set.of("DISMISS", "REMOVE").contains(action))
+      throw new IllegalArgumentException("Invalid moderation action");
+    if (action.equals("REMOVE")) ratings.deleteById(report.getRatingId());
+    report.setStatus(action.equals("REMOVE") ? "REMOVED" : "DISMISSED");
+    report.setResolvedAt(java.time.LocalDateTime.now());
+    report.setResolvedBy(Caller.id());
+    reports.saveAndFlush(report);
+  }
 }

@@ -1,23 +1,36 @@
 package com.shopapp.ShopService.dto;
 
-import com.shopapp.ShopService.dto.image.response.ImageResponseDTO;
-import com.shopapp.ShopService.dto.product.response.ProductResponseDTO;
-import com.shopapp.ShopService.model.ShopStatus;
+import jakarta.validation.constraints.*;
 import lombok.Data;
-
-import java.util.List;
-import java.util.UUID;
 
 @Data
 public class UpdateShopRequest {
-    private String name;
-    private String description;
-    private String address;
-    private Double latitude;
-    private Double longitude;
-    private ShopStatus status;
-    private UUID ownerId;
-    private List<ProductResponseDTO> products;
-    private List<ImageResponseDTO> images;
-    private List<UUID> ratings;
+  @NotBlank
+  @Size(min = 3, max = 100)
+  private String name;
+
+  @NotBlank
+  @Size(min = 10, max = 1000)
+  private String description;
+
+  @NotBlank
+  @Size(max = 255)
+  private String address;
+
+  @NotBlank
+  @Size(max = 60)
+  private String category;
+
+  @Size(max = 255)
+  private String openingHours;
+
+  @NotNull
+  @DecimalMin("-90")
+  @DecimalMax("90")
+  private Double latitude;
+
+  @NotNull
+  @DecimalMin("-180")
+  @DecimalMax("180")
+  private Double longitude;
 }

@@ -1,3 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapComponent } from './map.component';
@@ -8,9 +11,9 @@ describe('MapComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MapComponent]
-    })
-    .compileComponents();
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [MapComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MapComponent);
     component = fixture.componentInstance;
@@ -19,5 +22,12 @@ describe('MapComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('shows the missing-key fallback without a render-cycle mutation', () => {
+    expect(component.API_KEY).toBe('');
+    expect(component.loadingMap).toBeFalse();
+    expect(component.mapError).toContain('Map is not configured');
+    expect(() => fixture.detectChanges()).not.toThrow();
   });
 });

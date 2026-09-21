@@ -1,10 +1,8 @@
-// src/app/model/registerPayload.ts
-
 export interface RegisterPayload {
-    phoneNumber: string;
-    email: string;
-    fullName: string;
-    role: string;
-    password: string;
-  }
-  
+  email: string;
+  phoneNumber: string;
+  fullName: string;
+  password: string;
+  role: 'USER' | 'SHOPKEEPER';
+  phoneVerificationToken?: string;
+}

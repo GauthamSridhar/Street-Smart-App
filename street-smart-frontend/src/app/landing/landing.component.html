@@ -1,73 +1,40 @@
 <app-navbar></app-navbar>
-
-<div class="min-h-screen bg-gradient-to-br from-black to-gray-800 text-black dark:text-white flex flex-col px-4 lg:px-16 py-8 lg:py-16">
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-    <!-- Left Container -->
-    <div class="flex flex-col space-y-8 lg:space-y-16">
-      <div class="flex flex-col lg:flex-row space-y-8 lg:space-y-0 lg:space-x-8 bg-white">
-        <!-- Motivational Quote -->
-        <div class="flex flex-col items-center justify-center bg-white text-black p-4 w-full lg:w-1/2">
-          <p class="text-4xl lg:text-5xl font-bold text-center leading-relaxed">
-            Stay Smart,<br />Shop Smarter.
-          </p>
-        </div>
-      
-        <!-- Right Section Content -->
-        <div class="flex flex-col items-center bg-white p-4 w-full lg:w-1/2">
-          <p class="text-lg font-light text-black leading-relaxed text-center">
-            The smartest way to shop is just around the corner.
-          </p>
-          <button
-          routerLink="/register"
-            class="w-full lg:w-auto py-3 px-8 mt-6 font-medium text-white bg-black rounded transition duration-300 bg-gradient-to-br from-black to-gray-600 hover:from-gray-600 hover:to-black"
-          >
-            Try for Free
-          </button>
-        </div>
-        
+<main class="bg-paper">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow"><span></span> A little closer. A lot smarter.</p>
+      <h1>Your next find.<br />Just around<br /><em>the corner.</em></h1>
+      <p class="mt-7 max-w-[29rem] text-[1.05rem] leading-[1.8] text-[#bdc8c6]">Find the products you need in the shops around you. Check availability, discover a local favourite, and make your next trip count.</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a routerLink="/register" class="ss-btn-primary">Start exploring <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        <a routerLink="/login" class="ss-btn-outline-light">Sign in</a>
       </div>
-      
-      <!-- Reach Out and About Us Side by Side -->
-      <div class="flex flex-col lg:flex-row space-y-8 lg:space-y-0 lg:space-x-8">
-        <!-- Reach Out -->
-        <div class="flex flex-col items-center space-y-4 w-full lg:w-1/2">
-          <img src="images/reach.svg" alt="Reach Out" class="w-full" />
-          <div class="text-center">
-            <h2 class="text-2xl font-bold mt-4">Reach Out</h2>
-            <div class="flex justify-center space-x-4 mt-4">
-              <a href="#" aria-label="Mail" class="hover:text-gray-700"><i class="fas fa-envelope text-2xl"></i></a>
-              <a href="#" aria-label="Instagram" class="hover:text-gray-700"><i class="fab fa-instagram text-2xl"></i></a>
-              <a href="#" aria-label="YouTube" class="hover:text-gray-700"><i class="fab fa-youtube text-2xl"></i></a>
-              <a href="#" aria-label="LinkedIn" class="hover:text-gray-700"><i class="fab fa-linkedin text-2xl"></i></a>
-              <a href="#" aria-label="Facebook" class="hover:text-gray-700"><i class="fab fa-facebook text-2xl"></i></a>
-            </div>
-          </div>
-        </div>
-
-        <!-- About Us -->
-        <div class="flex flex-col items-center space-y-4 w-full lg:w-1/2">
-          <img src="images/about.svg" alt="About Us" class="w-full" />
-          <div class="text-center">
-            <h2 class="text-2xl font-bold mt-4">Know About Us</h2>
-            <p class="text-lg mt-2 leading-relaxed">
-              Street Smart helps you connect with local businesses, explore products, and get timely updates on deals
-              and promotions.
-            </p>
-          </div>
-        </div>
-      </div>
+      <p class="mt-6 text-xs text-[#aab9b4]"><i class="fas fa-store" aria-hidden="true"></i> Local shops. Useful discoveries. Your neighbourhood.</p>
     </div>
-
-    <!-- Right Container -->
-    <div class="flex flex-col justify-center">
-      <!-- Image Section -->
-      <div>
-        <img
-          src="images/landing.svg"
-          alt="Street Smart Theme"
-          class="w-full h-auto"
-        />
-      </div>
+    <div class="neighbourhood" role="img" aria-label="Illustration of a neighbourhood with a shop, a product search, and a route connecting them">
+      <div class="map-grid"></div>
+      <div class="map-street street-one"></div><div class="map-street street-two"></div>
+      <div class="map-park park-one"></div><div class="map-park park-two"></div>
+      <svg class="map-route" viewBox="0 0 440 460" aria-hidden="true"><path d="M85 370 L85 260 Q85 235 110 235 L305 235 Q330 235 330 210 L330 105" /></svg>
+      <div class="map-pin pin-start"><i class="fas fa-location-dot"></i></div>
+      <div class="map-pin pin-shop"><i class="fas fa-store"></i></div>
+      <div class="map-search"><i class="fas fa-magnifying-glass"></i><span>What are you looking for?</span><span class="search-arrow">&#8599;</span></div>
+      <div class="map-label">THE NEIGHBOURHOOD</div>
+      <div class="discovery-note"><span class="note-icon"><i class="fas fa-bag-shopping"></i></span><div><strong>Good finds are closer.</strong><span>Explore products from local shops</span></div></div>
+      <span class="absolute bottom-[4%] w-full text-center text-[10px]">A world of local possibilities</span>
     </div>
-  </div>
-</div>
+  </section>
+  <section class="journey" aria-labelledby="journey-title">
+    <div class="section-heading flex flex-wrap items-end justify-between gap-8 mb-8"><div><p class="ss-kicker">Less searching. More finding.</p><h2 id="journey-title">From “I need it” to “found it.”</h2></div><p>A simpler way to plan your next local shopping trip.</p></div>
+    <div class="journey-grid">
+      <article class="journey-card rounded-2xl border border-[#e0ddd4] bg-[#fffdf8] p-6"><span class="text-[10px] tracking-[0.15em] text-[#68736e]">01 / DISCOVER</span><i class="fas fa-magnifying-glass step-icon" aria-hidden="true"></i><h3>Start with a product</h3><p>Search for what you need, then narrow the results by shop category, price, and distance.</p></article>
+      <article class="journey-card rounded-2xl border border-[#e0ddd4] bg-[#fffdf8] p-6"><span class="text-[10px] tracking-[0.15em] text-[#68736e]">02 / COMPARE</span><i class="fas fa-box-open step-icon" aria-hidden="true"></i><h3>Find your local match</h3><p>Compare listings and shop-reported availability before you head out. Stock can change, so check with the shop.</p></article>
+      <article class="journey-card rounded-2xl border border-[#e0ddd4] bg-[#fffdf8] p-6"><span class="text-[10px] tracking-[0.15em] text-[#68736e]">03 / VISIT</span><i class="fas fa-route step-icon" aria-hidden="true"></i><h3>Make the trip count</h3><p>Get directions, save a shop for another day, and share your experience with a review.</p></article>
+    </div>
+  </section>
+  <section class="local-story">
+    <div class="story-art rounded-[2rem] bg-ink-800 p-8"><img src="images/about.svg" alt="People connecting with local businesses" loading="lazy" width="380" height="260" /></div>
+    <div><p class="ss-kicker">Made for the neighbourhood</p><h2>Small shops.<br />More possibilities.</h2><p>There is more on your doorstep than you might think. Street Smart connects everyday needs with local businesses and gives shopkeepers a place to share what they have.</p><a routerLink="/register" class="ss-btn-dark">Join your local community <i class="fas fa-arrow-right" aria-hidden="true"></i></a></div>
+  </section>
+  <footer class="landing-footer"><span>Street Smart <span class="mx-2 text-[#a66b0c]">/</span> Discover local.</span><div><a routerLink="/login">Sign in</a><a routerLink="/register">Create an account <span aria-hidden="true">&#8599;</span></a></div></footer>
+</main>

@@ -1,79 +1,57 @@
 package com.shopapp.ShopService.mapper;
 
-import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
-import com.shopapp.ShopService.dto.UpdateShopRequest;
-import com.shopapp.ShopService.dto.image.response.ImageResponseDTO;
-import com.shopapp.ShopService.dto.product.response.ProductResponseDTO;
+import com.shopapp.ShopService.dto.*;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
 import com.shopapp.ShopService.model.Shop;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
-
 @Component
+@RequiredArgsConstructor
 public class ShopMapper {
+  private final ProductMapper products;
+  private final ImageMapper images;
 
-    public Shop toEntity(ShopRegistrationRequest request) {
-        Shop shop = new Shop();
-        shop.setName(request.getName());
-        shop.setDescription(request.getDescription());
-        shop.setAddress(request.getAddress());
-        shop.setLatitude(request.getLatitude());
-        shop.setLongitude(request.getLongitude());
-        shop.setCategory(request.getCategory());
-        return shop;
-    }
+  public Shop toEntity(ShopRegistrationRequest r) {
+    var s = new Shop();
+    s.setName(r.getName().trim());
+    s.setDescription(r.getDescription().trim());
+    s.setAddress(r.getAddress().trim());
+    s.setLatitude(r.getLatitude());
+    s.setLongitude(r.getLongitude());
+    s.setCategory(r.getCategory().trim());
+    return s;
+  }
 
-    public void updateEntity(Shop shop, UpdateShopRequest request) {
-        shop.setName(request.getName());
-        shop.setDescription(request.getDescription());
-        shop.setAddress(request.getAddress());
-        shop.setLatitude(request.getLatitude());
-        shop.setLongitude(request.getLongitude());
-        shop.setOwnerId(request.getOwnerId());
-        shop.setRatings(request.getRatings());
-    }
+  public void updateEntity(Shop s, UpdateShopRequest r) {
+    s.setOpeningHours(r.getOpeningHours() == null ? null : r.getOpeningHours().trim());
+    s.setName(r.getName().trim());
+    s.setDescription(r.getDescription().trim());
+    s.setAddress(r.getAddress().trim());
+    s.setLatitude(r.getLatitude());
+    s.setLongitude(r.getLongitude());
+    s.setCategory(r.getCategory().trim());
+  }
 
-    public ShopResponse toResponse(Shop shop) {
-        ShopResponse response = new ShopResponse();
-        response.setId(shop.getId());
-        response.setName(shop.getName());
-        response.setDescription(shop.getDescription());
-        response.setAddress(shop.getAddress());
-        response.setLatitude(shop.getLatitude());
-        response.setLongitude(shop.getLongitude());
-        response.setStatus(shop.getStatus());
-        response.setCategory(shop.getCategory());
-        response.setOwnerId(shop.getOwnerId());
-        response.setProducts(shop.getProducts().stream()
-                .map(product -> {
-                    ProductResponseDTO productResponse = new ProductResponseDTO();
-                    productResponse.setId(product.getId());
-                    productResponse.setName(product.getName());
-                    productResponse.setAvailable(product.isAvailable());
-                    return productResponse;
-                })
-                .collect(Collectors.toList()));
-        response.setImages(shop.getImages().stream()
-                .map(image -> {
-                    ImageResponseDTO imageResponse = new ImageResponseDTO();
-                    imageResponse.setId(image.getId());
-                    imageResponse.setFileName(image.getFileName());
-                    imageResponse.setFileType(image.getFileType());
-                    imageResponse.setShopId(image.getShop().getId());
-                    imageResponse.setFileSizeInBytes(image.getImageData().length);
-                    return imageResponse;
-                })
-                .collect(Collectors.toList()));
-        response.setRatings(shop.getRatings());
-        return response;
-    }
+  public ShopResponse toResponse(Shop s) {
+    var r = new ShopResponse();
+    r.setId(s.getId());
+    r.setName(s.getName());
+    r.setDescription(s.getDescription());
+    r.setAddress(s.getAddress());
+    r.setLatitude(s.getLatitude());
+    r.setLongitude(s.getLongitude());
+    r.setStatus(s.getStatus());
+    r.setCategory(s.getCategory());
+    r.setOpeningHours(s.getOpeningHours());
+    r.setOwnerId(s.getOwnerId());
+    r.setProducts(s.getProducts().stream().map(products::toDTO).toList());
+    r.setImages(s.getImages().stream().map(images::toDTO).toList());
+    return r;
+  }
 
-    public ShopBasicInfoDTO toBasicInfo(Shop shop) {
-        ShopBasicInfoDTO basicInfo = new ShopBasicInfoDTO();
-        basicInfo.setId(shop.getId());
-        basicInfo.setName(shop.getName());
-        return basicInfo;
-    }
+  public ShopBasicInfoDTO toBasicInfo(Shop s) {
+    return new ShopBasicInfoDTO(s.getId(), s.getName());
+  }
 }

@@ -1,74 +1,42 @@
 package com.shopapp.UserService.controller;
 
-import com.shopapp.UserService.dto.user.SmsRequest;
-import com.shopapp.UserService.service.impl.SmsSenderServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.shopapp.UserService.service.impl.OtpService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/sms")
+@RequiredArgsConstructor
 public class SmsController {
+  private final OtpService otp;
 
-    private final SmsSenderServiceImpl smsSender;
+  @org.springframework.beans.factory.annotation.Value("${sms.enabled:false}")
+  private boolean enabled;
 
-    @Autowired
-    public SmsController(SmsSenderServiceImpl smsSender) {
-        this.smsSender = smsSender;
-    }
+  @GetMapping("/config")
+  public Map<String, Boolean> config() {
+    return Map.of("enabled", enabled);
+  }
 
-    @PostMapping("/send")
-    public ResponseEntity<Object> sendSms(@RequestBody SmsRequest smsRequest) {
-        try {
-            // Use the OTP received in the request
-            String otpCode = smsRequest.getOtpCode();
-            String phoneNumber = smsRequest.getPhoneNumber();
-            String message = smsRequest.getMessage();
+  public record SendRequest(
+      @NotBlank @Pattern(regexp = "^\\+[1-9]\\d{9,14}$") String phoneNumber) {}
 
-            if (otpCode != null && !otpCode.isEmpty()) {
-                // If message is empty, use OTP as the message content
-                if (message.isEmpty()) {
-                    message = otpCode;
-                }
+  public record VerifyRequest(
+      @NotBlank @Pattern(regexp = "^\\+[1-9]\\d{9,14}$") String phoneNumber,
+      @NotBlank @Pattern(regexp = "^\\d{6}$") String otpCode) {}
 
-                smsSender.sendSms(phoneNumber, message);  // Send OTP via Twilio
-                // Return a structured response in JSON format
-                return ResponseEntity.ok(new ApiResponse(true, "OTP sent successfully."));
-            } else {
-                return ResponseEntity.status(400).body(new ApiResponse(false, "OTP code is required."));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(new ApiResponse(false, "Failed to send OTP: " + e.getMessage()));
-        }
-    }
+  @PostMapping("/send")
+  public Map<String, Object> send(@Valid @RequestBody SendRequest request) {
+    otp.send(request.phoneNumber());
+    return Map.of("success", true, "message", "Verification code sent");
+  }
 
-    // ApiResponse class to structure the response as JSON
-    public static class ApiResponse {
-        private boolean success;
-        private String message;
-
-        public ApiResponse(boolean success, String message) {
-            this.success = success;
-            this.message = message;
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public void setSuccess(boolean success) {
-            this.success = success;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-    }
+  @PostMapping("/verify")
+  public Map<String, Object> verify(@Valid @RequestBody VerifyRequest request) {
+    return Map.of(
+        "success", true, "verificationToken", otp.verify(request.phoneNumber(), request.otpCode()));
+  }
 }

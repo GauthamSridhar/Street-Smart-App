@@ -1,64 +1,63 @@
-<div class="fixed inset-0 flex items-center justify-center z-50">
-  <!-- Overlay -->
-  <div class="absolute inset-0 bg-black opacity-80" (click)="closeDialog()"></div>
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-ink-950/70" (click)="closeDialog()"></div>
 
-  <!-- Modal Content -->
-  <div class="bg-black text-white rounded-lg p-6 z-10 w-80 border border-white">
-    <!-- Title -->
-    <h2 class="text-2xl font-bold mb-4 text-center">OTP Verification</h2>
+  <div class="ss-dialog" role="dialog" aria-modal="true" aria-labelledby="otp-heading">
+    <h2 id="otp-heading" class="mb-4 text-2xl font-bold text-ink-950">Verify your phone</h2>
 
-    <!-- Instruction Text -->
-    <p class="mb-4 text-center">
+    <p class="mb-4 text-sm text-slate-600">
       Please enter the 6-digit OTP sent to your
-      <span class="font-semibold">{{ otpType === 'phone' ? 'phone number' : 'email' }}</span>.
+      <span class="font-semibold text-slate-700">phone number</span>.
     </p>
 
-    <!-- OTP Input -->
     <input
       type="text"
       maxlength="6"
-      class="w-full mb-4 p-2 border border-white rounded bg-black text-white text-center focus:outline-none focus:ring-2 focus:ring-white"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      aria-label="Verification code"
+      class="ss-input mb-4 text-center tracking-[0.4em]"
       [(ngModel)]="otpCode"
       placeholder="Enter OTP"
       required
-    />
+      />
 
-    <!-- Error Message -->
-    <p *ngIf="errorMessage" class="text-white text-sm text-center mb-4">
-      {{ errorMessage }}
-    </p>
+    @if (errorMessage) {
+      <p class="mb-4 text-center text-sm text-rose-600">
+        {{ errorMessage }}
+      </p>
+    }
 
-    <!-- Submit Button -->
     <button
       type="button"
-      class="w-full py-2 bg-white text-black rounded mb-2 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white"
+      class="ss-btn-primary mb-2 w-full"
       (click)="verifyOtp()"
-    >
+      [disabled]="busy"
+      >
       Submit
     </button>
 
-    <!-- Cancel Button -->
     <button
       type="button"
-      class="w-full py-2 bg-white text-black rounded hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white"
+      class="ss-btn-ghost w-full"
       (click)="closeDialog()"
-    >
+      >
       Cancel
     </button>
 
-    <!-- Resend OTP -->
     <div class="mt-4 text-center">
       <button
         type="button"
-        class="text-white disabled:text-gray-500"
+        class="text-sm font-semibold text-amber-600 disabled:text-slate-500"
         [disabled]="isResendDisabled"
         (click)="resendOtp()"
-      >
+        >
         Resend OTP
       </button>
-      <p *ngIf="isResendDisabled" class="text-gray-500 text-sm mt-2">
-        You can resend OTP in {{ resendCountdown }} seconds
-      </p>
+      @if (isResendDisabled) {
+        <p class="mt-2 text-sm text-slate-500">
+          You can resend OTP in {{ resendCountdown }} seconds
+        </p>
+      }
     </div>
   </div>
 </div>

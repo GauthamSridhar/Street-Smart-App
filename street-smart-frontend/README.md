@@ -1,4 +1,15 @@
-# StreetSmart
+# Street Smart frontend
+
+Start the backend first, then run `npm ci` and `npm start` here. Open
+`http://localhost:4200`; the development proxy forwards `/api` to the gateway.
+
+Discovery searches **products**, with combined category/availability filters and
+server pagination. The map is optional; set `GOOGLE_MAPS_API_KEY` in the ignored
+root `.env` file before starting the Compose lab. The container renders it into
+`config.js` only at runtime. No backend secrets belong in browser configuration.
+
+See [frontend design and API contracts](../docs/FRONTEND_DESIGN.md).
+See [verified results and manual checklist](../docs/FRONTEND_VERIFICATION.md).
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.2.
 

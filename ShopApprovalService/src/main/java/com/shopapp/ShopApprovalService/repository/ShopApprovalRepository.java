@@ -1,16 +1,23 @@
 package com.shopapp.ShopApprovalService.repository;
 
-import com.shopapp.ShopApprovalService.model.ShopApproval;
-import com.shopapp.ShopApprovalService.model.ShopStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import com.shopapp.ShopApprovalService.model.*;
+import jakarta.persistence.LockModeType;
+import java.util.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.*;
 
 public interface ShopApprovalRepository extends JpaRepository<ShopApproval, UUID> {
-    Optional<ShopApproval> findByShopId(UUID shopId);
+  Optional<ShopApproval> findByShopId(UUID shopId);
 
-    List<ShopApproval> findByApprovalStatus(ShopStatus approvalStatus);
-    Long countByApprovalStatus(ShopStatus shopStatus);
+  long countBySynchronizedWithShopFalse();
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select a from ShopApproval a where a.shopId = :shopId")
+  Optional<ShopApproval> locked(UUID shopId);
+
+  List<ShopApproval> findByApprovalStatus(ShopStatus status, Pageable page);
+
+  Long countByApprovalStatus(ShopStatus status);
+
+  List<ShopApproval> findTop50BySynchronizedWithShopFalseOrderById();
 }

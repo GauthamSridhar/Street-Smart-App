@@ -4,27 +4,28 @@ import com.shopapp.ShopService.dto.ShopBasicInfoDTO;
 import com.shopapp.ShopService.dto.UpdateShopRequest;
 import com.shopapp.ShopService.dto.shop.request.ShopRegistrationRequest;
 import com.shopapp.ShopService.dto.shop.response.ShopResponse;
-import com.shopapp.ShopService.model.ShopStatus;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.List;
 import java.util.UUID;
 
 public interface ShopService {
 
-    ShopResponse registerShop(UUID ownerId, ShopRegistrationRequest request, HttpServletRequest req);
+  ShopResponse registerShop(UUID ownerId, ShopRegistrationRequest request, HttpServletRequest req);
 
-    ShopResponse getShopById(UUID shopId);
+  ShopResponse getShopById(UUID shopId);
 
-    ShopResponse updateShop(UUID shopId, UpdateShopRequest request);
+  ShopResponse updateShop(UUID shopId, UpdateShopRequest request);
 
-    ShopResponse toggleShopStatus(UUID shopId);
+  ShopResponse toggleShopStatus(UUID shopId);
 
-    boolean doesShopExist(UUID shopId);
+  boolean doesShopExist(UUID shopId);
 
-    ShopBasicInfoDTO getShopBasicInfo(UUID shopId);
+  ShopBasicInfoDTO getShopBasicInfo(UUID shopId);
 
-    ShopResponse getShopByOwner(UUID userId);
+  ShopResponse getShopByOwner(UUID userId);
 
-    List<ShopResponse> getAllShops();
+  List<ShopResponse> getAllShops();
+
+  org.springframework.data.domain.Page<ShopResponse> search(
+      int page, int size, String q, String category);
 }

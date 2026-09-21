@@ -1,0 +1,1 @@
+ALTER TABLE shops ADD COLUMN approval_revision BIGINT NOT NULL DEFAULT 0;

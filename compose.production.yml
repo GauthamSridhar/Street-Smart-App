@@ -1,0 +1,49 @@
+# Overlay: docker compose -f compose.yml -f compose.production.yml up -d --build
+services:
+  web:
+    build: ./street-smart-frontend
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?Set the deployment domain}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+    ports: ['80:80', '443:443']
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      gateway:
+        condition: service_healthy
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 1
+    security_opt: ['no-new-privileges:true']
+  database:
+    mem_limit: 1g
+    cpus: 1
+    restart: unless-stopped
+  discovery:
+    mem_limit: 512m
+    cpus: 1
+  gateway:
+    mem_limit: 512m
+    cpus: 1
+    environment:
+      ALLOWED_ORIGINS: https://${PUBLIC_DOMAIN:?Set the deployment domain}
+  users:
+    mem_limit: 768m
+    cpus: 1
+  shops:
+    mem_limit: 768m
+    cpus: 1
+  approvals:
+    mem_limit: 512m
+    cpus: 1
+  ratings:
+    mem_limit: 512m
+    cpus: 1
+  favorites:
+    mem_limit: 512m
+    cpus: 1
+volumes:
+  caddy-data:
+  caddy-config:

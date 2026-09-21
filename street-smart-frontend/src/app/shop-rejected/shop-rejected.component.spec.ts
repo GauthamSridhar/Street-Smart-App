@@ -1,3 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ShopRejectedComponent } from './shop-rejected.component';
@@ -8,9 +11,9 @@ describe('ShopRejectedComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ShopRejectedComponent]
-    })
-    .compileComponents();
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      imports: [ShopRejectedComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ShopRejectedComponent);
     component = fixture.componentInstance;

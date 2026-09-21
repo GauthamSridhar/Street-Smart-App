@@ -1,0 +1,113 @@
+<app-navbar></app-navbar>
+<main class="ss-page">
+  <div class="ss-shell">
+    <header class="ss-page-header"><p class="ss-kicker">Account</p><h1 class="ss-title">Your profile</h1><p class="ss-subtitle">Manage your account and contact details.</p></header>
+    @if (loading) {
+      <p role="status" class="ss-alert-info">Loading profile...</p>
+    }
+    @if (errorMessage) {
+      <p role="alert" class="ss-alert-error">{{ errorMessage }}</p>
+    }
+    @if (!user && !loading) {
+      <button (click)="load()" class="ss-btn-ghost">Retry</button>
+    }
+    @if (message) {
+      <p role="status" class="ss-alert-ok">{{ message }}</p>
+    }
+    @if (user) {
+      <form #form="ngForm" (ngSubmit)="save()" class="ss-card max-w-xl space-y-4 p-6">
+        <p>
+          Phone status:
+          <span [class]="user.verified ? 'ss-badge-ok' : 'ss-badge-warn'">{{ user.verified ? 'Verified' : 'Unverified' }}</span>
+        </p>
+        <label class="ss-label"
+          >Full name
+          <input
+            class="ss-input"
+            name="fullName"
+            [(ngModel)]="edit.fullName"
+            required
+            maxlength="100"
+          /></label>
+          <label class="ss-label"
+            >Email
+            <input
+              class="ss-input"
+              type="email"
+              name="email"
+              [(ngModel)]="edit.email"
+              email
+              required
+              maxlength="254"
+            /></label>
+            <label class="ss-label"
+              >International phone number
+              <input
+                class="ss-input"
+                type="tel"
+                name="phone"
+                [(ngModel)]="edit.phoneNumber"
+                pattern="\+[1-9][0-9]{9,14}"
+                required
+              /></label>
+              @if (smsEnabled && edit.phoneNumber !== user.phoneNumber) {
+                <button
+                  type="button"
+                  (click)="verifyPhone()"
+                  [disabled]="verifiedPhone || busy"
+                  class="ss-btn-ghost"
+                  >
+                {{ verifiedPhone ? 'Verified new phone' : 'Verify new phone' }}
+              </button>
+            }
+            @if (!smsEnabled) {
+              <p class="text-sm text-slate-500">
+                SMS verification is disabled here; a changed phone number will be unverified.
+              </p>
+            }
+            <p class="text-sm text-slate-500">Changing your email, phone or password requires your current password.</p>
+            <label class="ss-label"
+              >Current password
+              <input
+                class="ss-input"
+                type="password"
+                autocomplete="current-password"
+                name="currentPassword"
+                [(ngModel)]="edit.currentPassword"
+              /></label>
+              <label class="ss-label"
+                >New password (optional)
+                <input
+                  class="ss-input"
+                  type="password"
+                  autocomplete="new-password"
+                  name="password"
+                  [(ngModel)]="edit.password"
+                  minlength="8"
+                  maxlength="72"
+                /></label>
+                <button type="submit" [disabled]="busy || form.invalid" class="ss-btn-primary">Save profile</button>
+              </form>
+              <section class="ss-card mt-6 max-w-xl p-6" aria-label="Active sessions">
+                <h2 class="text-lg font-semibold text-ink-950">Active sessions</h2>
+                <p class="mt-1 text-sm text-slate-500">Revoke a device you no longer use. A password, email, or phone change also signs out every device.</p>
+                <ul class="mt-4 space-y-3">
+                  @for (activeSession of sessions; track activeSession.id) {
+                    <li class="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                      <span class="text-sm text-slate-600">Signed in {{ activeSession.createdAt | date:'medium' }} @if (activeSession.current) { <strong class="ml-1 text-emerald-700">This device</strong> }</span>
+                      <button type="button" class="ss-btn-ghost" [disabled]="busy" (click)="revokeSession(activeSession.id, activeSession.current)">Sign out</button>
+                    </li>
+                  }
+                </ul>
+                @if (!sessions.length) { <p class="mt-3 text-sm text-slate-500">No active sessions found.</p> }
+                <button type="button" class="ss-btn-danger mt-4" [disabled]="busy" (click)="logoutAll()">Sign out all devices</button>
+              </section>
+            }
+            @if (showOtp) {
+              <app-otp-dialog
+                [contactInfo]="contactInfo"
+                (close)="verified($event)"
+              ></app-otp-dialog>
+            }
+          </div>
+        </main>

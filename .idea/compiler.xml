@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="EurekaServer" />
+        <module name="backend-common" />
         <module name="UserService" />
         <module name="ShopService" />
         <module name="FavoriteService" />
@@ -33,6 +34,7 @@
       <module name="ShopApprovalService" options="-parameters" />
       <module name="ShopService" options="-parameters" />
       <module name="UserService" options="-parameters" />
+      <module name="backend-common" options="-parameters" />
       <module name="shopapp" options="-parameters" />
     </option>
   </component>

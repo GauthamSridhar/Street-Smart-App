@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="860" viewBox="0 0 1440 860" role="img" aria-labelledby="title desc">
+  <title id="title">Street Smart architecture overview</title>
+  <desc id="desc">Angular frontend reaches a gateway, which routes to six Spring Boot services. Each business service owns a PostgreSQL database and uses Eureka service discovery.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071724"/><stop offset="1" stop-color="#0c2736"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#38d6b1"/><stop offset="1" stop-color="#5aa9ff"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".28"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#78a2b7"/></marker>
+    <style>text{font-family:Inter,Arial,sans-serif}.label{fill:#e8f4f7;font-size:22px;font-weight:700}.small{fill:#9ec0cc;font-size:16px}.micro{fill:#77a5b5;font-size:14px}.box{fill:#102d3c;stroke:#2a5868;stroke-width:1.5}.db{fill:#0c3443;stroke:#36a9aa;stroke-width:1.5}.line{stroke:#78a2b7;stroke-width:2;fill:none;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1440" height="860" fill="url(#bg)" rx="28"/>
+  <text x="72" y="84" fill="#f3fbfc" font-size="38" font-weight="800">Street Smart</text>
+  <text x="72" y="118" class="small">Product discovery platform | portfolio architecture</text>
+  <rect x="72" y="164" width="226" height="98" rx="16" class="box" filter="url(#shadow)"/>
+  <text x="104" y="205" class="label">Angular 21</text><text x="104" y="233" class="small">Web client</text>
+  <path d="M298 213 H382" class="line"/>
+  <rect x="386" y="164" width="228" height="98" rx="16" fill="url(#accent)" filter="url(#shadow)"/>
+  <text x="422" y="205" fill="#062631" font-size="22" font-weight="800">API Gateway</text><text x="422" y="233" fill="#0a4050" font-size="16">JWT + CORS boundary</text>
+  <path d="M500 262 V324" class="line"/>
+  <rect x="392" y="332" width="216" height="70" rx="14" class="box"/>
+  <text x="434" y="361" class="label">Eureka</text><text x="434" y="385" class="small">Service discovery</text>
+  <path d="M614 213 H704 M704 213 V678" class="line"/>
+  <text x="724" y="151" class="micro">Private Compose network</text>
+  <g filter="url(#shadow)">
+    <rect x="750" y="164" width="220" height="88" rx="16" class="box"/><text x="780" y="201" class="label">User Service</text><text x="780" y="228" class="small">Auth | OTP | sessions</text>
+    <rect x="1040" y="164" width="220" height="88" rx="16" class="box"/><text x="1070" y="201" class="label">Shop Service</text><text x="1070" y="228" class="small">Catalog | search | images</text>
+    <rect x="750" y="354" width="220" height="88" rx="16" class="box"/><text x="780" y="391" class="label">Approval Service</text><text x="780" y="418" class="small">Decisions | retries</text>
+    <rect x="1040" y="354" width="220" height="88" rx="16" class="box"/><text x="1070" y="391" class="label">Rating Service</text><text x="1070" y="418" class="small">Reviews | moderation</text>
+    <rect x="895" y="544" width="220" height="88" rx="16" class="box"/><text x="925" y="581" class="label">Favorite Service</text><text x="925" y="608" class="small">Idempotent saves</text>
+  </g>
+  <path d="M704 208 H750 M704 208 H1040 M704 398 H750 M704 398 H1040 M704 588 H895" class="line"/>
+  <g>
+    <rect x="750" y="700" width="220" height="64" rx="32" class="db"/><text x="817" y="739" class="label">users DB</text>
+    <rect x="1040" y="700" width="220" height="64" rx="32" class="db"/><text x="1100" y="739" class="label">shops DB</text>
+    <rect x="750" y="790" width="220" height="52" rx="26" class="db"/><text x="790" y="823" class="small">approvals DB</text>
+    <rect x="1040" y="790" width="220" height="52" rx="26" class="db"/><text x="1090" y="823" class="small">ratings DB</text>
+    <rect x="895" y="700" width="220" height="64" rx="32" class="db"/><text x="948" y="739" class="label">favorites DB</text>
+  </g>
+  <path d="M860 252 V700 M1150 252 V700 M860 442 V790 M1150 442 V790 M1005 632 V700" class="line"/>
+  <path d="M970 398 H1040" stroke="#38d6b1" stroke-width="2.5" stroke-dasharray="7 7" marker-end="url(#arrow)"/><text x="780" y="488" class="micro">At-least-once request delivery</text><text x="780" y="508" class="micro">with revision-aware decisions</text>
+</svg>

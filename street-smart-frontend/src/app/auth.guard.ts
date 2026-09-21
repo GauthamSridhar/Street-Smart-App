@@ -1,32 +1,23 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-
-@Injectable({
-  providedIn: 'root'
-})
+import {
+  CanActivate,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  Router,
+  UrlTree,
+} from '@angular/router';
+import { SessionService } from './services/session.service';
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router) {}
-
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    const token = sessionStorage.getItem('tokenId');
-    const userRole = sessionStorage.getItem('role');
-
-    // Check if user is logged in
-    if (!token || !userRole) {
-      console.warn('No token or role found. User is not authenticated.');
-      this.router.navigate(['/login']);
-      return false;
-    }
-
-    // If this route requires roles, check them
-    const requiredRoles = route.data['roles'] as string[] | undefined;
-    if (requiredRoles && !requiredRoles.includes(userRole)) {
-      console.error(`User role '${userRole}' does not meet required roles: ${requiredRoles.join(', ')}`);
-      this.router.navigate(['/error'], { queryParams: { message: 'Access Denied' } });
-      return false;
-    }
-
-    // User is authenticated and authorized
-    return true;
+  constructor(
+    private router: Router,
+    private session: SessionService,
+  ) {}
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
+    if (!this.session.token || !this.session.role) return this.router.createUrlTree(['/login']);
+    const roles = route.data['roles'] as string[] | undefined;
+    return !roles || roles.includes(this.session.role)
+      ? true
+      : this.router.createUrlTree(['/error'], { queryParams: { message: 'Access denied.' } });
   }
 }

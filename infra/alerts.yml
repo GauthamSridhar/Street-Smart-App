@@ -1,0 +1,16 @@
+groups:
+  - name: street-smart
+    rules:
+      - alert: ApprovalDeliveryBacklog
+        expr: street_smart_approval_requests_pending > 0 or street_smart_approval_decisions_pending > 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: Approval delivery has remained pending for five minutes
+          description: Check service discovery, internal credentials, downstream health and worker logs.
+      - alert: ServiceUnavailable
+        expr: up{job=~"street-smart-.*"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: A Street Smart service cannot be scraped

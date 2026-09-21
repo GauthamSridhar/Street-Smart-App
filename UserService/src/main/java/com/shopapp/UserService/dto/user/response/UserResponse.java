@@ -1,17 +1,13 @@
 package com.shopapp.UserService.dto.user.response;
 
-import com.shopapp.UserService.dto.user.JwtToken;
-import lombok.Data;
-
-import java.util.List;
 import java.util.UUID;
+import lombok.Data;
 
 @Data
 public class UserResponse {
-    private UUID id;
-    private String email;
-    private String fullName;
-    private String phoneNumber;
-    private List<UUID> ratings;
-    private List<UUID> favorites;
+  private UUID id;
+  private String email;
+  private String fullName;
+  private String phoneNumber;
+  private boolean verified;
 }

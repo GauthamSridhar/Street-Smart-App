@@ -1,0 +1,10 @@
+security:
+  jwt:
+    secret: dGVzdC1vbmx5LXN0cmVldC1zbWFydC1rZXktMzItYnl0ZXM=
+eureka:
+  client:
+    enabled: false
+spring:
+  cloud:
+    discovery:
+      enabled: false

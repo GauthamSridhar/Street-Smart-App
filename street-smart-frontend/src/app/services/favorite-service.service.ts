@@ -1,102 +1,29 @@
-// src/app/services/favorites.service.ts
-
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../environment';
-
 export interface Shop {
+  id: string;
   shopId: string;
-  id: string | null;
   shopName: string;
   userId: string;
 }
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class FavoritesService {
-  private baseUrl = environment.apiBaseUrl; // e.g. https://your-backend-domain.com/api
-
+  private readonly url = environment.apiBaseUrl + '/favorites';
   constructor(private http: HttpClient) {}
-
-  /**
-   * Helper to create an HttpHeaders object with authorization token.
-   */
-  private getAuthHeaders(): HttpHeaders {
-    const token = sessionStorage.getItem('tokenId');
-    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    console.log('Token:', token);
-    
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    return headers;
+  getFavoriteShops(userId: string, page = 0, size = 20) {
+    return this.http.get<Shop[]>(this.url + '/user/' + userId, { params: { page, size } });
   }
-
-  /**
-   * Fetches the list of favorite shops for the given user.
-   * 
-   * Backend endpoint: GET /api/favorites/user/{userId}
-   * 
-   * @param userId - The ID of the user
-   * @returns Observable<Shop[]>
-   */
-  getFavoriteShops(userId: string): Observable<Shop[]> {
-    return this.http.get<Shop[]>(`${this.baseUrl}/favorites/user/${userId}`, {
-      headers: this.getAuthHeaders()
-    });
+  isFavorite(shopId: string, userId: string) {
+    return this.http.get<boolean>(this.url + '/' + shopId + '/is-favorite', { params: { userId } });
   }
-
-  /**
-   * Checks if a specific shop is in the user's favorites.
-   *
-   * Backend endpoint: GET /api/favorites/{shopId}/is-favorite?userId={userId}
-   * 
-   * @param shopId - The ID of the shop to check.
-   * @param userId - The ID of the user
-   * @returns Observable<boolean>
-   */
-  isFavorite(shopId: string, userId: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/favorites/${shopId}/is-favorite?userId=${userId}`,{
-      headers: this.getAuthHeaders()
-    });
+  addFavorite(shopId: string, userId: string) {
+    return this.http.post<Shop>(this.url + '/' + shopId, null, { params: { userId } });
   }
-
-  /**
-   * Adds a shop to the user's favorites.
-   * 
-   * Backend endpoint: POST /api/favorites/{shopId}?userId={userId}
-   * 
-   * @param shopId - The ID of the shop to add.
-   * @param userId - The ID of the user
-   * @returns Observable<any>
-   */
-  addFavorite(shopId: string, userId: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/favorites/${shopId}?userId=${userId}`, null, {
-      headers: this.getAuthHeaders()
-    });
+  removeFavoriteShop(shopId: string, userId: string) {
+    return this.http.delete<void>(this.url + '/' + shopId, { params: { userId } });
   }
-
-  /**
-   * Removes a shop from the user's favorites.
-   * 
-   * Backend endpoint: DELETE /api/favorites/{shopId}?userId={userId}
-   * @PathVariable ratingId
-   * @param shopId - The ID of the shop to remove.
-   * @param userId - The ID of the user
-   * @returns Observable<any>
-   */
-  removeFavoriteShop(shopId: string, userId: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/favorites/${shopId}?userId=${userId}`, {
-      headers: this.getAuthHeaders()
-    });
+  getFavoritesCount(userId: string) {
+    return this.http.get<number>(this.url + '/count/' + userId);
   }
-
-  getFavoritesCount(userId: string): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/favorites/count/${userId}`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-  
 }

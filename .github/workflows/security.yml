@@ -1,0 +1,40 @@
+name: Security checks
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+permissions:
+  contents: read
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci && npm audit --audit-level=high
+        working-directory: street-smart-frontend
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: bash UserService/mvnw -B -ntp org.owasp:dependency-check-maven:12.2.2:aggregate -DfailBuildOnCVSS=7 -DvirtualSnapshotsFromReactor=true -DnvdApiKeyEnvironmentVariable=NVD_API_KEY
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-security-report
+          path: target/dependency-check-report.html

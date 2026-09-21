@@ -1,3 +1,0 @@
-api=AIzaSyBTkKADugSPPiiyUhPLgsOucJbMYie-AI0
-
-map_id=ad432a5a924b9bb6

@@ -1,110 +1,82 @@
 package com.shopapp.UserService.service.impl;
 
-import com.shopapp.UserService.dto.user.request.RegisterUserRequest;
-import com.shopapp.UserService.dto.user.request.UpdateUserRequest;
+import com.shopapp.UserService.dto.user.request.*;
 import com.shopapp.UserService.dto.user.response.UserResponse;
-import com.shopapp.UserService.exception.UserAlreadyExistsException;
-import com.shopapp.UserService.exception.UserNotFoundException;
 import com.shopapp.UserService.mapper.UserMapper;
-import com.shopapp.UserService.model.User;
 import com.shopapp.UserService.model.UserRole;
 import com.shopapp.UserService.repository.UserRepository;
 import com.shopapp.UserService.service.UserService;
+import com.shopapp.common.*;
+import java.util.Locale;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserServiceImpl implements UserService {
+  private final UserRepository users;
+  private final UserMapper mapper;
+  private final BCryptPasswordEncoder passwords;
+  private final OtpService otp;
+  private final com.shopapp.UserService.repository.SessionRepository sessions;
 
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
-    private final BCryptPasswordEncoder passwordEncoder;
+  @Override
+  @Transactional
+  public UserResponse register(RegisterUserRequest request) {
+    if (request.getRole() == UserRole.ADMIN)
+      throw new AccessDeniedException("Administrator registration is not public");
+    String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
+    if (users.existsByEmail(email) || users.existsByPhoneNumber(request.getPhoneNumber()))
+      throw ApiException.conflict("An account with these details already exists");
+    var user = mapper.toEntity(request);
+    user.setPassword(passwords.encode(request.getPassword()));
+    user.setRole(request.getRole() == null ? UserRole.USER : request.getRole());
+    user.setVerified(
+        otp.consumeVerification(request.getPhoneNumber(), request.getPhoneVerificationToken()));
+    return mapper.toResponse(users.saveAndFlush(user));
+  }
 
-    @Override
-    @Transactional
-    public UserResponse register(RegisterUserRequest request) {
-        log.info("Attempting to register user with email: {}", request.getEmail());
-
-        if (userRepository.existsByEmail(request.getEmail())) {
-            log.warn("Email already exists: {}", request.getEmail());
-            throw new UserAlreadyExistsException("Email already exists");
-        }
-
-        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-            log.warn("Phone number already exists: {}", request.getPhoneNumber());
-            throw new UserAlreadyExistsException("Phone number already exists");
-        }
-
-        User user = userMapper.toEntity(request);
-        // Securely encode the password before storing
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        // Set default role if not provided
-        if (user.getRole() == null) {
-            user.setRole(UserRole.USER);
-        }
-        // Set verification status to false by default
-
-
-        User savedUser = userRepository.save(user);
-        log.info("User registered successfully with ID: {}", savedUser.getId());
-
-        return userMapper.toResponse(savedUser);
+  @Override
+  @Transactional
+  public UserResponse updateProfile(UUID id, UpdateUserRequest request) {
+    Caller.owner(id);
+    var user = users.locked(id).orElseThrow(() -> ApiException.notFound("User"));
+    boolean sensitive =
+        !user.getEmail().equalsIgnoreCase(request.getEmail().trim())
+            || !user.getPhoneNumber().equals(request.getPhoneNumber())
+            || request.getPassword() != null;
+    if (sensitive
+        && (request.getCurrentPassword() == null
+            || !passwords.matches(request.getCurrentPassword(), user.getPassword())))
+      throw new AccessDeniedException("Current password is required for this change");
+    if (!user.getEmail().equalsIgnoreCase(request.getEmail().trim())
+        && users.existsByEmail(request.getEmail().trim().toLowerCase(Locale.ROOT)))
+      throw ApiException.conflict("Email is already registered");
+    if (!user.getPhoneNumber().equals(request.getPhoneNumber())) {
+      if (users.existsByPhoneNumber(request.getPhoneNumber()))
+        throw ApiException.conflict("Phone number is already registered");
+      user.setVerified(
+          otp.consumeVerification(request.getPhoneNumber(), request.getPhoneVerificationToken()));
     }
+    mapper.updateEntity(user, request);
+    if (request.getPassword() != null) user.setPassword(passwords.encode(request.getPassword()));
+    if (sensitive) sessions.deleteByUserId(id);
+    return mapper.toResponse(users.saveAndFlush(user));
+  }
 
-    @Override
-    @Transactional
-    public UserResponse updateProfile(UUID userId, UpdateUserRequest request) {
-        log.info("Updating profile for user ID: {}", userId);
+  @Override
+  @Transactional(readOnly = true)
+  public UserResponse findUserById(UUID id) {
+    if (!Caller.hasRole("ADMIN")) Caller.owner(id);
+    return mapper.toResponse(users.findById(id).orElseThrow(() -> ApiException.notFound("User")));
+  }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        if (!user.getEmail().equals(request.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
-            log.warn("Email already exists: {}", request.getEmail());
-            throw new UserAlreadyExistsException("Email already exists");
-        }
-
-        if (!user.getPhoneNumber().equals(request.getPhoneNumber()) && userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-            log.warn("Phone number already exists: {}", request.getPhoneNumber());
-            throw new UserAlreadyExistsException("Phone number already exists");
-        }
-
-        log.debug("Update request details: {}", request);
-        userMapper.updateEntity(user, request);
-
-//         If password is being updated, encode it
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
-
-        User updatedUser = userRepository.save(user);
-        log.info("User profile updated successfully for ID: {}", updatedUser.getId());
-
-        return userMapper.toResponse(updatedUser);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public UserResponse findUserById(UUID userId) {
-        log.info("Retrieving user by ID: {}", userId);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        return userMapper.toResponse(user);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean doesUserExist(UUID userId) {
-        log.info("Checking existence for user ID: {}", userId);
-        return userRepository.existsById(userId);
-    }
+  @Override
+  public boolean doesUserExist(UUID id) {
+    return users.existsById(id);
+  }
 }

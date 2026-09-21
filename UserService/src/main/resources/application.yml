@@ -1,28 +1,16 @@
 server:
-  port: 8082
-
+  port: ${PORT:8082}
 spring:
+  config:
+    import: classpath:backend-defaults.yml
   application:
     name: UserService
-
   datasource:
-    url: jdbc:postgresql://localhost:5432/UserService
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/users}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+sms:
+  enabled: ${SMS_ENABLED:true}
+  account_sid: ${SMS_ACCOUNT_SID}
+  auth_token: ${SMS_AUTH_TOKEN}
+  from: ${SMS_FROM}

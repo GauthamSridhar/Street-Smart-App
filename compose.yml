@@ -1,0 +1,168 @@
+name: street-smart
+x-domain-environment: &domain-environment
+  DB_USER: ${DB_USER:?Run backend.ps1 -Action Init}
+  DB_PASSWORD: ${DB_PASSWORD:?Run backend.ps1 -Action Init}
+  JWT_SECRET: ${JWT_SECRET:?Run backend.ps1 -Action Init}
+  INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Run backend.ps1 -Action Init}
+  EUREKA_URL: http://discovery:8761/eureka/
+  SESSION_VALIDATION_URL: http://users:8082/internal/sessions
+x-domain: &domain
+  restart: unless-stopped
+  depends_on:
+    database:
+      condition: service_healthy
+    discovery:
+      condition: service_healthy
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - street-smart-data:/var/lib/postgresql/data
+      - ./infra/init-databases.sql:/docker-entrypoint-initdb.d/01-databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  discovery:
+    build:
+      context: .
+      args:
+        SERVICE: EurekaServer
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+  gateway:
+    build:
+      context: .
+      args:
+        SERVICE: DiscoveryClient
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      EUREKA_URL: http://discovery:8761/eureka/
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      discovery:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+  users:
+    <<: *domain
+    build:
+      context: .
+      args:
+        SERVICE: UserService
+    environment:
+      <<: *domain-environment
+      DB_URL: jdbc:postgresql://database:5432/users
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_PHONE: ${ADMIN_PHONE}
+      SMS_ENABLED: ${SMS_ENABLED:-true}
+      SMS_ACCOUNT_SID: ${SMS_ACCOUNT_SID:-}
+      SMS_AUTH_TOKEN: ${SMS_AUTH_TOKEN:-}
+      SMS_API_KEY_SID: ${SMS_API_KEY_SID:-}
+      SMS_API_KEY_SECRET: ${SMS_API_KEY_SECRET:-}
+      SMS_VERIFY_SERVICE_SID: ${SMS_VERIFY_SERVICE_SID:-}
+      SMS_FROM: ${SMS_FROM:-}
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+  shops:
+    <<: *domain
+    build:
+      context: .
+      args:
+        SERVICE: ShopService
+    environment:
+      <<: *domain-environment
+      DB_URL: jdbc:postgresql://database:5432/shops
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8083/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+  approvals:
+    <<: *domain
+    build:
+      context: .
+      args:
+        SERVICE: ShopApprovalService
+    environment:
+      <<: *domain-environment
+      DB_URL: jdbc:postgresql://database:5432/approvals
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8084/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+  ratings:
+    <<: *domain
+    build:
+      context: .
+      args:
+        SERVICE: RatingService
+    environment:
+      <<: *domain-environment
+      DB_URL: jdbc:postgresql://database:5432/ratings
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8085/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+  favorites:
+    <<: *domain
+    build:
+      context: .
+      args:
+        SERVICE: FavoriteService
+    environment:
+      <<: *domain-environment
+      DB_URL: jdbc:postgresql://database:5432/favorites
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8086/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+  test-database:
+    image: postgres:16-alpine
+    profiles: ["test"]
+    environment:
+      POSTGRES_USER: street_smart_test
+      POSTGRES_PASSWORD: local-test-only
+      POSTGRES_DB: postgres
+    ports:
+      - "127.0.0.1:55441:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    volumes:
+      - ./infra/init-databases.sql:/docker-entrypoint-initdb.d/01-databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U street_smart_test -d postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  street-smart-data:

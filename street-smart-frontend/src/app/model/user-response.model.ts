@@ -1,10 +1,15 @@
-// src/app/models/user-response.model.ts
 export interface UserResponse {
-    id: string; // UUID as string
-    email: string;
-    fullName: string;
-    phoneNumber: string;
-    ratings: string[]; // Array of UUIDs as strings
-    favorites: string[]; // Array of UUIDs as strings
-  }
-  
+  id: string;
+  email: string;
+  fullName: string;
+  phoneNumber: string;
+  verified: boolean;
+}
+export interface UserEdit {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  currentPassword?: string;
+  password?: string;
+  phoneVerificationToken?: string;
+}

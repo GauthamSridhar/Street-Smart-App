@@ -1,0 +1,11 @@
+:host { display: block; position: sticky; top: 0; z-index: 40; }
+nav { box-shadow: 0 2px 20px #0f141910; }
+.brand { white-space: nowrap; }
+nav a, nav button { min-height: 44px; }
+nav a { border: 1px solid transparent; }
+nav a[aria-current='page'] { border-color: #e8a31740; }
+@media (max-width: 640px) {
+  nav > div { justify-content: center; gap: .5rem; }
+  ul { width: 100%; justify-content: center; }
+  nav a, nav li button { padding-inline: .65rem; font-size: .8rem; }
+}

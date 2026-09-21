@@ -1,0 +1,13 @@
+# Isolated browser-test configuration. Never use this overlay for normal local work or deployment.
+services:
+  gateway:
+    ports: !override ['127.0.0.1:18080:8080']
+  web:
+    ports: !override ['127.0.0.1:18088:80']
+    environment:
+      GOOGLE_MAPS_API_KEY: ''
+  users:
+    environment:
+      SPRING_PROFILES_ACTIVE: e2e
+      SMS_ENABLED: 'true'
+      SMS_TEST_CODE: ${E2E_OTP_CODE:-000000}

@@ -1,0 +1,16 @@
+# Access port 8088 only through an encrypted SSM tunnel; the instance has no inbound rules.
+services:
+  web:
+    build: ./street-smart-frontend
+    environment:
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+    ports: ['127.0.0.1:8088:80']
+    volumes:
+      - ./infra/Caddyfile.lab:/etc/caddy/Caddyfile:ro
+    depends_on:
+      gateway:
+        condition: service_healthy
+    restart: unless-stopped
+    mem_limit: 256m
+  database:
+    restart: unless-stopped

@@ -1,0 +1,13 @@
+.git
+**/target
+**/node_modules
+**/dist
+.env
+.env.*
+.idea
+shopapp
+ProductService
+NotificationService
+street-smart-frontend
+artifacts
+.tmp

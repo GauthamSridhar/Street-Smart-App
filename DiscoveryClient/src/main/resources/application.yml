@@ -1,68 +1,54 @@
 server:
-  port: 8080
-
+  port: ${PORT:8080}
 spring:
   application:
     name: ApiGateway
-
   cloud:
     gateway:
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: '*'
-            allowedHeaders: '*'
-      routes:
-        - id: UserService
-          uri: lb://UserService
-          predicates:
-            - Path=/api/users/**
-        - id: UserService
-          uri: lb://UserService
-          predicates:
-            - Path=/api/sms/**
-          
-
-        - id: ShopService
-          uri: lb://ShopService
-          predicates:
-            - Path=/api/shops/**
-          filters:
-            - name : AuthenticationFilter
-        - id: ShopService
-          uri: lb://ShopService
-          predicates:
-            - Path=/api/products/**
-          filters:
-            - name: AuthenticationFilter
-        - id: ShopService
-          uri: lb://ShopService
-          predicates:
-            - Path=/api/images/**
-          filters:
-            - name: AuthenticationFilter
-        - id: ShopApprovalService
-          uri: lb://ShopApprovalService
-          predicates:
-            - Path=/api/approvals/**
-          filters:
-            - name : AuthenticationFilter
-        - id: RatingService
-          uri: lb://RatingService
-          predicates:
-              - Path=/api/ratings/**
-          filters:
-            - name : AuthenticationFilter
-        - id: FavoriteService
-          uri: lb://FavoriteService
-          predicates:
-              - Path=/api/favorites/**
-          filters:
-            - name : AuthenticationFilter
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 2000
+            response-timeout: 10s
+          json-to-grpc:
+            valid-proto-descriptor-prefixes: "classpath:"
+          routes:
+            - id: users
+              uri: lb://UserService
+              predicates:
+                - Path=/api/users/**,/api/sms/**
+            - id: shops
+              uri: lb://ShopService
+              predicates:
+                - Path=/api/shops/**,/api/products/**,/api/images/**
+            - id: approvals
+              uri: lb://ShopApprovalService
+              predicates:
+                - Path=/api/approvals/**
+            - id: ratings
+              uri: lb://RatingService
+              predicates:
+                - Path=/api/ratings/**
+            - id: favorites
+              uri: lb://FavoriteService
+              predicates:
+                - Path=/api/favorites/**
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:4200}
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true

@@ -1,58 +1,89 @@
 package com.shopapp.UserService.service.impl;
 
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
-import jakarta.annotation.PostConstruct;
+import com.shopapp.UserService.service.SmsVerificationService;
+import com.shopapp.common.ApiException;
+import com.twilio.http.TwilioRestClient;
+import com.twilio.rest.verify.v2.service.Verification;
+import com.twilio.rest.verify.v2.service.VerificationCheck;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
-@Component
-public class SmsSenderServiceImpl {
+@Service
+@Profile("!e2e")
+public class SmsSenderServiceImpl implements SmsVerificationService {
+  private static final Logger log = LoggerFactory.getLogger(SmsSenderServiceImpl.class);
+  private final String accountSid, authToken, apiKeySid, apiKeySecret, verifyServiceSid;
 
-    @Value("${twilio.account_sid}")
-    private String ACCOUNT_SID;
+  public SmsSenderServiceImpl(
+      @Value("${SMS_ACCOUNT_SID:}") String accountSid,
+      @Value("${SMS_AUTH_TOKEN:}") String authToken,
+      @Value("${SMS_API_KEY_SID:}") String apiKeySid,
+      @Value("${SMS_API_KEY_SECRET:}") String apiKeySecret,
+      @Value("${SMS_VERIFY_SERVICE_SID:}") String verifyServiceSid) {
+    this.accountSid = accountSid;
+    this.authToken = authToken;
+    this.apiKeySid = apiKeySid;
+    this.apiKeySecret = apiKeySecret;
+    this.verifyServiceSid = verifyServiceSid;
+  }
 
-    @Value("${twilio.auth_token}")
-    private String AUTH_TOKEN;
-
-    @Value("${twilio.phone_number}")
-    private String TWILIO_PHONE_NUMBER;
-
-    @Value("${twilio.mss}")
-    private String MESSAGING_SERVICE_SID;
-
-    @PostConstruct
-    public void init() {
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
-        System.out.println("Twilio initialized successfully.");
-        System.out.println("Twilio phone number: " + TWILIO_PHONE_NUMBER);
-        System.out.println("MessagingServiceSid: " + MESSAGING_SERVICE_SID);
+  public void sendVerification(String number) {
+    if (!configured())
+      throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "SMS verification is not configured");
+    try {
+      Verification.creator(verifyServiceSid, number, "sms").create(client());
+    } catch (com.twilio.exception.ApiException ex) {
+      log.warn(
+          "Twilio rejected verification send: status={}, code={}",
+          ex.getStatusCode(),
+          ex.getCode());
+      throw new ApiException(
+          HttpStatus.SERVICE_UNAVAILABLE, "SMS delivery failed; please retry later");
+    } catch (RuntimeException ex) {
+      log.warn("SMS provider request failed: {}", ex.getClass().getSimpleName());
+      throw new ApiException(
+          HttpStatus.SERVICE_UNAVAILABLE, "SMS delivery failed; please retry later");
     }
+  }
 
-    public void sendSms(String phoneNumber, String messageText) {
-        try {
-            if (MESSAGING_SERVICE_SID != null && !MESSAGING_SERVICE_SID.isEmpty()) {
-                // Send using MessagingServiceSid
-                Message message = Message.creator(
-                        new com.twilio.type.PhoneNumber(phoneNumber),
-                        MESSAGING_SERVICE_SID,
-                        messageText
-                ).create();
-                System.out.println("Sent SMS via MessagingServiceSid. SID: " + message.getSid());
-            } else if (TWILIO_PHONE_NUMBER != null && !TWILIO_PHONE_NUMBER.isEmpty()) {
-                // Send using Twilio phone number
-                Message message = Message.creator(
-                        new com.twilio.type.PhoneNumber(phoneNumber),
-                        new com.twilio.type.PhoneNumber(TWILIO_PHONE_NUMBER),
-                        messageText
-                ).create();
-                System.out.println("Sent SMS via Twilio phone number. SID: " + message.getSid());
-            } else {
-                throw new IllegalArgumentException("Neither MessagingServiceSid nor Twilio phone number is set.");
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to send SMS: " + e.getMessage());
-            e.printStackTrace();
-        }
+  public boolean checkVerification(String number, String code) {
+    if (!configured())
+      throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "SMS verification is not configured");
+    try {
+      return "approved"
+          .equalsIgnoreCase(
+              VerificationCheck.creator(verifyServiceSid)
+                  .setTo(number)
+                  .setCode(code)
+                  .create(client())
+                  .getStatus());
+    } catch (com.twilio.exception.ApiException ex) {
+      log.warn(
+          "Twilio rejected verification check: status={}, code={}",
+          ex.getStatusCode(),
+          ex.getCode());
+      throw new ApiException(
+          HttpStatus.SERVICE_UNAVAILABLE, "SMS verification failed; please retry later");
+    } catch (RuntimeException ex) {
+      log.warn("SMS provider request failed: {}", ex.getClass().getSimpleName());
+      throw new ApiException(
+          HttpStatus.SERVICE_UNAVAILABLE, "SMS verification failed; please retry later");
     }
+  }
+
+  private TwilioRestClient client() {
+    return apiKeySid.isBlank()
+        ? new TwilioRestClient.Builder(accountSid, authToken).build()
+        : new TwilioRestClient.Builder(apiKeySid, apiKeySecret).accountSid(accountSid).build();
+  }
+
+  private boolean configured() {
+    if (accountSid.isBlank() || verifyServiceSid.isBlank()) return false;
+    if (apiKeySid.isBlank()) return !authToken.isBlank();
+    return !apiKeySecret.isBlank();
+  }
 }

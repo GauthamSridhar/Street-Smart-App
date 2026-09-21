@@ -1,32 +1,11 @@
-<h2 class="text-2xl font-bold mb-4">Shops</h2>
-
-<!-- Search Bar -->
-<div class="mb-4">
-  <input
-    type="text"
-    placeholder="Search shops..."
-    [(ngModel)]="searchQuery"
-    (input)="filterShops()"
-    class="w-full px-4 py-2 border rounded shadow"
-  />
-</div>
-
-<!-- Category Filter -->
-<div class="mb-4">
-  <select
-    [(ngModel)]="selectedCategory"
-    (change)="filterShops()"
-    class="w-full px-4 py-2 border rounded shadow"
-  >
-    <option value="">All Categories</option>
-    <option *ngFor="let category of categories" [value]="category">
-      {{ category }}
-    </option>
-  </select>
-</div>
-
-<!-- Shop List -->
-<div *ngFor="let shop of filteredShops" class="p-2 border-b hover:bg-gray-200 cursor-pointer" (click)="selectShop(shop)">
-  <h3 class="text-lg font-bold">{{ shop.name }}</h3>
-  <p class="text-sm text-gray-600">{{ shop.address }}</p>
-</div>
+<h2 class="mb-4 text-2xl font-bold text-ink-950">Matching shops</h2>
+@for (shop of shops; track shop) {
+  <button
+    type="button"
+    class="block w-full border-b border-slate-100 p-3 text-left transition hover:bg-amber-50"
+    (click)="selectShop(shop)"
+    >
+    <strong class="text-ink-950">{{ shop.name }}</strong
+      ><span class="block text-sm text-slate-500">{{ shop.address }}</span>
+    </button>
+  }

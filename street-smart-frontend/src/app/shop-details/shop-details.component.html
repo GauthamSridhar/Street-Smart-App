@@ -1,255 +1,284 @@
-<!-- src/app/shop-details/shop-details.component.html -->
-<div
-  *ngIf="isOpen && shop"
-  class="p-6 w-full md:w-[450px] max-w-full h-screen flex flex-col bg-black text-white rounded-md shadow-lg fixed top-0 right-0 z-50"
->
-  <!-- Header -->
-  <div class="flex justify-between items-center flex-shrink-0">
-    <h2 class="text-2xl font-bold flex items-center">
-      {{ shop.name }}
-      <i
-        class="ml-2 cursor-pointer"
-        [ngClass]="isFavorite ? 'fas fa-heart text-white' : 'far fa-heart text-white/50 '"
-        (click)="toggleFavorite()"
-        tabindex="0"
-        role="button"
-        aria-label="Toggle Favorite"
-        [title]="isFavorite ? 'Remove from Favorites' : 'Add to Favorites'"
-      ></i>
-    </h2>
-    <button
-      class="text-white/50 hover:text-white transition-colors"
-      (click)="closeSidebar()"
-      aria-label="Close Shop Details"
+@if (isOpen && shop) {
+  <div
+    class="fixed right-0 top-0 z-50 flex h-[100dvh] w-full max-w-full flex-col border-l border-slate-200 bg-white text-slate-800 shadow-lift md:w-[450px]"
     >
-      Close ✖
-    </button>
-  </div>
-
-  <!-- Address and Ratings -->
-  <div class="mt-2 flex-shrink-0">
-    <p class="text-sm text-white/70">{{ shop.address }}</p>
-    <p class="text-sm text-white/70">
-      ⭐ {{ calculateAverageRating(shop.ratings) | number:'1.1-1' }}
-      ({{ shop.ratings.length }} reviews)
-    </p>
-  </div>
-
-  <!-- Navigation Buttons -->
-  <div class="flex justify-start space-x-2 mt-4 flex-shrink-0">
-    <button
-      *ngIf="!navigationActive"
-      class="bg-white text-black px-4 py-2 rounded shadow hover:bg-black hover:text-white transition-transform transform hover:scale-105"
-      (click)="onNavigate()"
-      aria-label="Navigate to Shop"
-    >
-      Navigate to Shop
-    </button>
-    <button
-      *ngIf="navigationActive"
-      class="bg-white text-black px-4 py-2 rounded shadow hover:bg-black hover:text-white transition-transform transform hover:scale-105"
-      (click)="onCancelNavigation()"
-      aria-label="Cancel Navigation"
-    >
-      Cancel Navigation
-    </button>
-  </div>
-
-  <!-- Tabs Navigation and Content -->
-  <div class="mt-4 flex-1 flex flex-col overflow-y-auto">
-    <!-- Tabs Navigation -->
-    <ul class="flex border-b border-white/50">
-      <li
-        *ngFor="let tab of tabs"
-        [class.font-bold]="activeTab === tab"
-        (click)="activeTab = tab"
-        class="cursor-pointer px-4 py-2 text-white/70 hover:text-white"
-      >
-        {{ tab }}
-      </li>
-    </ul>
-
-    <!-- Tabs Content -->
-    <div class="mt-4">
-      <!-- Overview Tab -->
-      <div *ngIf="activeTab === 'Overview'" class="text-white/90">
-        {{ shop.description }}
-      </div>
-
-      <!-- Reviews Tab -->
-      <div *ngIf="activeTab === 'Reviews'" class="text-white/90">
-        <h3 class="text-lg font-semibold mb-2">Reviews</h3>
-
-        <!-- Loading Indicator -->
-        <div *ngIf="loadingReviews" class="flex justify-center items-center">
-          <svg class="animate-spin h-6 w-6 text-white/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-          </svg>
-        </div>
-
-        <!-- List of Reviews -->
-        <ul *ngIf="!loadingReviews && reviews.length > 0">
-          <li *ngFor="let review of reviews" class="mb-4 p-2 border-b border-white/50">
-            <div class="flex justify-between items-center">
-              <div>
-                <span class="font-semibold text-white">{{ review.userName || 'Anonymous' }}</span>
-                <span class="text-sm text-white/50"> - {{ review.date | date:'medium' }}</span>
-              </div>
-              <div class="flex items-center space-x-2">
-                <span class="text-white">⭐ {{ review.rating }}</span>
-                <div *ngIf="review.userId === currentUserId" class="ml-2 space-x-2">
-                  <button
-                    class="text-white hover:text-white/50 focus:outline-none"
-                    (click)="toggleEditMode()"
-                    aria-label="Edit Review"
-                  >
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button
-                    class="text-white hover:text-white/50 focus:outline-none"
-                    (click)="deleteReview()"
-                    aria-label="Delete Review"
-                  >
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <p class="mt-1 text-white/90">{{ review.review }}</p>
-          </li>
-        </ul>
-
-        <p *ngIf="!loadingReviews && reviews.length === 0" class="text-white/50">No reviews yet. Be the first to review!</p>
-
-        <!-- Add Review Button -->
-        <div *ngIf="!userReview && !isAddingReview" class="mt-4">
-          <button
-            class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
-            (click)="startAddingReview()"
-            aria-label="Add Review"
-          >
-            Add a Review
-          </button>
-        </div>
-
-        <!-- Add/Edit Review Form -->
-        <div class="mt-4" *ngIf="isAddingReview || isEditingReview">
-          <h4 class="text-md font-semibold mb-2">
-            {{ isEditingReview ? 'Edit Your Review' : 'Add a Review' }}
-          </h4>
-          <form (ngSubmit)="submitReview()">
-            <div class="mb-2">
-              <label for="rating" class="block text-sm text-white/80">Rating:</label>
-              <select
-                id="rating"
-                [(ngModel)]="reviewForm.rating"
-                name="rating"
-                required
-                class="w-full px-3 py-2 bg-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-white"
-                #rating="ngModel"
-              >
-                <option *ngFor="let r of [1,2,3,4,5]" [value]="r">{{ r }}</option>
-              </select>
-            </div>
-            <div class="mb-2">
-              <label for="review" class="block text-sm text-white/80">Review:</label>
-              <textarea
-                id="review"
-                [(ngModel)]="reviewForm.review"
-                name="review"
-                required
-                rows="3"
-                class="w-full px-3 py-2 bg-white text-black rounded-md focus:outline-none focus:ring-2 focus:ring-white"
-              ></textarea>
-            </div>
-            <div class="flex justify-end space-x-2">
-              <button
-                type="button"
-                *ngIf="isEditingReview || isAddingReview"
-                (click)="cancelReviewForm()"
-                class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
-                aria-label="Cancel"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
-                [attr.aria-label]="isEditingReview ? 'Update Review' : 'Submit Review'"
-              >
-                {{ isEditingReview ? 'Update Review' : 'Submit Review' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Images Tab -->
-      <div *ngIf="activeTab === 'Images'" class="grid grid-cols-3 gap-4">
-        <img
-          *ngFor="let image of shop.images; let i = index"
-          [src]="image.url"
-          alt="Shop Image {{ i + 1 }}"
-          class="w-full h-auto rounded-md shadow-md"
-        />
-      </div>
-
-      <!-- Products Tab -->
-      <!-- Tabs Content -->
-    <div class="mt-4">
-      <!-- Products Tab -->
-      <div *ngIf="activeTab === 'Products'" class="text-white/90">
-        <!-- Available/Unavailable Buttons -->
-        <div class="flex space-x-2 mb-4">
-          <button
-            class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
-            (click)="filterProducts('available')"
-            [class.font-bold]="showAvailableProducts"
-            aria-label="Show Available Products"
-          >
-            Available
-          </button>
-          <button
-            class="bg-white text-black px-4 py-2 rounded hover:bg-black hover:text-white focus:outline-none transition-transform transform hover:scale-105"
-            (click)="filterProducts('unavailable')"
-            [class.font-bold]="!showAvailableProducts"
-            aria-label="Show Unavailable Products"
-          >
-            Unavailable
-          </button>
-        </div>
-
-        <!-- Loading Indicator -->
-        <div *ngIf="loadingProducts" class="text-white/50">Loading products...</div>
-
-        <!-- List of Products -->
-        <ul
-          *ngIf="!loadingProducts && filteredProducts.length > 0"
-          class="space-y-2"
+    <div class="flex flex-shrink-0 items-center justify-between border-b border-slate-100 px-6 py-5">
+      <h2 class="flex items-center text-2xl font-bold text-ink-950">
+        {{ shop.name }}
+        @if (canReview) {
+          <i
+            class="ml-2 cursor-pointer"
+            [ngClass]="isFavorite ? 'fas fa-heart text-rose-500' : 'far fa-heart text-slate-300'"
+            (click)="toggleFavorite()"
+            (keydown.enter)="toggleFavorite()"
+            (keydown.space)="$event.preventDefault(); toggleFavorite()"
+            [attr.aria-disabled]="busy || !favoriteReady"
+            tabindex="0"
+            role="button"
+            aria-label="Toggle Favorite"
+            [title]="isFavorite ? 'Remove from Favorites' : 'Add to Favorites'"
+          ></i>
+        }
+      </h2>
+      <button
+        class="ss-btn-ghost shrink-0"
+        (click)="closeSidebar()"
+        aria-label="Close Shop Details"
         >
-          <li
-            *ngFor="let product of filteredProducts"
-            class="flex justify-between items-center py-2 border-b border-white/30"
-          >
-            <span>{{ product.name }}</span>
-            <span
-              [class.text-white]="product.available"
-              [class.text-white]="!product.available"
-            >
-              {{ product.available ? 'Available' : 'Unavailable' }}
-            </span>
-          </li>
-        </ul>
-
-        <p
-          *ngIf="!loadingProducts && filteredProducts.length === 0"
-          class="text-white/50"
+        Close ✖
+      </button>
+    </div>
+    <div class="mt-2 flex-shrink-0 px-6">
+      <p class="text-sm text-slate-500">{{ shop.address }}</p>
+      <p class="text-sm text-slate-500">
+        ⭐ {{ summary.average | number: '1.1-1' }} ({{ summary.count }} reviews)
+      </p>
+    </div>
+    <div class="mt-4 flex flex-shrink-0 justify-start space-x-2 px-6">
+      <button
+        class="ss-btn-primary"
+        (click)="onNavigate()"
+        aria-label="Navigate to Shop"
         >
-          No products available for this shop.
-        </p>
+        Open directions
+      </button>
+    </div>
+    @if (errorMessage) {
+      <p role="alert" class="mx-6 mt-3 ss-alert-error">{{ errorMessage }}</p>
+    }
+    @if (reportMessage) { <p role="status" class="mx-6 mt-3 ss-alert-ok">{{ reportMessage }}</p> }
+    <div class="mt-4 flex flex-1 flex-col overflow-y-auto px-6 pb-6">
+      <ul class="ss-tabs" aria-label="Shop information">
+        @for (tab of tabs; track tab) {
+          <li><button type="button" class="ss-tab" [attr.aria-pressed]="activeTab === tab" (click)="activeTab = tab">{{ tab }}</button></li>
+        }
+      </ul>
+      <div class="mt-4">
+        @if (activeTab === 'Overview') {
+          <div class="leading-relaxed text-slate-600">
+            {{ shop.description }}
+            @if (shop.openingHours) { <span class="block">Opening hours: {{ shop.openingHours }} (local shop time)</span> }
+          </div>
+        }
+        @if (activeTab === 'Reviews') {
+          <div>
+            <h3 class="mb-2 text-lg font-semibold">Reviews</h3>
+            @if (loadingReviews) {
+              <div class="flex items-center justify-center">
+                <svg
+                  class="h-6 w-6 animate-spin text-amber-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+              </div>
+            }
+            @if (!loadingReviews && reviews.length > 0) {
+              <ul>
+                @for (review of reviews; track review) {
+                  <li class="mb-4 border-b border-slate-100 p-2">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <span class="font-semibold text-ink-950">{{ review.userName || 'Anonymous' }}</span>
+                        <span class="text-sm text-slate-500"> - {{ review.date | date: 'medium' }}</span>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <span class="text-amber-600">⭐ {{ review.rating }}</span>
+                        @if (review.userId === currentUserId) {
+                          <div class="ml-2 space-x-2">
+                            <button
+                              class="ss-icon-btn hover:text-ink-950"
+                              (click)="toggleEditMode()"
+                              aria-label="Edit Review"
+                              >
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button
+                              class="ss-icon-btn hover:text-rose-600"
+                              (click)="deleteReview()"
+                              aria-label="Delete Review"
+                              >
+                              <i class="fas fa-trash-alt"></i>
+                            </button>
+                          </div>
+                        }
+                        @if (canReview && review.userId !== currentUserId) {
+                          <button class="ss-icon-btn hover:text-rose-600" (click)="reportReview(review)" [disabled]="busy" aria-label="Report Review">
+                            <i class="fas fa-flag"></i>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                    <p class="mt-1 text-slate-600">{{ review.review }}</p>
+                  </li>
+                }
+              </ul>
+            }
+            @if (!loadingReviews && reviews.length === 0) {
+              <p class="text-slate-500">
+                No reviews yet. Be the first to review!
+              </p>
+            }
+            @if (summary.count > 20) {
+              <div class="flex gap-3">
+                <button class="ss-btn-ghost" [disabled]="loadingReviews || reviewPage === 0" (click)="pageReviews(-1)">
+                  Previous reviews
+                </button>
+                <button
+                  class="ss-btn-ghost"
+                  [disabled]="loadingReviews || (reviewPage + 1) * 20 >= summary.count"
+                  (click)="pageReviews(1)"
+                  >
+                  Next reviews
+                </button>
+              </div>
+            }
+            @if (canReview && userReview && !reviews.includes(userReview)) {
+              <div class="mt-2">
+                <button (click)="toggleEditMode()" [disabled]="busy" class="ss-btn-ghost">Edit my review</button>
+                <button (click)="deleteReview()" [disabled]="busy" class="ss-btn-danger ml-2">Delete my review</button>
+              </div>
+            }
+            @if (canReview && !loadingReviews && !userReview && !isAddingReview) {
+              <div class="mt-4">
+                <button
+                  class="ss-btn-primary"
+                  (click)="startAddingReview()"
+                  aria-label="Add Review"
+                  >
+                  Add a Review
+                </button>
+              </div>
+            }
+            @if (isAddingReview || isEditingReview) {
+              <div class="mt-4">
+                <h4 class="mb-2 text-md font-semibold">
+                  {{ isEditingReview ? 'Edit Your Review' : 'Add a Review' }}
+                </h4>
+                <form (ngSubmit)="submitReview()">
+                  <div class="mb-2">
+                    <label for="rating" class="ss-label">Rating:</label>
+                    <select
+                      id="rating"
+                      [(ngModel)]="reviewForm.rating"
+                      name="rating"
+                      required
+                      class="ss-input"
+                      #rating="ngModel"
+                      >
+                      @for (r of [1, 2, 3, 4, 5]; track r) {
+                        <option [ngValue]="r">{{ r }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="mb-2">
+                    <label for="review" class="ss-label">Review:</label>
+                    <textarea
+                      id="review"
+                      [(ngModel)]="reviewForm.review"
+                      name="review"
+                      required
+                      rows="3"
+                      maxlength="2000"
+                      class="ss-input"
+                    ></textarea>
+                  </div>
+                  <div class="flex justify-end space-x-2">
+                    @if (isEditingReview || isAddingReview) {
+                      <button
+                        type="button"
+                        (click)="cancelReviewForm()"
+                        class="ss-btn-ghost"
+                        aria-label="Cancel"
+                        >
+                        Cancel
+                      </button>
+                    }
+                    <button
+                      type="submit"
+                      [disabled]="busy"
+                      class="ss-btn-primary"
+                      [attr.aria-label]="isEditingReview ? 'Update Review' : 'Submit Review'"
+                      >
+                      {{ isEditingReview ? 'Update Review' : 'Submit Review' }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            }
+          </div>
+        }
+        @if (activeTab === 'Images') {
+          <div class="grid grid-cols-3 gap-4">
+            @for (image of shop.images; track image; let i = $index) {
+              <app-shop-image
+                [imageId]="image.id"
+                [alt]="'Shop image ' + (i + 1)"
+              ></app-shop-image>
+            }
+            @if (!shop.images.length) {
+              <p class="col-span-3 text-slate-500">No images uploaded.</p>
+            }
+          </div>
+        }
+        <div class="mt-4">
+          @if (activeTab === 'Products') {
+            <div>
+              <div class="mb-4 flex space-x-2">
+                <button
+                  class="ss-btn-ghost"
+                  (click)="filterProducts('available')"
+                  [class.font-bold]="showAvailableProducts"
+                  [class.ring-2]="showAvailableProducts"
+                  [class.ring-amber-400]="showAvailableProducts"
+                  aria-label="Show Available Products"
+                  >
+                  Available
+                </button>
+                <button
+                  class="ss-btn-ghost"
+                  (click)="filterProducts('unavailable')"
+                  [class.font-bold]="!showAvailableProducts"
+                  [class.ring-2]="!showAvailableProducts"
+                  [class.ring-amber-400]="!showAvailableProducts"
+                  aria-label="Show Unavailable Products"
+                  >
+                  Unavailable
+                </button>
+              </div>
+              @if (filteredProducts.length > 0) {
+                <ul class="space-y-2">
+                  @for (product of filteredProducts; track product) {
+                    <li
+                      class="flex items-center justify-between border-b border-slate-100 py-2"
+                      >
+                      <span>{{ product.name }}</span>
+                      <span [class]="product.available ? 'ss-badge-ok' : 'ss-badge-muted'">
+                        {{ product.available ? 'Available' : 'Unavailable' }}
+                      </span>
+                    </li>
+                  }
+                </ul>
+              }
+              @if (filteredProducts.length === 0) {
+                <p class="text-slate-500">
+                  No products available for this shop.
+                </p>
+              }
+            </div>
+          }
+        </div>
       </div>
     </div>
-    </div>
   </div>
-</div>
+}

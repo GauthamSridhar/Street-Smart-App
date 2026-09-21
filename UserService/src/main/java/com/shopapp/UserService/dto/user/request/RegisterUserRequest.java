@@ -1,27 +1,30 @@
 package com.shopapp.UserService.dto.user.request;
 
 import com.shopapp.UserService.model.UserRole;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
 public class RegisterUserRequest {
-    @Email(message = "Invalid email format")
-    private String email;
+  @NotBlank
+  @Email
+  @Size(max = 254)
+  private String email;
 
-    @NotBlank(message = "Password is required")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$",
-            message = "Password must be at least 8 characters long and contain both letters and numbers")
-    private String password;
+  @NotBlank
+  @Size(min = 8, max = 72)
+  private String password;
 
-    @NotBlank(message = "Full name is required")
-    private String fullName;
+  @NotBlank
+  @Size(max = 100)
+  private String fullName;
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number format")
-    private String phoneNumber;
+  @NotBlank
+  @Pattern(
+      regexp = "^\\+[1-9]\\d{9,14}$",
+      message = "Use an international phone number, for example +919876543210")
+  private String phoneNumber;
 
-    private UserRole role;
-
+  private UserRole role;
+  private String phoneVerificationToken;
 }

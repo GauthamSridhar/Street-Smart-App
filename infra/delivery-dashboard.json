@@ -1,0 +1,15 @@
+{
+  "title": "Street Smart delivery health",
+  "uid": "street-smart-delivery",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": { "list": [{ "name": "prometheus", "type": "datasource", "query": "prometheus", "label": "Metrics source" }] },
+  "panels": [
+    { "id": 1, "title": "Pending registration deliveries", "type": "stat", "gridPos": { "x": 0, "y": 0, "w": 12, "h": 6 }, "datasource": { "type": "prometheus", "uid": "$prometheus" }, "targets": [{ "refId": "A", "expr": "sum(street_smart_approval_requests_pending)" }] },
+    { "id": 2, "title": "Pending decision deliveries", "type": "stat", "gridPos": { "x": 12, "y": 0, "w": 12, "h": 6 }, "datasource": { "type": "prometheus", "uid": "$prometheus" }, "targets": [{ "refId": "A", "expr": "sum(street_smart_approval_decisions_pending)" }] },
+    { "id": 3, "title": "Mean HTTP latency (seconds)", "type": "timeseries", "gridPos": { "x": 0, "y": 6, "w": 12, "h": 8 }, "datasource": { "type": "prometheus", "uid": "$prometheus" }, "targets": [{ "refId": "A", "expr": "sum by (job) (rate(http_server_requests_seconds_sum[5m])) / sum by (job) (rate(http_server_requests_seconds_count[5m]))" }] },
+    { "id": 4, "title": "HTTP 5xx responses / second", "type": "timeseries", "gridPos": { "x": 12, "y": 6, "w": 12, "h": 8 }, "datasource": { "type": "prometheus", "uid": "$prometheus" }, "targets": [{ "refId": "A", "expr": "sum by (job) (rate(http_server_requests_seconds_count{status=~\"5..\"}[5m]))" }] }
+  ]
+}

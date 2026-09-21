@@ -1,70 +1,65 @@
-<!-- src/app/reviews/reviews.component.html -->
-
 <app-navbar></app-navbar>
-<div class="reviews-container bg-gradient-to-b from-black to-gray-900 text-gray-200 p-8 shadow-2xl">
-  <h2 class="reviews-title text-4xl font-bold mb-8 text-center text-white tracking-wide">
-    Shop Reviews
-  </h2>
+@if (errorMessage) {
+  <p role="alert" class="ss-alert-error m-4">{{ errorMessage }}</p>
+}
+<div class="ss-page">
+  <div class="ss-shell">
+    <header class="ss-page-header"><p class="ss-kicker">Customer voice</p><h1 class="ss-title">Shop reviews</h1><p class="ss-subtitle">See what customers are saying about your shop.</p></header>
+    <p class="mb-2 text-sm text-slate-500">Sorting applies to this page.</p>
+    <div class="ss-pager">
+      <button (click)="move(-1)" [disabled]="loading || page === 0" class="ss-btn-ghost">Previous</button>
+      <button (click)="move(1)" [disabled]="loading || reviews.length < 20" class="ss-btn-ghost">
+        Next
+      </button>
+    </div>
 
-  <!-- Sorting Options -->
-  <div class="sorting-options flex items-center justify-center mb-8 space-x-4">
-    <span class="text-gray-300 text-lg">Sort Reviews:</span>
-    <select 
-      [(ngModel)]="sortOption" 
-      (change)="sortReviews()" 
-      class="bg-white text-black px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 transition-transform transform hover:scale-105 duration-300"
-    >
-      <option value="recent">Most Recent</option>
-      <option value="high-to-low">High to Low</option>
-      <option value="low-to-high">Low to High</option>
-    </select>
+
+    <div class="ss-toolbar">
+      <label for="review-sort" class="ss-label mb-0">Sort reviews</label>
+      <select id="review-sort"
+        [(ngModel)]="sortOption"
+        (change)="sortReviews()"
+        class="ss-input w-auto"
+        >
+        <option value="recent">Most Recent</option>
+        <option value="high-to-low">High to Low</option>
+        <option value="low-to-high">Low to High</option>
+      </select>
+    </div>
+
+    <ul class="space-y-4">
+      @for (review of reviews; track review) {
+        <li class="ss-card p-6">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span aria-hidden="true" class="text-xs uppercase tracking-wide text-slate-500">Customer</span>
+              <h3 class="text-xl font-semibold text-ink-950">
+                {{ review.userName }}
+              </h3>
+              <p class="text-sm text-slate-500">
+                {{ review.date | date: 'mediumDate' }}
+              </p>
+            </div>
+            <div class="flex items-center">
+              <span class="mr-2 text-lg font-bold text-amber-500">{{ review.rating }}</span>
+              <span class="text-slate-500">/ 5</span>
+              <div class="ml-4 flex">
+                @for (star of getStarsArray(review.rating); track star) {
+                  <i class="fas fa-star text-amber-400"></i>
+                }
+                @if (review.rating < 5) {
+                  @for (star of getStarsArray(5 - review.rating); track star) {
+                    <i class="far fa-star text-slate-300"></i>
+                  }
+                }
+              </div>
+            </div>
+          </div>
+          <p class="mt-4 text-slate-700">
+            {{ review.review }}
+          </p>
+        </li>
+      }
+    </ul>
   </div>
-
-  <!-- Reviews List -->
-  <ul class="reviews-list space-y-6 text-black" >
-    <li 
-      *ngFor="let review of reviews" 
-      class="review-item bg-white text-black p-6 rounded-lg shadow-md  transition-transform transform hover:scale-105 duration-200"
-    >
-      <div class="review-header flex justify-between items-center">
-        <!-- User Info with Avatar -->
-        <div class="flex items-center text-black">
-          <img 
-            [src]="review.avatar" 
-            alt="{{ review.userName }}'s avatar" 
-            class="w-12 h-12 rounded-full mr-4 object-cover"
-          />
-          <div>
-            <h3 class="review-user text-xl font-semibold text-black">
-              {{ review.userName }}
-            </h3>
-            <p class="text-black text-sm">
-              {{ review.date | date: 'mediumDate' }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Rating -->
-        <div class="review-rating flex items-center">
-          <span class="text-yellow-400 text-lg font-bold mr-2">{{ review.rating }}</span>
-          <span class="text-gray-400">/ 5</span>
-          <div class="ml-4 flex">
-            <ng-container *ngFor="let star of getStarsArray(review.rating)">
-              <i class="fas fa-star text-yellow-400"></i>
-            </ng-container>
-            <ng-container *ngIf="review.rating < 5">
-              <ng-container *ngFor="let star of getStarsArray(5 - review.rating)">
-                <i class="far fa-star text-gray-500"></i>
-              </ng-container>
-            </ng-container>
-          </div>
-        </div>
-      </div>
-
-      <!-- Review Comment -->
-      <p class="review-comment mt-4 text-black">
-        {{ review.review }}
-      </p>
-    </li>
-  </ul>
 </div>

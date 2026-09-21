@@ -1,100 +1,109 @@
 <app-navbar></app-navbar>
+@if (errorMessage) {
+  <p role="alert" class="ss-alert-error m-4">{{ errorMessage }}</p>
+}
 
-<div class="products-container bg-black text-white p-8 shadow-2xl">
-  <h2 class="products-title text-4xl font-bold mb-8 text-center text-white">
-    Manage Products
-  </h2>
+<div class="ss-page">
+  <div class="ss-shell">
+    <header class="ss-page-header"><p class="ss-kicker">Inventory</p><h1 class="ss-title">Manage products</h1><p class="ss-subtitle">Keep your catalogue and availability up to date.</p></header>
 
-  <!-- Add Product Form -->
-  <form 
-    class="add-product-form bg-white border border-white p-6 rounded-lg shadow-lg space-y-6"
-    (submit)="addProduct(); $event.preventDefault();"
-  >
-    <div class="form-group">
-      <label for="productName" class="block text-black text-lg font-semibold mb-2">
-        Product Name:
-      </label>
-      <input 
-        type="text" 
-        id="productName" 
-        [(ngModel)]="newProduct.name" 
-        name="productName"
-        placeholder="Enter product name..." 
-        required 
-        class="w-full px-4 py-2 rounded-lg bg-transparent border border-black text-black focus:outline-none focus:ring-2 focus:ring-white"
-      />
-    </div>
-
-    <div class="form-group">
-      <span class="block text-black text-lg font-semibold mb-2">
-        Availability:
-      </span>
-      <div class="flex space-x-8">
-        <label class="flex items-center space-x-2">
-          <input 
-            type="radio" 
-            [(ngModel)]="newProduct.available" 
-            name="availability" 
-            [value]="true"
-            class="form-radio h-4 w-4 text-black focus:ring-black"
+    <form
+      class="ss-card space-y-5 p-6"
+      (submit)="addProduct(); $event.preventDefault()"
+      >
+      <div>
+        <label for="productName" class="ss-label">Product Name:</label>
+        <input
+          type="text"
+          id="productName"
+          [(ngModel)]="newProduct.name"
+          maxlength="255"
+          name="productName"
+          placeholder="Enter product name..."
+          required
+          class="ss-input"
           />
-          <span class="text-black">Available</span>
-        </label>
-        <label class="flex items-center space-x-2">
-          <input 
-            type="radio" 
-            [(ngModel)]="newProduct.available" 
-            name="availability" 
-            [value]="false"
-            class="form-radio h-4 w-4 text-black focus:ring-black"
-          />
-          <span class="text-black" >Unavailable</span>
-        </label>
       </div>
-    </div>
 
-    <div class="form-group text-center">
-      <button 
-        type="submit" 
-        class="add-button bg-black text-white font-semibold py-2 px-6 rounded-lg focus:outline-none shadow-lg transition-transform transform hover:scale-105"
-      >
-        Add Product
-      </button>
-    </div>
-  </form>
-
-  <!-- Product List -->
-  <div class="products-list mt-10">
-    <h3 class="text-2xl font-bold mb-6 text-black">Your Products</h3>
-    <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <li 
-        *ngFor="let product of products" 
-        class="product-item bg-white border border-white p-6 rounded-lg shadow-md flex flex-col items-start space-y-4"
-      >
-        <!-- Product Details -->
-        <div class="product-details">
-          <h4 class="text-lg text-black font-semibold">{{ product.name }}</h4>
-          <span 
-            class="inline-block mt-2 px-4 py-1 rounded-full text-sm uppercase tracking-wide border font-medium"
-            [ngClass]="{
-              'bg-white text-black': product.available,
-              'bg-black text-white border-white': !product.available
-            }"
-          >
-            {{ product.available ? 'Available' : 'Unavailable' }}
-          </span>
+      <div>
+        <span class="ss-label">Availability:</span>
+        <div class="flex space-x-8">
+          <label class="flex items-center space-x-2 text-sm font-medium">
+            <input
+              type="radio"
+              [(ngModel)]="newProduct.available"
+              name="availability"
+              [value]="true"
+              class="h-4 w-4 text-amber-500"
+              />
+            <span>Available</span>
+          </label>
+          <label class="flex items-center space-x-2 text-sm font-medium">
+            <input
+              type="radio"
+              [(ngModel)]="newProduct.available"
+              name="availability"
+              [value]="false"
+              class="h-4 w-4 text-amber-500"
+              />
+            <span>Unavailable</span>
+          </label>
         </div>
+      </div>
 
-        <!-- Toggle Availability Button -->
-        <div class="toggle-status w-full">
-          <button 
-            class="toggle-button w-full bg-black border border-white text-white font-semibold py-2 rounded-lg focus:outline-none shadow-lg transition-transform transform hover:scale-105"
-            (click)="toggleAvailability(product)"
+      <label class="ss-label">Description
+        <textarea name="description" [(ngModel)]="newProduct.description" maxlength="1000" class="ss-input mt-1.5 min-h-24"></textarea>
+      </label>
+      <label class="ss-label">Price in INR (optional)
+        <input name="price" type="number" min="0" step="0.01" [(ngModel)]="newProduct.price" class="ss-input mt-1.5" />
+      </label>
+      <div class="text-center">
+        <button
+          type="submit"
+          [disabled]="busy || !shopId"
+          class="ss-btn-primary px-8"
           >
-            Toggle Status
-          </button>
-        </div>
-      </li>
-    </ul>
+          Add Product
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-10">
+      <h3 class="mb-6 text-2xl font-bold text-ink-950">Your Products</h3>
+      <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @for (product of products; track product) {
+          <li class="ss-card flex flex-col space-y-4 p-6">
+            <div>
+              <h4 class="text-lg font-semibold text-ink-950">{{ product.name }}</h4>
+              <p class="text-sm text-slate-600">{{ product.description }}</p>
+              @if (product.price != null) {
+                <p class="mt-1 font-semibold">{{ product.price | currency:'INR':'symbol':'1.0-2' }}</p>
+              }
+              @if (product.updatedAt) {
+                <p class="text-xs text-slate-500">Last updated {{ product.updatedAt | date:'medium' }}</p>
+              }
+              <span
+                class="mt-2 inline-block"
+                [ngClass]="{
+                  'ss-badge-ok': product.available,
+                  'ss-badge-muted': !product.available,
+                }"
+                >
+                {{ product.available ? 'Available' : 'Unavailable' }}
+              </span>
+            </div>
+            <div class="w-full">
+              <button
+                class="ss-btn-dark w-full"
+                (click)="toggleAvailability(product)"
+                [disabled]="busy"
+                >
+                Toggle Status
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
   </div>
 </div>

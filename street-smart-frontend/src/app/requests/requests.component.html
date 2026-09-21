@@ -1,74 +1,99 @@
-<!-- src/app/requests/requests.component.html -->
-
 <app-navbar></app-navbar>
 
-<div class="requests-container bg-gradient-to-b from-black to-gray-900 text-gray-200 p-8 shadow-2xl max-h-screen overflow-y-auto">
-  <h2 class="requests-title text-4xl font-bold mb-8 text-center text-white">
-    Pending Shop Approvals
-  </h2>
+<div class="ss-page">
+  <div class="ss-shell">
+    <header class="ss-page-header"><p class="ss-kicker">Moderation</p><h1 class="ss-title">Pending shop approvals</h1><p class="ss-subtitle">Review applications from businesses joining the neighbourhood.</p></header>
 
-  <!-- Approvals List -->
-  <div class="approvals-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div 
-      *ngFor="let approval of approvals" 
-      class="approval-item flex flex-col justify-between bg-white p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 duration-300"
-    >
-      <!-- Approval Details -->
-      <div class="approval-details mb-4">
-        <h3 class="shop-id text-xl font-semibold text-black mb-2">
-          Shop ID: {{ approval.shopId }}
-        </h3>
-        <p class="approval-status text-gray-600">
-          Status: {{ approval.approvalStatus }}
-        </p>
-        <p class="approval-reason text-gray-400 mt-2" *ngIf="approval.reason">
-          Reason: {{ approval.reason }}
-        </p>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="action-buttons flex justify-between mt-4">
-        <button 
-          class="accept-button bg-black text-white font-semibold py-2 px-4 rounded-lg   focus:outline-none shadow-lg transition-transform transform hover:scale-105 duration-300"
-          (click)="approveRequest(approval.shopId)"
+    @if (message) {
+      <p role="status" class="ss-alert-ok mb-4">{{ message }}</p>
+    }
+    @if (errorMessage) {
+      <p role="alert" class="ss-alert-error mb-4">{{ errorMessage }}</p>
+    }
+    @if (loading) {
+      <p role="status" class="ss-alert-info mb-4">Loading applications...</p>
+    }
+    @if (!loading && !errorMessage && !approvals.length) {
+      <p class="ss-empty"><span class="ss-empty-icon" aria-hidden="true"><i class="fas fa-clipboard-check"></i></span>No pending applications.</p>
+    }
+    <div class="ss-pager">
+      <button (click)="move(-1)" [disabled]="busy || loading || page === 0" class="ss-btn-ghost">
+        Previous
+      </button>
+      <button
+        (click)="move(1)"
+        [disabled]="busy || loading || approvals.length < 20"
+        class="ss-btn-ghost"
         >
-          Approve
-        </button>
-        <button 
-          class="reject-button bg-black text-white font-semibold py-2 px-4 rounded-lg  focus:outline-none shadow-lg transition-transform transform hover:scale-105 duration-300"
-          (click)="openRejectionDialog(approval.shopId)"
-        >
-          Reject
-        </button>
+        Next
+      </button>
+    </div>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      @for (approval of approvals; track approval) {
+        <div class="ss-card flex flex-col justify-between p-6">
+          <div class="mb-4">
+            <h3 class="mb-2 text-xl font-semibold text-ink-950">
+              <a [routerLink]="['/shops', approval.shopId]" class="hover:text-amber-600"
+                >Review shop {{ approval.shopId }}</a
+                >
+              </h3>
+              <p class="text-slate-500">Status: {{ approval.approvalStatus }}</p>
+              @if (approval.reason) {
+                <p class="mt-2 text-sm text-slate-500">
+                  Reason: {{ approval.reason }}
+                </p>
+              }
+            </div>
+            <div class="mt-4 flex justify-between gap-3">
+              <button
+                class="ss-btn-primary"
+                (click)="approveRequest(approval.shopId)"
+                [disabled]="busy"
+                >
+                Approve
+              </button>
+              <button
+                class="ss-btn-danger"
+                (click)="openRejectionDialog(approval.shopId)"
+                >
+                Reject
+              </button>
+            </div>
+          </div>
+        }
       </div>
     </div>
   </div>
-</div>
 
-<!-- Rejection Dialog -->
-<div *ngIf="showRejectionDialog" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
-  <div class="bg-gradient-to-b from-gray-800 to-black text-gray-200 p-6 rounded-lg shadow-xl w-11/12 md:w-1/3">
-    <h3 class="text-2xl font-bold mb-4 text-white">Reject Shop</h3>
-    <p class="text-gray-400 mb-4">Please provide a reason for rejecting this shop:</p>
-    <textarea 
-      class="w-full p-3 rounded bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-gray-600 transition-colors duration-300" 
-      rows="4"
-      [(ngModel)]="rejectionReason"
-      placeholder="Enter your reason here..."
-    ></textarea>
-    <div class="flex justify-end space-x-4 mt-4">
-      <button 
-        class="cancel-button bg-gray-700 hover:bg-gray-600 text-gray-200 hover:text-white font-semibold py-2 px-6 rounded-lg focus:outline-none shadow-lg transition-transform transform hover:scale-105 duration-300"
-        (click)="closeRejectionDialog()"
+  @if (showRejectionDialog) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/70 p-4"
       >
-        Cancel
-      </button>
-      <button 
-        class="submit-button bg-gradient-to-r from-red-700 to-red-600 text-gray-100 font-semibold py-2 px-6 rounded-lg hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 focus:outline-none shadow-lg transition-transform transform hover:scale-105 duration-300"
-        (click)="submitRejection()"
-      >
-        Submit
-      </button>
+      <div class="ss-dialog" role="dialog" aria-modal="true" aria-labelledby="reject-heading">
+        <h3 id="reject-heading" class="mb-4 text-2xl font-bold text-ink-950">Reject shop</h3>
+        <p class="mb-4 text-slate-500">Please provide a reason for rejecting this shop:</p>
+        <textarea
+          class="ss-input"
+          rows="4"
+          [(ngModel)]="rejectionReason"
+          maxlength="1000"
+          placeholder="Enter your reason here..."
+        ></textarea>
+        <div class="mt-4 flex justify-end space-x-3">
+          <button
+            class="ss-btn-ghost"
+            (click)="closeRejectionDialog()"
+            >
+            Cancel
+          </button>
+          <button
+            class="ss-btn-danger"
+            (click)="submitRejection()"
+            [disabled]="busy || !rejectionReason.trim()"
+            >
+            Submit
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  }

@@ -1,0 +1,19 @@
+<app-navbar></app-navbar>
+<main class="ss-page"><div class="ss-shell"><header class="ss-page-header"><p class="ss-kicker">Safety</p><h1 class="ss-title">Review moderation</h1><p class="ss-subtitle">Resolve community reports with an explicit decision.</p></header>
+@if (loading) { <p role="status" class="ss-alert-info">Loading reports...</p> }
+@if (error) { <p role="alert" class="ss-alert-error">{{ error }}</p> }
+@if (!loading && !reports.length) { <p class="ss-card p-6 text-slate-500">No open review reports.</p> }
+<button class="ss-btn-ghost mb-4" [disabled]="loading" (click)="load()">Refresh reports</button>
+<ul class="space-y-3">@for (report of reports; track report.id) {
+  <li class="ss-card p-5">
+    <p class="font-semibold text-ink-950">Reported review</p>
+    <blockquote class="my-3 whitespace-pre-wrap break-words border-l-2 border-amber-500 pl-3">{{ report.review || 'Rating without review text' }}</blockquote>
+    <p class="mt-1 text-slate-600">Reason: {{ report.reason }}</p>
+    <p class="mt-2 text-xs text-slate-500">Submitted {{ report.createdAt | date:'medium' }}</p>
+    <div class="mt-4 flex gap-3">
+      <button class="ss-btn-ghost" [disabled]="busy" (click)="resolve(report.id, 'DISMISS')">Dismiss</button>
+      <button class="ss-btn-danger" [disabled]="busy" (click)="resolve(report.id, 'REMOVE')">Remove review</button>
+    </div>
+  </li>
+}</ul>
+</div></main>

@@ -3,6 +3,8 @@
 export interface AddProductRequest {
     name: string;
     description?: string;
+    price?: number | null;
+    currency?: string | null;
     available: boolean;
   }
   
