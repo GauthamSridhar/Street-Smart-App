@@ -33,7 +33,7 @@ jobs:
       - run: bash UserService/mvnw -B -ntp org.owasp:dependency-check-maven:12.2.2:aggregate -DfailBuildOnCVSS=7 -DvirtualSnapshotsFromReactor=true -DnvdApiKeyEnvironmentVariable=NVD_API_KEY
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: dependency-security-report
