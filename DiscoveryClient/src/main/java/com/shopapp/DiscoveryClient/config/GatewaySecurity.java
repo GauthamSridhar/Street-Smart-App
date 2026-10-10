@@ -50,6 +50,7 @@ public class GatewaySecurity {
                         "/actuator/health",
                         "/actuator/health/**",
                         "/api/users/login",
+                        "/api/users/refresh",
                         "/api/users/register",
                         "/api/sms/send",
                         "/api/sms/verify",
@@ -94,7 +95,9 @@ public class GatewaySecurity {
     var config = new CorsConfiguration();
     config.setAllowedOrigins(Arrays.stream(origins.split(",")).map(String::trim).toList());
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+    config.setAllowedHeaders(
+        List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+    config.setAllowCredentials(true);
     config.setExposedHeaders(List.of("X-Request-ID"));
     config.setMaxAge(3600L);
     var source = new UrlBasedCorsConfigurationSource();

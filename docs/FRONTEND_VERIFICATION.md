@@ -1,5 +1,10 @@
 # Frontend design verification - 2026-09-10
 
+> Historical snapshot. For October 5 dashboard cleanup, 62 frontend tests,
+> populated desktop/mobile acceptance and the separate live Maps check, see
+> [local verification](FINAL_CODE_VERIFICATION.md). Pending checks below describe
+> this September snapshot, not the latest local run.
+
 Scope: product-first discovery and correct frontend/backend contracts. Existing
 styling was retained; this is not a visual redesign or a production certification.
 

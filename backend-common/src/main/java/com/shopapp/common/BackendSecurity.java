@@ -75,6 +75,7 @@ public class BackendSecurity {
                     .requestMatchers(
                         "/api/users/register",
                         "/api/users/login",
+                        "/api/users/refresh",
                         "/api/sms/send",
                         "/api/sms/verify",
                         "/api/sms/config")

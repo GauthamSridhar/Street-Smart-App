@@ -22,3 +22,12 @@ jobs:
         working-directory: street-smart-frontend
       - run: npm test -- --watch=false --browsers=ChromeHeadless
         working-directory: street-smart-frontend
+      - run: npx playwright install --with-deps chrome
+        working-directory: street-smart-frontend
+      - run: npx playwright test --config=playwright.accessibility.config.mjs
+        working-directory: street-smart-frontend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-results
+          path: artifacts/accessibility/

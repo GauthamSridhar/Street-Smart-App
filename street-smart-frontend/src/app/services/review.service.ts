@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, of, throwError } from 'rxjs';
 import { environment } from '../environment';
 import { Review } from '../model/review.model';
+import { Page } from '../model/product-search';
 import { SessionService } from './session.service';
 interface RatingResponse {
   id: string;
@@ -67,8 +68,8 @@ export class ReviewService {
   reportReview(id: string, reason: string) {
     return this.http.post<{ id: string; status: string }>(this.url + '/' + id + '/reports', { reason });
   }
-  reports() {
-    return this.http.get<Array<{ id: string; ratingId: string; reason: string; review: string; createdAt: string; status: string }>>(this.url + '/reports');
+  reports(page = 0, size = 20) {
+    return this.http.get<Page<{ id: string; ratingId: string; reason: string; review: string; createdAt: string; status: string }>>(this.url + '/reports', { params: { page, size } });
   }
   resolveReport(id: string, action: 'DISMISS' | 'REMOVE') {
     return this.http.post<void>(this.url + '/reports/' + id + '/resolve', { action });

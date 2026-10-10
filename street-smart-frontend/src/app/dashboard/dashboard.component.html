@@ -2,15 +2,15 @@
 <main class="ss-page">
   <div class="ss-shell">
     <p class="ss-kicker"><i class="fas fa-location-dot mr-1" aria-hidden="true"></i> Your neighbourhood, discovered</p>
-    <h1 class="ss-title">Find products in local shops</h1>
+    <h1 class="ss-title">Find what you need, nearby</h1>
     <p class="ss-subtitle">
       Results match product names. Shop category narrows the same search. Availability is reported by
       each shop, not a reservation.
     </p>
 
     <div class="search-panel ss-card mt-6 p-5">
-      <div class="search-heading"><span><i class="fas fa-magnifying-glass" aria-hidden="true"></i> What are you looking for?</span><span class="search-hint">Find a product. Discover a local shop.</span></div>
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div class="search-heading"><span><i class="fas fa-magnifying-glass" aria-hidden="true"></i> Search local products</span><button type="button" (click)="clearFilters()" class="clear-filters" [class.is-hidden]="!activeFilterCount">Clear filters</button></div>
+      <div class="primary-search">
         <label class="ss-label mb-0"
           >Product
           <input
@@ -32,31 +32,33 @@
             }
           </select>
         </label>
-        <label class="ss-label mb-0"
-          >Minimum price (₹)
-          <input type="number" min="0" step="0.01" [(ngModel)]="minPrice" (ngModelChange)="filtersChanged()" class="ss-input mt-1.5" />
-        </label>
-        <label class="ss-label mb-0"
-          >Maximum price (₹)
-          <input type="number" min="0" step="0.01" [(ngModel)]="maxPrice" (ngModelChange)="filtersChanged()" class="ss-input mt-1.5" />
-        </label>
       </div>
-      <div class="mt-4 flex flex-wrap items-center gap-3">
-        <label class="search-option flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" [(ngModel)]="fuzzy" (ngModelChange)="filtersChanged()" /> Include similar product names</label>
-        <label class="ss-label mb-0"
-          >Radius
-          <select [(ngModel)]="radiusKm" (ngModelChange)="filtersChanged()" [disabled]="!currentLocation && search.query.latitude == null" class="ss-input mt-1.5 w-40">
-            <option [ngValue]="null">Any distance</option><option [ngValue]="1">1 km</option><option [ngValue]="5">5 km</option><option [ngValue]="25">25 km</option>
-          </select>
-        </label>
-        <label class="mt-6 flex items-center gap-2 text-sm font-medium text-slate-700">
+      <details class="advanced-filters" [open]="advancedFiltersOpen" (toggle)="advancedFiltersOpen = $any($event.target).open">
+        <summary>More filters</summary>
+        <div class="advanced-filter-grid">
+          <label class="ss-label mb-0">Minimum price (₹)
+            <input type="number" min="0" step="0.01" [(ngModel)]="minPrice" (ngModelChange)="filtersChanged()" class="ss-input mt-1.5" />
+          </label>
+          <label class="ss-label mb-0">Maximum price (₹)
+            <input type="number" min="0" step="0.01" [(ngModel)]="maxPrice" (ngModelChange)="filtersChanged()" class="ss-input mt-1.5" />
+          </label>
+          <label class="ss-label mb-0">Search radius
+            <select [(ngModel)]="radiusKm" (ngModelChange)="filtersChanged()" [disabled]="!currentLocation && search.query.latitude == null" class="ss-input mt-1.5">
+              <option [ngValue]="null">Any distance</option><option [ngValue]="1">Within 1 km</option><option [ngValue]="5">Within 5 km</option><option [ngValue]="25">Within 25 km</option>
+            </select>
+          </label>
+          <label class="similar-toggle"><input type="checkbox" [(ngModel)]="fuzzy" (ngModelChange)="filtersChanged()" /> Include similar product names</label>
+        </div>
+      </details>
+      <div class="search-actions">
+        <label class="availability-toggle">
           <input type="checkbox" [(ngModel)]="availableOnly" (ngModelChange)="filtersChanged()" class="h-4 w-4 rounded border-slate-300 text-amber-500" />
           Available products only
         </label>
         <button type="button" (click)="showMap = !showMap" class="ss-btn-ghost mt-6">
-          {{ showMap ? 'Hide map' : 'Show map' }}
+          {{ showMap ? 'Hide map' : 'Map' }}
         </button>
-        <button type="button" (click)="locateUser()" class="ss-btn-primary mt-6">Use my location for nearby search</button>
+        <button type="button" (click)="locateUser()" class="ss-btn-primary mt-6">{{ currentLocation ? 'Location updated' : 'Use my location' }}</button>
         @if (geolocationError) {
           <span class="mt-6 text-sm text-rose-600">{{ geolocationError }}</span>
         }
@@ -82,7 +84,7 @@
           </p>
         }
         <ul class="product-results my-4 grid gap-3 md:grid-cols-2">
-          @for (product of page.content; track product) {
+          @for (product of page.content; track product.id) {
             <li class="product-result ss-card">
               <button type="button" (click)="selectProduct(product)" class="h-full w-full p-5 text-left">
                 <span class="product-symbol" aria-hidden="true"><i class="fas fa-box-open"></i></span>
@@ -99,6 +101,9 @@
                 }
                 @if (product.price != null) {
                   <span class="mt-2 block text-base font-semibold text-ink-950">{{ product.price | currency:'INR':'symbol':'1.0-2' }}</span>
+                }
+                @if (distanceLabel(product); as distance) {
+                  <span class="distance-label">{{ distance }} <span class="text-xs">(straight-line)</span></span>
                 }
                 @if (product.updatedAt) {
                   <span class="mt-1 block text-xs text-slate-500">Listing updated {{ product.updatedAt | date:'mediumDate' }}</span>
@@ -139,10 +144,6 @@
     }
     @if (showMap) {
       <div class="ss-card relative mt-4 h-[500px] overflow-hidden p-3">
-        <button type="button" (click)="locateUser()" class="ss-btn-primary mb-2">Use my location</button>
-        @if (geolocationError) {
-          <p role="status" class="mb-2 text-sm text-rose-600">{{ geolocationError }}</p>
-        }
         <app-map
           [shops]="filteredShops"
           [currentLocation]="currentLocation"

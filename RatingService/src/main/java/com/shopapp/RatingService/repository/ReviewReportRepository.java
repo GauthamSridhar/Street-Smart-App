@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ReviewReportRepository extends JpaRepository<ReviewReport, UUID> {
   boolean existsByRatingIdAndReporterId(UUID ratingId, UUID reporterId);
 
-  List<ReviewReport> findByStatusOrderByCreatedAtAsc(
+  org.springframework.data.domain.Page<ReviewReport> findByStatus(
       String status, org.springframework.data.domain.Pageable pageable);
 }

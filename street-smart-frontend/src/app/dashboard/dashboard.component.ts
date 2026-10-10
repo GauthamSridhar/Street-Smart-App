@@ -39,6 +39,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showMap = false;
   currentLocation: { lat: number; lng: number } | null = null;
   geolocationError = '';
+  advancedFiltersOpen = false;
   private subscriptions = new Subscription();
   private locationSubscription?: Subscription;
   private selection = new Subject<string | null>();
@@ -138,6 +139,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   filtersChanged(): void {
     this.navigatePage(0, true);
   }
+  get activeFilterCount(): number {
+    return [this.searchQuery.trim(), this.category, !this.availableOnly, this.fuzzy, this.minPrice != null, this.maxPrice != null, this.radiusKm != null]
+      .filter(Boolean).length;
+  }
+  clearFilters(): void {
+    this.searchQuery = '';
+    this.category = '';
+    this.availableOnly = true;
+    this.fuzzy = false;
+    this.minPrice = null;
+    this.maxPrice = null;
+    this.radiusKm = null;
+    this.advancedFiltersOpen = false;
+    this.navigatePage(0, true);
+  }
   navigatePage(page: number, replaceUrl = false): void {
     void this.router.navigate([], {
       relativeTo: this.route,
@@ -173,6 +189,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next: (location) => {
         this.currentLocation = location;
         this.geolocationError = '';
+        if (this.radiusKm != null) this.filtersChanged();
       },
       error: () => {
         this.geolocationError = 'Location is unavailable. Product search still works without it.';
@@ -182,10 +199,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onNavigateToShop(shop: Shop): void {
     const destination = encodeURIComponent(`${shop.latitude},${shop.longitude}`);
     window.open(
-      `https://www.google.com/maps/dir/?api=1&destination=${destination}`,
+      `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`,
       '_blank',
       'noopener,noreferrer',
     );
+  }
+  distanceLabel(product: ProductMatch): string | null {
+    if (!this.currentLocation || !Number.isFinite(product.latitude) || !Number.isFinite(product.longitude)) return null;
+    const toRadians = (value: number) => value * Math.PI / 180;
+    const latitudeDelta = toRadians(product.latitude - this.currentLocation.lat);
+    const longitudeDelta = toRadians(product.longitude - this.currentLocation.lng);
+    const haversine = Math.sin(latitudeDelta / 2) ** 2
+      + Math.cos(toRadians(this.currentLocation.lat)) * Math.cos(toRadians(product.latitude))
+      * Math.sin(longitudeDelta / 2) ** 2;
+    const bounded = Math.min(1, Math.max(0, haversine));
+    const kilometres = 6371 * 2 * Math.atan2(Math.sqrt(bounded), Math.sqrt(1 - bounded));
+    return kilometres < 1 ? `${Math.round(kilometres * 1000)} m away` : `${kilometres.toFixed(1)} km away`;
   }
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();

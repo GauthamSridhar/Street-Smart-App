@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="860" viewBox="0 0 1440 860" role="img" aria-labelledby="title desc">
   <title id="title">Street Smart architecture overview</title>
-  <desc id="desc">Angular frontend reaches a gateway, which routes to six Spring Boot services. Each business service owns a PostgreSQL database and uses Eureka service discovery.</desc>
+  <desc id="desc">Angular frontend reaches a gateway, which routes to five business services. Each business service owns a PostgreSQL database and uses Eureka service discovery. For the corrected detailed topology, see portfolio/system-architecture.svg.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071724"/><stop offset="1" stop-color="#0c2736"/></linearGradient>
     <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#38d6b1"/><stop offset="1" stop-color="#5aa9ff"/></linearGradient>

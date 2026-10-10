@@ -3,14 +3,21 @@ import { LoginResponse } from '../model/loginResponse';
 export type Role = 'USER' | 'SHOPKEEPER' | 'ADMIN';
 @Injectable({ providedIn: 'root' })
 export class SessionService {
+  generation = 0;
+  get storedToken(): string | null {
+    return sessionStorage.getItem('tokenId');
+  }
   get token(): string | null {
     const token = sessionStorage.getItem('tokenId');
     if (!token) return null;
     try {
       const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
       const claims = JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, '=')));
-      if (!Number.isFinite(claims.exp) || claims.exp * 1000 <= Date.now())
-        throw new Error('Expired session');
+      if (!Number.isFinite(claims.exp)) throw new Error('Invalid session');
+      if (claims.exp * 1000 <= Date.now()) {
+        sessionStorage.removeItem('shopId');
+        return null;
+      }
       return token;
     } catch {
       this.clear();
@@ -36,6 +43,7 @@ export class SessionService {
     }
   }
   clear(): void {
+    this.generation++;
     for (const key of ['tokenId', 'id', 'role', 'username', 'shopId'])
       sessionStorage.removeItem(key);
   }

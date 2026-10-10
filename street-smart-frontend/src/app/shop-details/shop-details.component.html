@@ -1,9 +1,11 @@
 @if (isOpen && shop) {
   <div
+    role="dialog" aria-modal="true" aria-labelledby="shop-dialog-title"
+    cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="closeSidebar()"
     class="fixed right-0 top-0 z-50 flex h-[100dvh] w-full max-w-full flex-col border-l border-slate-200 bg-white text-slate-800 shadow-lift md:w-[450px]"
     >
     <div class="flex flex-shrink-0 items-center justify-between border-b border-slate-100 px-6 py-5">
-      <h2 class="flex items-center text-2xl font-bold text-ink-950">
+      <h2 id="shop-dialog-title" class="flex items-center text-2xl font-bold text-ink-950">
         {{ shop.name }}
         @if (canReview) {
           <i
@@ -24,10 +26,29 @@
         class="ss-btn-ghost shrink-0"
         (click)="closeSidebar()"
         aria-label="Close Shop Details"
+        cdkFocusInitial
         >
         Close ✖
       </button>
     </div>
+    <section class="mx-6 mt-3" aria-label="Driving distance">
+      @if (drivingDistance.configured) {
+        <button type="button" class="ss-btn-outline" [disabled]="drivingBusy"
+          (click)="calculateDrivingDistance()">
+          {{ drivingBusy ? 'Calculating route…' : 'Calculate driving distance' }}
+        </button>
+        <p class="text-sm mt-2">Uses your location to request a route from Google Maps.</p>
+      } @else {
+        <p class="text-sm">Driving estimates are unavailable. Open directions to plan your route.</p>
+      }
+      <div role="status" aria-live="polite">
+        @if (driving) {
+          <p>{{ driving.kilometres | number:'1.1-1' }} km driving · approximately {{ driving.minutes }} min</p>
+          <p class="text-sm">Google Maps route estimate. Live traffic is not included.</p>
+        }
+        @if (drivingMessage) { <p>{{ drivingMessage }}</p> }
+      </div>
+    </section>
     <div class="mt-2 flex-shrink-0 px-6">
       <p class="text-sm text-slate-500">{{ shop.address }}</p>
       <p class="text-sm text-slate-500">

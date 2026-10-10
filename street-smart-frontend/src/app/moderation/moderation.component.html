@@ -3,7 +3,7 @@
 @if (loading) { <p role="status" class="ss-alert-info">Loading reports...</p> }
 @if (error) { <p role="alert" class="ss-alert-error">{{ error }}</p> }
 @if (!loading && !reports.length) { <p class="ss-card p-6 text-slate-500">No open review reports.</p> }
-<button class="ss-btn-ghost mb-4" [disabled]="loading" (click)="load()">Refresh reports</button>
+<button class="ss-btn-ghost mb-4" [disabled]="loading || busy" (click)="load()">Refresh reports</button>
 <ul class="space-y-3">@for (report of reports; track report.id) {
   <li class="ss-card p-5">
     <p class="font-semibold text-ink-950">Reported review</p>
@@ -11,9 +11,16 @@
     <p class="mt-1 text-slate-600">Reason: {{ report.reason }}</p>
     <p class="mt-2 text-xs text-slate-500">Submitted {{ report.createdAt | date:'medium' }}</p>
     <div class="mt-4 flex gap-3">
-      <button class="ss-btn-ghost" [disabled]="busy" (click)="resolve(report.id, 'DISMISS')">Dismiss</button>
-      <button class="ss-btn-danger" [disabled]="busy" (click)="resolve(report.id, 'REMOVE')">Remove review</button>
+      <button class="ss-btn-ghost" [disabled]="busy || loading" (click)="resolve(report.id, 'DISMISS')">Dismiss</button>
+      <button class="ss-btn-danger" [disabled]="busy || loading" (click)="resolve(report.id, 'REMOVE')">Remove review</button>
     </div>
   </li>
 }</ul>
+@if (totalPages > 1) {
+  <nav class="ss-pager" aria-label="Report pages">
+    <button type="button" class="ss-btn-ghost" [disabled]="page === 0 || loading || busy" (click)="load(page - 1)">Previous</button>
+    <span>Page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} open reports</span>
+    <button type="button" class="ss-btn-ghost" [disabled]="page + 1 >= totalPages || loading || busy" (click)="load(page + 1)">Next</button>
+  </nav>
+}
 </div></main>

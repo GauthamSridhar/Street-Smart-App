@@ -4,6 +4,10 @@ Street Smart helps customers find products stocked by local shops, with optional
 map discovery, catalogues, reviews and favourites. Shopkeepers manage their shops;
 administrators review registration requests.
 
+For portfolio presentation, see the [detailed engineering case study](docs/PORTFOLIO_CASE_STUDY.md)
+with source-linked decisions, local verification data, architecture/workflow
+diagrams and actual desktop/mobile dashboard screenshots.
+
 ## Supported backend
 
 Java 17, Spring Boot 3.5, Spring Cloud 2025.0, PostgreSQL and an Angular frontend.
@@ -57,6 +61,12 @@ automatic baselining or delete a volume to hide a schema error.
 
 Session/moderation regression checks, isolated OTP browser acceptance and the
 local performance baseline are documented in [final code verification](docs/FINAL_CODE_VERIFICATION.md).
+The October 5 checks passed 62 frontend tests and 10 focused backend tests,
+isolated API/browser workflows and a separate live Maps check. The seeded local
+benchmark measured 1,000 successful requests over 1,203 catalogue products
+(workload p95 15.02–21.67 ms). Follow the report's isolated seed/reproduction
+commands; this short local run is not a capacity claim. Earlier full-reactor
+results remain dated historical evidence, not a cumulative test count.
 
 See [the dated verification report](docs/BACKEND_VERIFICATION.md) for observed
 test results, verified workflows and explicit limitations.
@@ -85,13 +95,24 @@ whole reactor and repeats the domain tests on PostgreSQL.
 
 Every domain service verifies signed JWTs, issuer, expiry and audience. A stable
 Base64-encoded key comes from `JWT_SECRET`; restarting a service no longer
-invalidates tokens. Access tokens last one hour by default. There is currently
-no refresh token: sign in again after expiry. Login persists a session; Compose
+invalidates tokens. Access tokens last one hour by default. Login sets an
+HttpOnly, SameSite=Strict refresh cookie and creates a session with a seven-day
+absolute lifetime. Refresh secrets rotate on use; only SHA-256 hashes are stored.
+Reusing a consumed secret revokes its session. Angular shares concurrent renewal
+requests and renews expired access before route activation or retries a protected
+401 once. Login is required again after session expiry or revocation. Compose
 domain services check it through User Service using `SESSION_VALIDATION_URL`.
 Logout revokes that session, and sensitive profile changes revoke all sessions
 in the same database transaction. Session validation fails closed on outages;
 this adds User Service availability and a bounded HTTP lookup to protected APIs.
 Standalone runs must configure that URL to enable cross-service revocation.
+
+Refresh uses `POST /api/users/refresh` with the cookie and
+`X-Requested-With: StreetSmart`, without an access token. Use the same-origin
+Angular proxy or Caddy setup. Set `REFRESH_COOKIE_SECURE=true` when using HTTPS;
+the HTTPS Compose overlay sets it automatically. The browser cookie is shared
+across tabs; concurrent tabs can trigger replay protection and require sign-in.
+See [session, driving-distance and accessibility verification](docs/LOCAL_FEATURE_VERIFICATION.md).
 
 Ownership comes from the signed subject, not a client-provided identifier.
 Public registration accepts only USER and SHOPKEEPER. Administrator bootstrapping

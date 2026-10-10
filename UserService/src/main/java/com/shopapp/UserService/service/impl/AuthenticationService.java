@@ -16,9 +16,15 @@ public class AuthenticationService {
   private final JwtUtil jwtUtil;
   private final UserRepository users;
   private final com.shopapp.UserService.repository.SessionRepository sessions;
+  private final RefreshTokens refresh;
 
   @org.springframework.transaction.annotation.Transactional
   public JwtToken authenticate(LoginRequest credentials) {
+    return authenticateWithRefresh(credentials).login();
+  }
+
+  @org.springframework.transaction.annotation.Transactional
+  public RefreshTokens.Issued authenticateWithRefresh(LoginRequest credentials) {
     String identifier = credentials.getIdentifier().trim().toLowerCase(Locale.ROOT);
     var user =
         users
@@ -30,12 +36,14 @@ public class AuthenticationService {
     session.setId(java.util.UUID.randomUUID());
     session.setUserId(user.getId());
     session.setCreatedAt(java.time.Instant.now());
-    session.setExpiresAt(java.time.Instant.now().plus(java.time.Duration.ofHours(24)));
+    session.setExpiresAt(java.time.Instant.now().plus(RefreshTokens.LIFETIME));
     sessions.saveAndFlush(session);
-    return new JwtToken(
-        jwtUtil.generateToken(user.getId(), user.getRole().name(), session.getId()),
-        user.getEmail(),
-        user.getRole().name(),
-        user.getId().toString());
+    return new RefreshTokens.Issued(
+        new JwtToken(
+            jwtUtil.generateToken(user.getId(), user.getRole().name(), session.getId()),
+            user.getEmail(),
+            user.getRole().name(),
+            user.getId().toString()),
+        refresh.issue(session.getId()));
   }
 }

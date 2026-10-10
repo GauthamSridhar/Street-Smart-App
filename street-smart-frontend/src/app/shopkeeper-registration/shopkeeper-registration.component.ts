@@ -1,6 +1,6 @@
 
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ShopRegistrationService } from '../services/shop-registration.service';
 import { Router } from '@angular/router';
 import { apiError } from '../services/api-error';
@@ -42,7 +42,7 @@ export class ShopkeeperRegistrationComponent {
     private router: Router,
   ) {}
 
-  onSubmit(form: any): void {
+  onSubmit(form: NgForm): void {
     if (this.busy) return;
     this.formError = '';
 

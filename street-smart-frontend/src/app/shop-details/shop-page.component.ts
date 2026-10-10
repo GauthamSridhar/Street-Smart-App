@@ -68,7 +68,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
   directions(shop: Shop): void {
     window.open(
       'https://www.google.com/maps/dir/?api=1&destination=' +
-        encodeURIComponent(shop.latitude + ',' + shop.longitude),
+        encodeURIComponent(shop.latitude + ',' + shop.longitude) + '&travelmode=driving',
       '_blank',
       'noopener,noreferrer',
     );

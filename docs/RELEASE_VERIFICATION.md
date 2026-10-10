@@ -1,11 +1,15 @@
 # Portfolio hardening verification - 2026-09-13
 
+> Historical snapshot. [Local verification](FINAL_CODE_VERIFICATION.md) records
+> the October 5 results. Dependency audits and backup/restore checks below were
+> not rerun in October; their results remain scoped to this September run.
+
 This file distinguishes local execution from deployment preparation.
 
 ## Observed checks
 
-- Active Maven reactor: PASS after dependency/config hardening. Current reports
-  contain 64 backend tests, no failures.
+- Active Maven reactor: PASS after dependency/config hardening. Reports from
+  this September run contained 64 backend tests, no failures.
 - Focused Shop Service verification covered fuzzy matching, opening hours,
   radius/price filters and PostgreSQL search extension migration.
 - Angular 21 production build: PASS, approximately 476 kB initial bundle.

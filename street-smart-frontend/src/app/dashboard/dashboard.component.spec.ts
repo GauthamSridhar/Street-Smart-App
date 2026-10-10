@@ -29,7 +29,7 @@ describe('DashboardComponent', () => {
     const open = spyOn(window, 'open');
     component.onNavigateToShop({ latitude: 10, longitude: 76 } as Shop);
     expect(open).toHaveBeenCalledWith(
-      'https://www.google.com/maps/dir/?api=1&destination=10%2C76',
+      'https://www.google.com/maps/dir/?api=1&destination=10%2C76&travelmode=driving',
       '_blank',
       'noopener,noreferrer',
     );

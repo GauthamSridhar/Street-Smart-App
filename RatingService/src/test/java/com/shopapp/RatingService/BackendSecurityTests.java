@@ -120,6 +120,37 @@ class BackendSecurityTests {
   }
 
   @Test
+  void reportPaginationIncludesItemsBeyondTheFirstHundred() throws Exception {
+    var rows = new ArrayList<com.shopapp.RatingService.model.ReviewReport>();
+    for (int i = 0; i < 105; i++) {
+      var report = new com.shopapp.RatingService.model.ReviewReport();
+      report.setId(UUID.randomUUID());
+      report.setRatingId(UUID.randomUUID());
+      report.setReporterId(UUID.randomUUID());
+      report.setReason("Report " + i);
+      report.setReviewSnapshot("Snapshot " + i);
+      report.setStatus("OPEN");
+      report.setCreatedAt(java.time.LocalDateTime.of(2026, 1, 1, 0, 0).plusSeconds(i));
+      rows.add(report);
+    }
+    reports.saveAllAndFlush(rows);
+    var admin = jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    mvc.perform(get("/api/ratings/reports").with(admin).param("page", "5").param("size", "20"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.totalElements").value(105))
+        .andExpect(jsonPath("$.totalPages").value(6))
+        .andExpect(jsonPath("$.content.length()").value(5))
+        .andExpect(jsonPath("$.content[0].reason").value("Report 100"));
+    for (String size : List.of("0", "101"))
+      mvc.perform(get("/api/ratings/reports").with(admin).param("size", size))
+          .andExpect(status().isBadRequest());
+    mvc.perform(get("/api/ratings/reports").with(admin).param("page", "-1"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get("/api/ratings/reports").with(admin).param("status", "UNKNOWN"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   void ratingCannotImpersonateAnotherUser() throws Exception {
     mvc.perform(
             post("/api/ratings/add")

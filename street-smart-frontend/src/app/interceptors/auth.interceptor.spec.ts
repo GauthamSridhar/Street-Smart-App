@@ -53,10 +53,11 @@ describe('API authentication boundary', () => {
     expect(req.request.headers.has('Authorization')).toBeFalse();
     req.flush({});
   });
-  it('clears expired sessions and redirects on a protected 401', () => {
+  it('clears expired sessions when renewal is rejected', () => {
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
     http.get('/api/shops').subscribe({ error: () => {} });
     controller.expectOne('/api/shops').flush({}, { status: 401, statusText: 'Unauthorized' });
+    controller.expectOne('/api/users/refresh').flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(session.token).toBeNull();
     expect(navigate).toHaveBeenCalled();
   });
@@ -67,5 +68,29 @@ describe('API authentication boundary', () => {
     session.save({ jwt: replacement, username: 'New', id: 'new-user', role: 'USER' });
     old.flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(session.token).toBe(replacement);
+  });
+  it('shares renewal across concurrent 401s and retries each request once', () => {
+    http.get('/api/shops').subscribe();
+    http.get('/api/products').subscribe();
+    controller.expectOne('/api/shops').flush({}, { status: 401, statusText: 'Unauthorized' });
+    controller.expectOne('/api/products').flush({}, { status: 401, statusText: 'Unauthorized' });
+    const refresh = controller.expectOne('/api/users/refresh');
+    expect(refresh.request.headers.get('X-Requested-With')).toBe('StreetSmart');
+    const replacement = token() + 'renewed';
+    refresh.flush({ jwt: replacement, id: 'user-id', role: 'USER', username: 'Test' });
+    for (const url of ['/api/shops', '/api/products']) {
+      const retry = controller.expectOne(url);
+      expect(retry.request.headers.get('Authorization')).toBe('Bearer ' + replacement);
+      retry.flush([]);
+    }
+  });
+  it('does not restore a session when logout happens during renewal', () => {
+    http.get('/api/shops').subscribe({ error: () => {} });
+    controller.expectOne('/api/shops').flush({}, { status: 401, statusText: 'Unauthorized' });
+    const refresh = controller.expectOne('/api/users/refresh');
+    session.clear();
+    refresh.flush({ jwt: token(), id: 'user-id', role: 'USER', username: 'Test' });
+    expect(session.storedToken).toBeNull();
+    controller.expectNone('/api/shops');
   });
 });

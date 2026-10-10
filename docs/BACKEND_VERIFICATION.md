@@ -1,5 +1,9 @@
 # Backend verification
 
+> Historical snapshot: this report preserves the 10 September 2026 run. For
+> latest dated local results and later session/moderation work, use
+> [FINAL_CODE_VERIFICATION.md](FINAL_CODE_VERIFICATION.md).
+
 Verified locally on 10 September 2026 with Java 17.0.18, Maven 3.9.9,
 PostgreSQL 16.15 and Docker Compose. These are observed local results,
 not a production certification or a claim that hosted CI has run.

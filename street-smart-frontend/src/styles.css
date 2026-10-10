@@ -245,3 +245,7 @@ input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
   opacity: 1;
 }
+
+.ss-skip-link { position: fixed; top: -100px; left: 16px; z-index: 10000; padding: 12px 18px; background: #fff; color: #20262b; border: 2px solid #875500; }
+.ss-skip-link:focus { top: 12px; }
+:focus-visible { outline: 3px solid #875500; outline-offset: 3px; }

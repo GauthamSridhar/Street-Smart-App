@@ -4,15 +4,18 @@
 > nearby shops, while giving shopkeepers catalogue controls and administrators
 > a reviewable onboarding and moderation workflow.
 
+For the expanded narrative, source-linked implementation details, measured data
+and downloadable visuals, see [PORTFOLIO_CASE_STUDY.md](PORTFOLIO_CASE_STUDY.md).
+
 | Project details | |
 | --- | --- |
 | Stack | Angular 21, Java 17, Spring Boot 3.5, Spring Cloud, PostgreSQL, Docker Compose |
-| Architecture | Gateway + six independently owned backend domains + service discovery |
+| Architecture | Gateway + five business-domain services + service discovery |
 | Primary users | Customers, shopkeepers, administrators |
 | Current delivery | Local Docker environment and an optional on-demand AWS EC2 lab |
 | Source of truth | This repository and its automated checks; no public production deployment is claimed |
 
-![Street Smart architecture overview](assets/architecture-overview.svg)
+![Street Smart architecture overview](assets/portfolio/system-architecture.svg)
 
 ## The problem
 
@@ -55,7 +58,7 @@ network.
 The image below is deliberately a logical view, not a claim of multi-region or
 high-availability infrastructure.
 
-![Street Smart service topology](assets/architecture-overview.svg)
+![Street Smart service topology](assets/portfolio/system-architecture.svg)
 
 ### Key design choices
 
@@ -76,7 +79,7 @@ pending-delivery flag together. A worker retries the request until the receiving
 service accepts it. Decisions include a revision, so an old delayed decision
 cannot overwrite a shopkeeper's newer resubmission.
 
-![Approval lifecycle](assets/approval-lifecycle.svg)
+![Approval lifecycle](assets/portfolio/approval-reliability.svg)
 
 This is **at-least-once delivery and eventual consistency**, not exactly-once
 delivery or a distributed transaction. That distinction is intentional and
@@ -105,18 +108,18 @@ observability services.
 The latest recorded local verification is in
 [FINAL_CODE_VERIFICATION.md](FINAL_CODE_VERIFICATION.md):
 
-- User Service: 19 passing tests
-- Rating Service: 6 passing tests
-- Shared backend: 3 passing tests
-- Angular production build: passing
-- Angular ChromeHeadless suite: 57 passing tests
-- Local empty-catalogue search baseline: 100 requests with four workers, zero
-  failures, p50 70.22 ms and p95 129.46 ms
+- Historical full nine-module Maven reactor (September 21): 65 passing tests
+- October 5 focused backend run: Rating Service 7 and backend-common 3 passing tests
+- October 5 Angular production build: passing
+- October 5 Angular ChromeHeadless suite: 62 passing tests
+- Seeded local search baseline: 1,203 catalogue products, five workloads,
+  1,000 measured requests with zero failures; p95 15.02–21.67 ms at four workers
 
-Those latency figures are a **local regression baseline**, not a production
-capacity or scalability claim. The isolated browser acceptance suite also
-exists, but should be rerun before recording a demo because its latest final
-visual recheck was blocked by an unresponsive local Docker runtime.
+Performance results are a **local regression baseline**, not a production
+capacity or scalability claim. The isolated browser acceptance checks also
+passed locally on 5 October 2026, including desktop/mobile role pages and a
+populated dashboard workflow. The configured live Google Map was checked
+separately. See the dated verification report for scope and results.
 
 ## Five-minute demo script
 
@@ -148,7 +151,7 @@ migrations, Docker-based operation and automated verification.
 ### Resume bullets
 
 - Built a Java/Spring Boot and Angular local-commerce platform with a gateway,
-  six domain services, independently owned PostgreSQL schemas and Docker-based
+  five domain services, independently owned PostgreSQL databases and Docker-based
   local operation.
 - Designed a product-first search API with filters, pagination and optional
   fuzzy matching, plus role-aware customer, shopkeeper and administrator flows.

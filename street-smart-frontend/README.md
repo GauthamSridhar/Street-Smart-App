@@ -9,7 +9,9 @@ root `.env` file before starting the Compose lab. The container renders it into
 `config.js` only at runtime. No backend secrets belong in browser configuration.
 
 See [frontend design and API contracts](../docs/FRONTEND_DESIGN.md).
-See [verified results and manual checklist](../docs/FRONTEND_VERIFICATION.md).
+See [latest local verification](../docs/FINAL_CODE_VERIFICATION.md) for dashboard,
+browser and test results. The [earlier frontend report](../docs/FRONTEND_VERIFICATION.md)
+is a historical snapshot.
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.2.
 
@@ -57,13 +59,15 @@ ng test
 
 ## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+For browser acceptance against the isolated Docker stack, follow the setup in
+[local verification](../docs/FINAL_CODE_VERIFICATION.md), then run here:
 
 ```bash
-ng e2e
+npm run test:visual
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+This repository provides its browser acceptance harness; `ng e2e` is not the
+configured verification entry point.
 
 ## Additional Resources
 

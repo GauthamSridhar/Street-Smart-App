@@ -9,4 +9,13 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'street-smart';
+  skipToContent(event: Event): void {
+    const main = document.querySelector('main');
+    if (main) {
+      event.preventDefault();
+      main.id = 'main-content';
+      main.setAttribute('tabindex', '-1');
+      main.focus();
+    }
+  }
 }

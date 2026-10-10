@@ -120,11 +120,15 @@ public class RatingServiceImpl implements RatingService {
   }
 
   @Transactional(readOnly = true)
-  public List<Map<String, Object>> reports(String status) {
+  public Page<Map<String, Object>> reports(String status, int page, int size) {
     Caller.role("ADMIN");
     if (!Set.of("OPEN", "DISMISSED", "REMOVED").contains(status))
       throw new IllegalArgumentException("Invalid report status");
-    return reports.findByStatusOrderByCreatedAtAsc(status, PageRequest.of(0, 100)).stream()
+    if (page < 0 || page > 10000 || size < 1 || size > 100)
+      throw new IllegalArgumentException("Invalid pagination");
+    return reports
+        .findByStatus(
+            status, PageRequest.of(page, size, Sort.by("createdAt").ascending().and(Sort.by("id"))))
         .map(
             r ->
                 Map.<String, Object>of(
@@ -139,8 +143,7 @@ public class RatingServiceImpl implements RatingService {
                     "status",
                     r.getStatus(),
                     "review",
-                    r.getReviewSnapshot()))
-        .toList();
+                    r.getReviewSnapshot()));
   }
 
   public void resolveReport(UUID reportId, String action) {

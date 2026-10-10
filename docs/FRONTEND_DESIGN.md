@@ -5,6 +5,19 @@ boundaries. The September 13 visual refresh builds on the existing ivory,
 charcoal and amber palette with a neighbourhood illustration, clearer product
 cards, consistent forms, and responsive navigation.
 
+## Customer dashboard cleanup: 2026-10-05
+
+The main view keeps product search, category and availability controls visible.
+Price, radius and typo matching live in a single expandable filter section,
+without duplicate hidden controls. Reset clears the query and availability
+state as well as optional filters. Product cards show straight-line distance
+when device location is available; search still works without that permission.
+
+The Angular build and 62 frontend tests passed. Populated desktop/mobile layouts,
+filter reset and location behavior were checked in the isolated browser flow.
+See [local verification](FINAL_CODE_VERIFICATION.md) for dated evidence and
+screenshots. Earlier counts below belong to the September refresh.
+
 ## Visual design and motion
 
 - The landing page uses a decorative neighbourhood illustration, not live map
@@ -52,8 +65,9 @@ dashboard/requests. It verifies a real register-and-login journey, role routing,
 visible page headings and the absence of horizontal overflow. Screenshots are
 written to the ignored `artifacts/visual-acceptance` directory for review.
 
-The suite uses fresh local demo accounts and the local administrator configured
-in `.env`; it never sends data outside the development stack. For an OTP-enabled
+The isolated suite uses fresh demo accounts and its dedicated administrator
+from `compose.e2e.yml`, not the normal administrator password in `.env`. Its OTP
+is local-only; live Maps validation separately contacts Google. For an OTP-enabled
 browser run, start the explicit E2E overlay and use its deterministic local-only
 code. The `e2e` Spring profile replaces Twilio only in that container, so this
 command must not be used for normal local work or deployment:
@@ -64,8 +78,10 @@ docker compose -p street-smart-e2e -f compose.yml -f compose.lab.yml -f compose.
 $env:VISUAL_BASE_URL = 'http://localhost:18088'
 $env:E2E_OFFLINE_MAPS = 'true'
 $env:E2E_OTP_CODE = '000000'
-Set-Location street-smart-frontend
-npm run test:visual
+Push-Location street-smart-frontend
+npm.cmd run test:visual
+Pop-Location
+docker compose -p street-smart-e2e -f compose.yml -f compose.lab.yml -f compose.e2e.yml stop
 ```
 
 The browser suite completes send, verify and registration with that code. The
@@ -114,8 +130,10 @@ distinct. Pagination operates over the database, not a downloaded first page.
 
 Results are lightweight projections: they do not hydrate whole shop catalogues
 or image bytes. The map deduplicates shops from the current result page. Product
-search and shop details work without a Maps key or location permission. No
-distance/radius ordering is claimed in this implementation.
+search and shop details work without a Maps key or location permission. With
+location, cards show straight-line estimates. Radius-filtered search orders by
+distance before product name, shop name and product ID; ordinary search uses
+product name, shop name and product ID ordering.
 
 ## Authentication and API contracts
 
@@ -180,7 +198,10 @@ text and rejected-shop resubmission. Logout calls the server before clearing the
 local session, and sensitive profile changes require sign-in again.
 
 PostgreSQL has a trigram index for substring queries and a coordinate prefilter
-for radius queries. Query cost and geographic scale still need measurement;
-there is no PostGIS claim. Per-product taxonomy, synonyms and automatic opening
-schedules are future product decisions. Manual browser acceptance, screenshots,
-provider credential revocation and an actual AWS deployment remain unverified.
+for radius queries. The seeded October 5 benchmark measures short local search
+workloads, not sustained capacity or geographic scale; there is no PostGIS claim.
+Automated desktop/mobile acceptance, populated screenshots and a separate live
+Maps check are recorded in [local verification](FINAL_CODE_VERIFICATION.md).
+Per-product taxonomy, synonyms and automatic opening schedules remain future
+product decisions. Provider credential revocation and AWS deployment are not
+claimed by this local pass.

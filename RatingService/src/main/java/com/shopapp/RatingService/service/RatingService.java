@@ -27,7 +27,8 @@ public interface RatingService {
 
   java.util.Map<String, Object> report(UUID ratingId, String reason);
 
-  List<java.util.Map<String, Object>> reports(String status);
+  org.springframework.data.domain.Page<java.util.Map<String, Object>> reports(
+      String status, int page, int size);
 
   void resolveReport(UUID reportId, String action);
 }

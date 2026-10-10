@@ -124,9 +124,11 @@ public class RatingController {
   }
 
   @GetMapping("/reports")
-  public List<java.util.Map<String, Object>> reports(
-      @RequestParam(defaultValue = "OPEN") String status) {
-    return ratingService.reports(status);
+  public org.springframework.data.domain.Page<java.util.Map<String, Object>> reports(
+      @RequestParam(defaultValue = "OPEN") String status,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size) {
+    return ratingService.reports(status, page, size);
   }
 
   @PostMapping("/reports/{reportId}/resolve")

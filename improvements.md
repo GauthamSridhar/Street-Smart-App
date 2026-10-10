@@ -1,6 +1,26 @@
 # Street Smart: Remaining Improvements
 
-## Current pass: 2026-09-13
+## Local additions: 2026-10-10
+
+Rotating refresh tokens, optional driving estimates and repeatable accessibility
+audits are implemented. See [feature verification](docs/LOCAL_FEATURE_VERIFICATION.md)
+for evidence, provider configuration and the limits of automated accessibility
+testing. Payments/orders are outside this product-discovery application's scope.
+
+## Latest local pass: 2026-10-05
+
+The five requested local tasks are complete: customer dashboard cleanup,
+local workflow acceptance, moderation pagination, seeded search benchmarking
+and this verification-document refresh. See
+[local verification](docs/FINAL_CODE_VERIFICATION.md) for reproduction commands,
+62 frontend tests, 10 focused backend tests, browser/Maps results and the raw
+1,000-request benchmark. The historical full backend count is not a fresh run.
+
+Real SMS was not exercised in this pass. Cloud deployment and production work
+are outside the requested local scope. The sections below preserve earlier
+reviews; their pending items are not a current completion checklist.
+
+## Historical pass: 2026-09-13
 
 The original review below is historical. Current work spans all eight requested
 areas; account actions and manual acceptance are not represented as completed.
@@ -87,7 +107,7 @@ limitations remain separate concerns.
   and richer search rules as explicit follow-up work; no UI restyling is needed
   to validate the current application design.
 
-## Further backend improvements after the current foundation
+## Historical further backend recommendations
 
 - Use asymmetric signing/workload identities if services cross independent
   trust boundaries. Current local services share signing/internal keys.

@@ -1,7 +1,8 @@
 # Street Smart engineering case study
 
 For the portfolio-ready narrative, original diagrams and copy-ready project
-summary, see [CASE_STUDY.md](CASE_STUDY.md). This document retains the detailed
+summary, see [PORTFOLIO_CASE_STUDY.md](PORTFOLIO_CASE_STUDY.md) and the shorter
+[CASE_STUDY.md](CASE_STUDY.md). This document retains the detailed
 demo workflow and architectural notes.
 
 ## Problem and users
@@ -85,6 +86,8 @@ captured from an actual verified run; none are fabricated in this document.
 - Added database-backed search filters, Flyway migrations, automated regression
   checks and Docker-based setup; prepared an on-demand EC2 learning deployment.
 
-Use the dated verification reports for test counts. Do not claim a hosted AWS
-deployment, high availability, load-test throughput, full browser acceptance or
-complete credential rotation until those actions are actually verified.
+Use [the latest local verification](FINAL_CODE_VERIFICATION.md) for scoped test
+counts, desktop/mobile browser checks and the seeded search benchmark. Describe
+throughput only with its dataset, worker count and short local workload; it does
+not establish sustained capacity. Do not claim hosted AWS deployment, high
+availability or complete credential rotation without separate evidence.

@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
+  testMatch: 'visual-acceptance.spec.mjs',
   timeout: 120_000,
   outputDir: '../artifacts/visual-acceptance',
   reporter: [['list']],

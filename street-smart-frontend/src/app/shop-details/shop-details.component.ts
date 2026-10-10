@@ -9,7 +9,10 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin, of, Subscription, Observable } from 'rxjs';
+import { forkJoin, of, Subscription, Observable, firstValueFrom, timeout } from 'rxjs';
+import { A11yModule } from '@angular/cdk/a11y';
+import { DrivingDistanceService, DrivingEstimate } from '../services/driving-distance.service';
+import { GeolocationService } from '../geolocation-service.service';
 import { Shop } from '../model/shop.model';
 import { Review } from '../model/review.model';
 import { ReviewService } from '../services/review.service';
@@ -20,7 +23,7 @@ import { ShopImageComponent } from './shop-image.component';
 @Component({
   selector: 'app-shop-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, ShopImageComponent],
+  imports: [CommonModule, FormsModule, ShopImageComponent, A11yModule],
   templateUrl: './shop-details.component.html',
   styleUrls: ['./shop-details.component.css'],
 })
@@ -45,11 +48,17 @@ export class ShopDetailsComponent implements OnChanges, OnDestroy {
   reportMessage = '';
   summary = { average: 0, count: 0 };
   reviewPage = 0;
+  driving: DrivingEstimate | null = null;
+  drivingBusy = false;
+  drivingMessage = '';
+  private drivingRequest = 0;
   private subscriptions = new Subscription();
   constructor(
     private reviewService: ReviewService,
     private favorites: FavoritesService,
     public session: SessionService,
+    public drivingDistance: DrivingDistanceService,
+    private geolocation: GeolocationService,
   ) {}
   get currentUserId(): string {
     return this.session.id;
@@ -62,6 +71,10 @@ export class ShopDetailsComponent implements OnChanges, OnDestroy {
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['shop'] && this.shop) {
+      this.drivingRequest++;
+      this.driving = null;
+      this.drivingBusy = false;
+      this.drivingMessage = '';
       this.subscriptions.unsubscribe();
       this.subscriptions = new Subscription();
       this.reviews = [];
@@ -109,6 +122,24 @@ export class ShopDetailsComponent implements OnChanges, OnDestroy {
         },
       }),
     );
+  }
+  async calculateDrivingDistance(): Promise<void> {
+    if (this.drivingBusy) return;
+    const request = ++this.drivingRequest;
+    const destination = { lat: this.shop.latitude, lng: this.shop.longitude };
+    this.drivingBusy = true;
+    this.driving = null;
+    this.drivingMessage = '';
+    try {
+      const origin = await firstValueFrom(this.geolocation.getCurrentLocation().pipe(timeout(15000)));
+      const estimate = await this.drivingDistance.estimate(origin, destination);
+      if (request === this.drivingRequest) this.driving = estimate;
+    } catch {
+      if (request === this.drivingRequest)
+        this.drivingMessage = 'Could not calculate a driving route. Allow location access or use Open directions.';
+    } finally {
+      if (request === this.drivingRequest) this.drivingBusy = false;
+    }
   }
   pageReviews(delta: number): void {
     if (this.loadingReviews) return;
@@ -227,6 +258,7 @@ export class ShopDetailsComponent implements OnChanges, OnDestroy {
     this.close.emit();
   }
   ngOnDestroy(): void {
+    this.drivingRequest++;
     this.subscriptions.unsubscribe();
   }
 }

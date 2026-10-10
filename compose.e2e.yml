@@ -11,3 +11,6 @@ services:
       SPRING_PROFILES_ACTIVE: e2e
       SMS_ENABLED: 'true'
       SMS_TEST_CODE: ${E2E_OTP_CODE:-000000}
+      ADMIN_EMAIL: acceptance-admin@example.test
+      ADMIN_PASSWORD: Acceptance-only-2026!
+      ADMIN_PHONE: '+919000000001'

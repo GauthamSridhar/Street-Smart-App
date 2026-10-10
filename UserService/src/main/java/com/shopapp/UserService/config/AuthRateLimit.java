@@ -22,6 +22,7 @@ public class AuthRateLimit extends OncePerRequestFilter {
     String path = req.getRequestURI();
     if (req.getMethod().equals("POST")
         && (path.equals("/api/users/login")
+            || path.equals("/api/users/refresh")
             || path.equals("/api/users/register")
             || path.equals("/api/sms/send")
             || path.equals("/api/sms/verify"))) {

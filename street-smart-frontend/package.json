@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:visual": "playwright test --config=playwright.visual.config.mjs"
+    "test:visual": "playwright test --config=playwright.visual.config.mjs",
+    "test:a11y": "npm run build && playwright test --config=playwright.accessibility.config.mjs"
   },
   "private": true,
   "dependencies": {
@@ -37,6 +38,7 @@
     "@angular/build": "^21.2.24",
     "@angular/cli": "^21.2.24",
     "@angular/compiler-cli": "^21.2.23",
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@types/google.maps": "^3.58.1",
     "@types/jasmine": "~5.1.0",

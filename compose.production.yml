@@ -30,6 +30,8 @@ services:
     environment:
       ALLOWED_ORIGINS: https://${PUBLIC_DOMAIN:?Set the deployment domain}
   users:
+    environment:
+      REFRESH_COOKIE_SECURE: 'true'
     mem_limit: 768m
     cpus: 1
   shops:

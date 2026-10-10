@@ -1,5 +1,8 @@
 server:
   port: ${PORT:8082}
+security:
+  refresh:
+    secure-cookie: ${REFRESH_COOKIE_SECURE:false}
 spring:
   config:
     import: classpath:backend-defaults.yml
@@ -10,7 +13,7 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 sms:
-  enabled: ${SMS_ENABLED:true}
+  enabled: ${SMS_ENABLED:false}
   account_sid: ${SMS_ACCOUNT_SID}
   auth_token: ${SMS_AUTH_TOKEN}
   from: ${SMS_FROM}
