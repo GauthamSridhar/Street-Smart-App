@@ -25,7 +25,7 @@ jobs:
           node-version: '24'
       - run: npm ci && npm audit --audit-level=high
         working-directory: street-smart-frontend
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
